@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { Header } from './Header';
+import { Footer } from './Footer';
 import { PRList } from './PRList';
 
 interface MainPageProps {
   onLogout: () => void;
+  onLogin: () => void;
+  isAuthenticated: boolean;
 }
 
-export function MainPage({ onLogout }: MainPageProps) {
+export function MainPage({ onLogout, onLogin, isAuthenticated }: MainPageProps) {
   const [searchConfig, setSearchConfig] = useState({
     author: 'renovate[bot]',
     owner: '',
@@ -34,9 +37,9 @@ export function MainPage({ onLogout }: MainPageProps) {
 
   if (!isConfigured) {
     return (
-      <>
-        <Header onLogout={onLogout} />
-        <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-base-200">
+      <div className="min-h-screen flex flex-col">
+        <Header onLogout={onLogout} onLogin={onLogin} isAuthenticated={isAuthenticated} />
+        <main className="flex-1 flex items-center justify-center bg-base-200 p-4">
           <div className="card w-full max-w-md bg-base-100 shadow-xl">
             <div className="card-body">
               <h2 className="card-title text-2xl">Configurar Busca</h2>
@@ -100,15 +103,19 @@ export function MainPage({ onLogout }: MainPageProps) {
               </form>
             </div>
           </div>
-        </div>
-      </>
+        </main>
+        <Footer />
+      </div>
     );
   }
 
   return (
-    <>
-      <Header onLogout={onLogout} />
-      <PRList searchQuery={buildSearchQuery()} />
-    </>
+    <div className="min-h-screen flex flex-col">
+      <Header onLogout={onLogout} onLogin={onLogin} isAuthenticated={isAuthenticated} />
+      <main className="flex-1">
+        <PRList searchQuery={buildSearchQuery()} />
+      </main>
+      <Footer />
+    </div>
   );
 }

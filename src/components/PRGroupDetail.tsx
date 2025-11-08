@@ -1,3 +1,4 @@
+import { ArrowLeft, Package, GitBranch, Tag, ExternalLink, Calendar, User } from 'react-feather';
 import { PRGroup } from '../types';
 
 interface PRGroupDetailProps {
@@ -24,23 +25,26 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
     <div className="container mx-auto p-4">
       <div className="mb-6">
         <button onClick={onBack} className="btn btn-ghost gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
-          </svg>
+          <ArrowLeft size={20} />
           Voltar
         </button>
       </div>
 
       <div className="card bg-base-100 shadow-xl mb-6">
         <div className="card-body">
-          <h1 className="card-title text-3xl">
+          <h1 className="card-title text-3xl flex items-center gap-3">
+            <Package size={32} className="text-primary" />
             <span className="font-mono text-primary">{group.package}</span>
           </h1>
-          <div className="text-base-content/70">
-            <p>Branch base: <span className="font-mono">{group.baseRef}</span></p>
-            <p className="mt-2">{group.count} pull requests neste grupo</p>
+          <div className="text-base-content/70 space-y-2">
+            <p className="flex items-center gap-2">
+              <GitBranch size={18} />
+              Branch base: <span className="font-mono">{group.baseRef}</span>
+            </p>
+            <p>{group.count} pull requests neste grupo</p>
             {group.labels.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-3">
+              <div className="flex flex-wrap gap-2 mt-3 items-center">
+                <Tag size={18} className="text-base-content/60" />
                 {group.labels.map((label) => (
                   <div key={label} className="badge badge-outline">
                     {label}
@@ -71,16 +75,33 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
               </div>
 
               <div className="text-sm text-base-content/60 mt-2">
-                <div className="flex flex-wrap gap-4">
-                  <span>Criado: {formatDate(pr.createdAt)}</span>
-                  <span>Atualizado: {formatDate(pr.updatedAt)}</span>
-                  {pr.mergedAt && <span>Merged: {formatDate(pr.mergedAt)}</span>}
-                  {pr.closedAt && !pr.mergedAt && <span>Fechado: {formatDate(pr.closedAt)}</span>}
+                <div className="flex flex-wrap gap-4 items-center">
+                  <span className="flex items-center gap-1">
+                    <Calendar size={14} />
+                    Criado: {formatDate(pr.createdAt)}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Calendar size={14} />
+                    Atualizado: {formatDate(pr.updatedAt)}
+                  </span>
+                  {pr.mergedAt && (
+                    <span className="flex items-center gap-1 text-info">
+                      <Calendar size={14} />
+                      Merged: {formatDate(pr.mergedAt)}
+                    </span>
+                  )}
+                  {pr.closedAt && !pr.mergedAt && (
+                    <span className="flex items-center gap-1 text-error">
+                      <Calendar size={14} />
+                      Fechado: {formatDate(pr.closedAt)}
+                    </span>
+                  )}
                 </div>
               </div>
 
               {pr.author && (
                 <div className="flex items-center gap-2 mt-2">
+                  <User size={16} className="text-base-content/60" />
                   <img
                     src={pr.author.avatarUrl}
                     alt={pr.author.login}
@@ -91,7 +112,8 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
               )}
 
               {pr.labels?.nodes && pr.labels.nodes.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-2">
+                <div className="flex flex-wrap gap-1 mt-2 items-center">
+                  <Tag size={14} className="text-base-content/60" />
                   {pr.labels.nodes.map((label) => (
                     <div
                       key={label.id}
@@ -109,8 +131,9 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
                   href={pr.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn btn-primary btn-sm"
+                  className="btn btn-primary btn-sm gap-2"
                 >
+                  <ExternalLink size={16} />
                   Abrir no GitHub
                 </a>
               </div>

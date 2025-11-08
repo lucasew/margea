@@ -1,5 +1,6 @@
 import { Suspense, useState } from 'react';
 import { useLazyLoadQuery } from 'react-relay';
+import { RefreshCw, Download, Filter, GitPullRequest, GitMerge, XCircle, CheckCircle, Folder } from 'react-feather';
 import { SearchPRsQuery } from '../queries/SearchPRsQuery';
 import { SearchPRsQuery as SearchPRsQueryType } from '../queries/__generated__/SearchPRsQuery.graphql';
 import { groupPullRequests, filterPullRequests, calculateStats } from '../services/prGrouping';
@@ -98,24 +99,39 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
   return (
     <div className="container mx-auto p-4">
       {/* Stats */}
-      <div className="stats shadow w-full mb-6">
+      <div className="stats shadow w-full mb-6 grid grid-cols-2 md:grid-cols-5">
         <div className="stat">
+          <div className="stat-figure text-primary">
+            <GitPullRequest size={32} />
+          </div>
           <div className="stat-title">Total PRs</div>
           <div className="stat-value text-primary">{stats.total}</div>
         </div>
         <div className="stat">
+          <div className="stat-figure text-success">
+            <CheckCircle size={32} />
+          </div>
           <div className="stat-title">Abertos</div>
           <div className="stat-value text-success">{stats.open}</div>
         </div>
         <div className="stat">
+          <div className="stat-figure text-info">
+            <GitMerge size={32} />
+          </div>
           <div className="stat-title">Merged</div>
           <div className="stat-value text-info">{stats.merged}</div>
         </div>
         <div className="stat">
+          <div className="stat-figure text-error">
+            <XCircle size={32} />
+          </div>
           <div className="stat-title">Fechados</div>
           <div className="stat-value text-error">{stats.closed}</div>
         </div>
         <div className="stat">
+          <div className="stat-figure text-base-content">
+            <Folder size={32} />
+          </div>
           <div className="stat-title">Repositórios</div>
           <div className="stat-value">{stats.repositories}</div>
         </div>
@@ -124,6 +140,10 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
       {/* Filters and Actions */}
       <div className="card bg-base-100 shadow-md mb-6">
         <div className="card-body">
+          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <Filter size={20} />
+            Filtros e Ações
+          </h3>
           <div className="flex flex-wrap gap-4">
             <div className="form-control flex-1 min-w-[200px]">
               <label className="label">
@@ -155,13 +175,15 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
             </div>
 
             <div className="form-control self-end">
-              <button onClick={onRefresh} className="btn btn-primary">
-                Atualizar Dados
+              <button onClick={onRefresh} className="btn btn-primary gap-2">
+                <RefreshCw size={18} />
+                Atualizar
               </button>
             </div>
 
             <div className="form-control self-end">
-              <button onClick={handleExportJSON} className="btn btn-secondary">
+              <button onClick={handleExportJSON} className="btn btn-secondary gap-2">
+                <Download size={18} />
                 Exportar JSON
               </button>
             </div>

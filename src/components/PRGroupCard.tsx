@@ -1,3 +1,4 @@
+import { Package, GitBranch, Tag } from 'react-feather';
 import { PRGroup } from '../types';
 
 interface PRGroupCardProps {
@@ -20,15 +21,20 @@ export function PRGroupCard({ group, onExpand }: PRGroupCardProps) {
   return (
     <div className="card bg-base-100 shadow-md hover:shadow-lg transition-shadow cursor-pointer" onClick={() => onExpand(group)}>
       <div className="card-body">
-        <h2 className="card-title">
-          <span className="font-mono text-primary">{group.package}</span>
+        <h2 className="card-title flex items-center gap-2">
+          <Package size={20} className="text-primary" />
+          <span className="font-mono text-primary flex-1">{group.package}</span>
           <div className="badge badge-neutral">{group.count} PR{group.count > 1 ? 's' : ''}</div>
         </h2>
 
         <div className="text-sm text-base-content/70">
-          <p>Branch base: <span className="font-mono">{group.baseRef}</span></p>
+          <p className="flex items-center gap-2">
+            <GitBranch size={16} />
+            Branch base: <span className="font-mono">{group.baseRef}</span>
+          </p>
           {group.labels.length > 0 && (
-            <div className="flex flex-wrap gap-1 mt-2">
+            <div className="flex flex-wrap gap-1 mt-2 items-center">
+              <Tag size={14} className="text-base-content/60" />
               {group.labels.map((label) => (
                 <div key={label} className="badge badge-sm badge-outline">
                   {label}
