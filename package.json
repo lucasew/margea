@@ -28,7 +28,7 @@
     "relay-compiler": "^16.1.0",
     "tailwindcss": "^4.0.0",
     "typescript": "^5.3.3",
-    "vite": "^5.0.8",
+    "vite": "^7.0.0",
     "vite-plugin-relay": "^2.1.0"
   }
 }
