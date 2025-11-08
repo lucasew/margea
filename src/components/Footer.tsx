@@ -11,7 +11,9 @@ export function Footer() {
           {/* Brand Section */}
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-2">
-              <Logo size={32} className="text-primary" />
+              <div className="w-8 h-8 text-primary flex-shrink-0">
+                <Logo size={32} className="text-primary" />
+              </div>
               <span className="font-bold text-lg">Margea</span>
             </div>
             <p className="text-sm text-base-content/70">
@@ -63,7 +65,7 @@ export function Footer() {
         <div className="divider my-6"></div>
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-base-content/60">
           <p className="flex items-center gap-1">
-            Feito com <Heart size={14} className="text-error fill-error" /> usando React e GitHub API
+            Feito com <span className="w-[14px] h-[14px] text-error"><Heart size={14} className="text-error fill-error" /></span> usando React e GitHub API
           </p>
           <p>&copy; {currentYear} Margea. Todos os direitos reservados.</p>
         </div>
