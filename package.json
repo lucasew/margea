@@ -16,6 +16,7 @@
     "relay-runtime": "^20.0.0"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.17",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@types/react-relay": "^18.2.1",
