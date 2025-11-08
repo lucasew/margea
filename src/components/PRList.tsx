@@ -29,28 +29,47 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
   // Transform Relay data to our PullRequest type
   const prs: PullRequest[] = (data.search.edges || [])
     .map(edge => edge?.node)
-    .filter((node): node is NonNullable<typeof node> => node != null)
+    .filter((node): node is NonNullable<typeof node> =>
+      node != null &&
+      node.id != null &&
+      node.number != null &&
+      node.title != null &&
+      node.state != null &&
+      node.createdAt != null &&
+      node.updatedAt != null &&
+      node.url != null &&
+      node.baseRefName != null &&
+      node.headRefName != null &&
+      node.repository != null
+    )
     .map(pr => ({
-      id: pr.id,
-      number: pr.number,
-      title: pr.title,
-      body: pr.body,
+      id: pr.id!,
+      number: pr.number!,
+      title: pr.title!,
+      body: pr.body ?? null,
       state: pr.state as 'OPEN' | 'CLOSED' | 'MERGED',
-      createdAt: pr.createdAt,
-      updatedAt: pr.updatedAt,
-      mergedAt: pr.mergedAt,
-      closedAt: pr.closedAt,
-      url: pr.url,
-      baseRefName: pr.baseRefName,
-      headRefName: pr.headRefName,
+      createdAt: pr.createdAt!,
+      updatedAt: pr.updatedAt!,
+      mergedAt: pr.mergedAt ?? null,
+      closedAt: pr.closedAt ?? null,
+      url: pr.url!,
+      baseRefName: pr.baseRefName!,
+      headRefName: pr.headRefName!,
       author: pr.author ? {
         login: pr.author.login,
         avatarUrl: pr.author.avatarUrl,
       } : null,
       labels: pr.labels ? {
-        nodes: pr.labels.nodes || [],
+        nodes: (pr.labels.nodes || [])
+          .filter((node): node is NonNullable<typeof node> => node != null)
+          .map(node => ({
+            id: node.id,
+            name: node.name,
+            color: node.color,
+            description: node.description ?? null,
+          })),
       } : null,
-      repository: pr.repository,
+      repository: pr.repository!,
     }));
 
   const filteredPrs = filterPullRequests(prs, {
