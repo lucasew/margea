@@ -23,8 +23,7 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
     {
       searchQuery,
       first: 100,
-    },
-    { fetchPolicy: 'network-only' }
+    }
   );
 
   // Transform Relay data to our PullRequest type
