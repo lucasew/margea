@@ -22,7 +22,7 @@
     "@types/relay-runtime": "^16.0.3",
     "@vitejs/plugin-react": "^5.0.0",
     "autoprefixer": "^10.4.16",
-    "babel-plugin-relay": "^16.1.0",
+    "babel-plugin-relay": "^20.0.0",
     "daisyui": "^4.4.24",
     "postcss": "^8.4.32",
     "relay-compiler": "^16.1.0",
