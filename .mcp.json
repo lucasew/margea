@@ -6,6 +6,10 @@
         "-y",
         "@angiejones/mcp-selenium"
       ]
+    },
+    "context7": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp"
     }
   }
 }
