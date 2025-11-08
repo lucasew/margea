@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AlertCircle, Search, User, GitBranch } from 'react-feather';
+import { Search } from 'react-feather';
 import { Header } from './Header';
 import { Footer } from './Footer';
 import { PRList } from './PRList';
@@ -32,49 +32,26 @@ export function MainPage({ onLogout, onLogin, isAuthenticated }: MainPageProps) 
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-base-200">
       <Header onLogout={onLogout} onLogin={onLogin} isAuthenticated={isAuthenticated} />
 
-      {!isAuthenticated && (
-        <div className="bg-warning/10 border-b border-warning/30">
-          <div className="container mx-auto px-4 py-3">
-            <div className="flex items-center gap-3 text-warning-content">
-              <span className="w-5 h-5 flex-shrink-0">
-                <AlertCircle size={20} className="flex-shrink-0" />
-              </span>
-              <div className="flex-1">
-                <p className="text-sm font-semibold">Modo não autenticado</p>
-                <p className="text-xs opacity-80">
-                  Você está usando a API do GitHub sem autenticação. Limite de 60 requisições/hora.
-                  <button
-                    onClick={onLogin}
-                    className="ml-2 underline hover:no-underline font-semibold"
-                  >
-                    Fazer login
-                  </button>{' '}
-                  para aumentar para 5000 req/hora.
-                </p>
-              </div>
-            </div>
-          </div>
+      <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-5xl font-bold">Margea</h1>
+          <p className="text-lg text-base-content/70 max-w-2xl mx-auto mt-4">
+            Encontre e agrupe Pull Requests do Renovate Bot de forma inteligente.
+          </p>
         </div>
-      )}
 
-      <main className="flex-1 container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
-          <div className="md:col-span-1 lg:col-span-1">
-            <div className="card bg-base-100 shadow-xl">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <div className="lg:col-span-3">
+            <div className="card bg-base-100 border border-base-300 shadow-sm">
               <div className="card-body">
-                <h2 className="card-title text-2xl mb-6">Configurar Busca</h2>
-
+                <h2 className="card-title text-xl mb-4">Busca</h2>
                 <form onSubmit={handleConfigure} className="space-y-4">
-                  {/* Author Field */}
                   <div className="form-control">
                     <label className="label">
-                      <span className="label-text font-semibold flex items-center gap-2">
-                        <User size={16} className="text-primary" />
-                        Autor (bot)
-                      </span>
+                      <span className="label-text font-medium">Autor</span>
                     </label>
                     <input
                       type="text"
@@ -88,13 +65,9 @@ export function MainPage({ onLogout, onLogin, isAuthenticated }: MainPageProps) 
                     />
                   </div>
 
-                  {/* Owner Field */}
                   <div className="form-control">
                     <label className="label">
-                      <span className="label-text font-semibold flex items-center gap-2">
-                        <GitBranch size={16} className="text-primary" />
-                        Owner/Organização
-                      </span>
+                      <span className="label-text font-medium">Owner/Organização</span>
                     </label>
                     <input
                       type="text"
@@ -107,13 +80,9 @@ export function MainPage({ onLogout, onLogin, isAuthenticated }: MainPageProps) 
                     />
                   </div>
 
-                  {/* Repository Field */}
                   <div className="form-control">
                     <label className="label">
-                      <span className="label-text font-semibold flex items-center gap-2">
-                        <GitBranch size={16} className="text-primary" />
-                        Repositório
-                      </span>
+                      <span className="label-text font-medium">Repositório</span>
                     </label>
                     <input
                       type="text"
@@ -127,10 +96,9 @@ export function MainPage({ onLogout, onLogin, isAuthenticated }: MainPageProps) 
                     />
                   </div>
 
-                  {/* Submit Button */}
-                  <div className="card-actions justify-end mt-6">
+                  <div className="card-actions justify-end pt-4">
                     <button type="submit" className="btn btn-primary w-full gap-2">
-                      <Search size={20} />
+                      <Search size={18} />
                       Buscar
                     </button>
                   </div>
@@ -139,16 +107,18 @@ export function MainPage({ onLogout, onLogin, isAuthenticated }: MainPageProps) 
             </div>
           </div>
 
-          <div className="md:col-span-2 lg:col-span-3">
+          <div className="lg:col-span-9">
             {searchQuery ? (
               <PRList searchQuery={searchQuery} />
             ) : (
-              <div className="flex flex-col items-center justify-center h-full text-center text-base-content/50">
-                <div className="mb-4">
+              <div className="flex flex-col items-center justify-center h-full rounded-lg bg-base-100 border border-base-300 p-8 text-center">
+                <div className="text-primary mb-4">
                   <Search size={48} />
                 </div>
-                <h2 className="text-2xl font-bold mb-2">Nenhuma busca realizada</h2>
-                <p>Configure os parâmetros à esquerda e clique em "Buscar".</p>
+                <h2 className="text-2xl font-bold mb-2">Realize uma busca</h2>
+                <p className="text-base-content/70">
+                  Utilize o formulário à esquerda para encontrar os Pull Requests.
+                </p>
               </div>
             )}
           </div>
