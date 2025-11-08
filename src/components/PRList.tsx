@@ -97,116 +97,132 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
   }
 
   return (
-    <div className="container mx-auto p-4">
-      {/* Stats */}
-      <div className="stats shadow w-full mb-6 grid grid-cols-2 md:grid-cols-5">
-        <div className="stat">
-          <div className="stat-figure text-primary">
-            <GitPullRequest size={32} />
+    <div className="w-full">
+      <div className="container mx-auto px-4 py-6 max-w-7xl">
+        {/* Stats */}
+        <div className="stats stats-vertical lg:stats-horizontal shadow-lg w-full mb-6 bg-base-100">
+          <div className="stat place-items-center">
+            <div className="stat-figure text-primary">
+              <GitPullRequest size={40} />
+            </div>
+            <div className="stat-title">Total PRs</div>
+            <div className="stat-value text-primary">{stats.total}</div>
           </div>
-          <div className="stat-title">Total PRs</div>
-          <div className="stat-value text-primary">{stats.total}</div>
-        </div>
-        <div className="stat">
-          <div className="stat-figure text-success">
-            <CheckCircle size={32} />
+
+          <div className="stat place-items-center">
+            <div className="stat-figure text-success">
+              <CheckCircle size={40} />
+            </div>
+            <div className="stat-title">Abertos</div>
+            <div className="stat-value text-success">{stats.open}</div>
           </div>
-          <div className="stat-title">Abertos</div>
-          <div className="stat-value text-success">{stats.open}</div>
-        </div>
-        <div className="stat">
-          <div className="stat-figure text-info">
-            <GitMerge size={32} />
+
+          <div className="stat place-items-center">
+            <div className="stat-figure text-info">
+              <GitMerge size={40} />
+            </div>
+            <div className="stat-title">Merged</div>
+            <div className="stat-value text-info">{stats.merged}</div>
           </div>
-          <div className="stat-title">Merged</div>
-          <div className="stat-value text-info">{stats.merged}</div>
-        </div>
-        <div className="stat">
-          <div className="stat-figure text-error">
-            <XCircle size={32} />
+
+          <div className="stat place-items-center">
+            <div className="stat-figure text-error">
+              <XCircle size={40} />
+            </div>
+            <div className="stat-title">Fechados</div>
+            <div className="stat-value text-error">{stats.closed}</div>
           </div>
-          <div className="stat-title">Fechados</div>
-          <div className="stat-value text-error">{stats.closed}</div>
-        </div>
-        <div className="stat">
-          <div className="stat-figure text-base-content">
-            <Folder size={32} />
+
+          <div className="stat place-items-center">
+            <div className="stat-figure text-base-content">
+              <Folder size={40} />
+            </div>
+            <div className="stat-title">Repositórios</div>
+            <div className="stat-value">{stats.repositories}</div>
           </div>
-          <div className="stat-title">Repositórios</div>
-          <div className="stat-value">{stats.repositories}</div>
         </div>
+
+        {/* Filters and Actions */}
+        <div className="card bg-base-100 shadow-lg mb-6">
+          <div className="card-body">
+            <h3 className="card-title mb-4">
+              <Filter size={20} />
+              Filtros e Ações
+            </h3>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+              <div className="form-control lg:col-span-5">
+                <label className="label">
+                  <span className="label-text font-semibold">Filtrar por repositório</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="ex: owner/repo"
+                  className="input input-bordered w-full"
+                  value={filterRepo}
+                  onChange={(e) => setFilterRepo(e.target.value)}
+                />
+              </div>
+
+              <div className="form-control lg:col-span-3">
+                <label className="label">
+                  <span className="label-text font-semibold">Status</span>
+                </label>
+                <select
+                  className="select select-bordered w-full"
+                  value={filterState}
+                  onChange={(e) => setFilterState(e.target.value as any)}
+                >
+                  <option value="ALL">Todos</option>
+                  <option value="OPEN">Abertos</option>
+                  <option value="MERGED">Merged</option>
+                  <option value="CLOSED">Fechados</option>
+                </select>
+              </div>
+
+              <div className="form-control lg:col-span-4">
+                <label className="label">
+                  <span className="label-text opacity-0">Ações</span>
+                </label>
+                <div className="join w-full">
+                  <button onClick={onRefresh} className="btn btn-primary join-item flex-1">
+                    <RefreshCw size={18} />
+                    Atualizar
+                  </button>
+
+                  <button onClick={handleExportJSON} className="btn btn-secondary join-item flex-1">
+                    <Download size={18} />
+                    Exportar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Groups */}
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold flex items-center gap-3">
+            Grupos de PRs
+            <div className="badge badge-lg badge-neutral">{groups.length}</div>
+          </h2>
+        </div>
+
+        {groups.length === 0 ? (
+          <div role="alert" className="alert alert-info shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span>Nenhum PR encontrado com os filtros aplicados.</span>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {groups.map((group) => (
+              <PRGroupCard key={group.key} group={group} onExpand={setSelectedGroup} />
+            ))}
+          </div>
+        )}
       </div>
-
-      {/* Filters and Actions */}
-      <div className="card bg-base-100 shadow-md mb-6">
-        <div className="card-body">
-          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <Filter size={20} />
-            Filtros e Ações
-          </h3>
-          <div className="flex flex-wrap gap-4">
-            <div className="form-control flex-1 min-w-[200px]">
-              <label className="label">
-                <span className="label-text">Filtrar por repositório</span>
-              </label>
-              <input
-                type="text"
-                placeholder="ex: owner/repo"
-                className="input input-bordered"
-                value={filterRepo}
-                onChange={(e) => setFilterRepo(e.target.value)}
-              />
-            </div>
-
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text">Status</span>
-              </label>
-              <select
-                className="select select-bordered"
-                value={filterState}
-                onChange={(e) => setFilterState(e.target.value as any)}
-              >
-                <option value="ALL">Todos</option>
-                <option value="OPEN">Abertos</option>
-                <option value="MERGED">Merged</option>
-                <option value="CLOSED">Fechados</option>
-              </select>
-            </div>
-
-            <div className="form-control self-end">
-              <button onClick={onRefresh} className="btn btn-primary gap-2">
-                <RefreshCw size={18} />
-                Atualizar
-              </button>
-            </div>
-
-            <div className="form-control self-end">
-              <button onClick={handleExportJSON} className="btn btn-secondary gap-2">
-                <Download size={18} />
-                Exportar JSON
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Groups */}
-      <div className="mb-4">
-        <h2 className="text-2xl font-bold">Grupos de PRs ({groups.length})</h2>
-      </div>
-
-      {groups.length === 0 ? (
-        <div className="alert alert-info">
-          <span>Nenhum PR encontrado com os filtros aplicados.</span>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {groups.map((group) => (
-            <PRGroupCard key={group.key} group={group} onExpand={setSelectedGroup} />
-          ))}
-        </div>
-      )}
     </div>
   );
 }
@@ -225,8 +241,9 @@ export function PRList({ searchQuery }: PRListProps) {
   return (
     <Suspense
       fallback={
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="loading loading-spinner loading-lg"></div>
+        <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+          <span className="loading loading-spinner loading-lg text-primary"></span>
+          <p className="text-lg text-base-content/70">Carregando Pull Requests...</p>
         </div>
       }
     >
