@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AlertCircle } from 'react-feather';
+import { AlertCircle, Search, User, GitBranch } from 'react-feather';
 import { Header } from './Header';
 import { Footer } from './Footer';
 import { PRList } from './PRList';
@@ -38,70 +38,121 @@ export function MainPage({ onLogout, onLogin, isAuthenticated }: MainPageProps) 
 
   if (!isConfigured) {
     return (
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-screen flex flex-col bg-gradient-to-br from-base-200 via-base-100 to-base-200">
         <Header onLogout={onLogout} onLogin={onLogin} isAuthenticated={isAuthenticated} />
-        <main className="flex-1 flex items-center justify-center bg-base-200 p-4">
-          <div className="card w-full max-w-md bg-base-100 shadow-xl">
-            <div className="card-body">
-              <h2 className="card-title text-2xl">Configurar Busca</h2>
-              <p className="text-base-content/70 mb-4">
-                Configure os parâmetros para buscar PRs do Renovate
+        <main className="flex-1 flex items-center justify-center p-4 py-12">
+          <div className="w-full max-w-2xl">
+            {/* Hero Section */}
+            <div className="text-center mb-8 space-y-3">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-2xl mb-4">
+                <Search className="text-primary" size={32} />
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold text-base-content">
+                Configurar Busca de PRs
+              </h2>
+              <p className="text-base-content/70 text-lg max-w-xl mx-auto">
+                Configure os parâmetros para encontrar e agrupar Pull Requests do Renovate Bot
               </p>
+            </div>
 
-              <form onSubmit={handleConfigure}>
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text">Autor (bot)</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="renovate[bot]"
-                    className="input input-bordered"
-                    value={searchConfig.author}
-                    onChange={(e) => setSearchConfig({ ...searchConfig, author: e.target.value })}
-                    required
-                  />
-                </div>
+            {/* Form Card */}
+            <div className="card bg-base-100 shadow-2xl border border-base-300">
+              <div className="card-body p-6 md:p-8">
+                <form onSubmit={handleConfigure} className="space-y-6">
+                  {/* Author Field */}
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text font-semibold flex items-center gap-2">
+                        <User size={16} className="text-primary" />
+                        Autor (bot)
+                      </span>
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="renovate[bot]"
+                      className="input input-bordered input-lg focus:input-primary"
+                      value={searchConfig.author}
+                      onChange={(e) => setSearchConfig({ ...searchConfig, author: e.target.value })}
+                      required
+                    />
+                  </div>
 
-                <div className="form-control mt-4">
-                  <label className="label">
-                    <span className="label-text">Owner/Organização (opcional)</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="ex: facebook"
-                    className="input input-bordered"
-                    value={searchConfig.owner}
-                    onChange={(e) => setSearchConfig({ ...searchConfig, owner: e.target.value })}
-                  />
-                  <label className="label">
-                    <span className="label-text-alt">Deixe vazio para buscar em todos os seus repositórios</span>
-                  </label>
-                </div>
+                  {/* Owner Field */}
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text font-semibold flex items-center gap-2">
+                        <GitBranch size={16} className="text-primary" />
+                        Owner/Organização
+                        <span className="badge badge-sm badge-ghost">opcional</span>
+                      </span>
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="ex: facebook"
+                      className="input input-bordered input-lg focus:input-primary"
+                      value={searchConfig.owner}
+                      onChange={(e) => setSearchConfig({ ...searchConfig, owner: e.target.value })}
+                    />
+                    <label className="label">
+                      <span className="label-text-alt text-base-content/60">
+                        Deixe vazio para buscar em todos os seus repositórios
+                      </span>
+                    </label>
+                  </div>
 
-                <div className="form-control mt-4">
-                  <label className="label">
-                    <span className="label-text">Repositório específico (opcional)</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="ex: react"
-                    className="input input-bordered"
-                    value={searchConfig.repo}
-                    onChange={(e) => setSearchConfig({ ...searchConfig, repo: e.target.value })}
-                    disabled={!searchConfig.owner}
-                  />
-                  <label className="label">
-                    <span className="label-text-alt">Requer owner/organização</span>
-                  </label>
-                </div>
+                  {/* Repository Field */}
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text font-semibold flex items-center gap-2">
+                        <GitBranch size={16} className="text-primary" />
+                        Repositório específico
+                        <span className="badge badge-sm badge-ghost">opcional</span>
+                      </span>
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="ex: react"
+                      className="input input-bordered input-lg focus:input-primary disabled:bg-base-200"
+                      value={searchConfig.repo}
+                      onChange={(e) => setSearchConfig({ ...searchConfig, repo: e.target.value })}
+                      disabled={!searchConfig.owner}
+                    />
+                    <label className="label">
+                      <span className="label-text-alt text-base-content/60">
+                        Requer owner/organização
+                      </span>
+                    </label>
+                  </div>
 
-                <div className="card-actions justify-end mt-6">
-                  <button type="submit" className="btn btn-primary w-full">
-                    Buscar PRs
-                  </button>
+                  {/* Submit Button */}
+                  <div className="pt-4">
+                    <button type="submit" className="btn btn-primary btn-lg w-full gap-2 shadow-lg">
+                      <Search size={20} />
+                      Buscar Pull Requests
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            {/* Info Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+              <div className="card bg-base-100/50 backdrop-blur border border-base-300/50">
+                <div className="card-body p-4">
+                  <h3 className="font-semibold text-sm">Busca Inteligente</h3>
+                  <p className="text-xs text-base-content/70">
+                    Encontre e agrupe PRs por pacote, versão e branch base
+                  </p>
                 </div>
-              </form>
+              </div>
+              <div className="card bg-base-100/50 backdrop-blur border border-base-300/50">
+                <div className="card-body p-4">
+                  <h3 className="font-semibold text-sm">Análise Completa</h3>
+                  <p className="text-xs text-base-content/70">
+                    Visualize estatísticas e detalhes de cada grupo de PRs
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </main>
