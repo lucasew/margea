@@ -1,9 +1,10 @@
 {
   "mcpServers": {
-    "playwright": {
+    "selenium": {
       "command": "npx",
       "args": [
-        "@playwright/mcp@latest"
+        "-y",
+        "@angiejones/mcp-selenium"
       ]
     }
   }
