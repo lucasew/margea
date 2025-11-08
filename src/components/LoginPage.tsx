@@ -30,10 +30,9 @@ export function LoginPage({ onLogin, onSkip }: LoginPageProps) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-base-200">
+    <div className="min-h-screen flex flex-col bg-base-100">
       <main className="flex-1 flex items-center justify-center p-4">
-        <div className="card w-full max-w-md bg-base-100 shadow-xl">
-          <div className="card-body">
+        <div className="w-full max-w-md border border-base-300 rounded-lg p-8 bg-base-100">
             <div className="flex flex-col items-center mb-4">
               <Logo size={64} className="text-primary mb-3" />
               <h1 className="text-3xl font-bold mb-2">Margea</h1>
@@ -76,7 +75,7 @@ export function LoginPage({ onLogin, onSkip }: LoginPageProps) {
                 </div>
               )}
 
-              <div className="card-actions justify-end mt-6 gap-2">
+              <div className="flex justify-end mt-6 gap-2">
                 {onSkip && (
                   <button type="button" onClick={onSkip} className="btn btn-ghost flex-1">
                     Continuar sem token
@@ -106,7 +105,6 @@ export function LoginPage({ onLogin, onSkip }: LoginPageProps) {
                 <li>Copie e cole o token aqui</li>
               </ol>
             </div>
-          </div>
         </div>
       </main>
       <Footer />

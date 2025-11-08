@@ -35,12 +35,11 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
         </div>
 
         {/* Group Header */}
-        <div className="card bg-base-100 shadow-xl mb-6 border border-base-300">
-          <div className="card-body">
-            <h1 className="card-title text-2xl md:text-3xl">
-              <Package size={32} className="text-primary" />
-              <span className="font-mono">{group.package}</span>
-            </h1>
+        <div className="border border-base-300 rounded-lg p-6 mb-8 bg-base-100">
+          <div className="flex items-center gap-4 mb-6">
+            <Package size={32} className="text-primary flex-shrink-0" />
+            <h1 className="text-3xl md:text-4xl font-bold font-mono break-all">{group.package}</h1>
+          </div>
 
             <div className="divider my-2"></div>
 
@@ -72,18 +71,16 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
                 </div>
               </>
             )}
-          </div>
         </div>
 
         {/* PRs List */}
         <div className="space-y-4">
           {group.prs.map((pr) => (
-            <div key={pr.id} className="card bg-base-100 shadow-md border border-base-300 hover:shadow-lg transition-shadow">
-              <div className="card-body">
+            <div key={pr.id} className="border border-base-300 rounded-lg p-6 hover:border-primary/30 transition-all bg-base-100">
                 {/* PR Header */}
-                <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-3">
+                <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-3 mb-4">
                   <div className="flex-1 min-w-0">
-                    <h3 className="card-title text-base md:text-lg break-words">
+                    <h3 className="text-lg md:text-xl font-bold break-words">
                       {pr.title}
                     </h3>
                     <div className="flex flex-wrap items-center gap-2 mt-2 text-sm text-base-content/70">
@@ -170,7 +167,7 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
                 )}
 
                 {/* Actions */}
-                <div className="card-actions justify-end mt-4">
+                <div className="flex justify-end mt-4">
                   <a
                     href={pr.url}
                     target="_blank"
@@ -181,7 +178,6 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
                     Abrir no GitHub
                   </a>
                 </div>
-              </div>
             </div>
           ))}
         </div>

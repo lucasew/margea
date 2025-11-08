@@ -22,17 +22,16 @@ export function PRGroupCard({ group, onExpand }: PRGroupCardProps) {
 
   return (
     <div
-      className="card bg-base-100 shadow-md hover:shadow-xl transition-shadow cursor-pointer border border-base-300 hover:border-primary"
+      className="border border-base-300 rounded-lg p-6 hover:border-primary/50 transition-all cursor-pointer bg-base-100"
       onClick={() => onExpand(group)}
     >
-      <div className="card-body">
-        <h2 className="card-title justify-between items-start">
-          <div className="flex items-center gap-2 flex-1">
+        <div className="flex justify-between items-start mb-4">
+          <div className="flex items-center gap-3 flex-1">
             <Package size={20} className="text-primary flex-shrink-0" />
-            <span className="font-mono text-sm lg:text-base break-all">{group.package}</span>
+            <h3 className="font-mono text-base lg:text-lg font-bold break-all">{group.package}</h3>
           </div>
           <div className="badge badge-neutral badge-lg flex-shrink-0">{group.count}</div>
-        </h2>
+        </div>
 
         <div className="divider my-1"></div>
 
@@ -75,7 +74,6 @@ export function PRGroupCard({ group, onExpand }: PRGroupCardProps) {
             </div>
           )}
         </div>
-      </div>
     </div>
   );
 }

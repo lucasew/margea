@@ -5,9 +5,9 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-base-200 border-t border-base-300 mt-auto">
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <footer className="border-t border-base-300 mt-auto">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           {/* Brand Section */}
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-2">
@@ -24,8 +24,8 @@ export function Footer() {
 
           {/* Links Section */}
           <div>
-            <h3 className="font-semibold mb-3 text-base-content">Recursos</h3>
-            <ul className="space-y-2 text-sm text-base-content/70">
+            <h3 className="font-bold mb-4 text-base-content">Recursos</h3>
+            <ul className="space-y-3 text-base-content/70">
               <li>
                 <a
                   href="https://docs.github.com/pt/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens"
@@ -51,8 +51,8 @@ export function Footer() {
 
           {/* Info Section */}
           <div>
-            <h3 className="font-semibold mb-3 text-base-content">Tecnologias</h3>
-            <ul className="space-y-2 text-sm text-base-content/70">
+            <h3 className="font-bold mb-4 text-base-content">Tecnologias</h3>
+            <ul className="space-y-3 text-base-content/70">
               <li>React + TypeScript</li>
               <li>Relay GraphQL</li>
               <li>GitHub GraphQL API</li>

@@ -32,22 +32,21 @@ export function MainPage({ onLogout, onLogin, isAuthenticated }: MainPageProps) 
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-base-200">
+    <div className="min-h-screen flex flex-col bg-base-100">
       <Header onLogout={onLogout} onLogin={onLogin} isAuthenticated={isAuthenticated} />
 
-      <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold">Margea</h1>
-          <p className="text-lg text-base-content/70 max-w-2xl mx-auto mt-4">
+      <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="mb-16">
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6">Margea</h1>
+          <p className="text-xl md:text-2xl text-base-content/70 max-w-3xl leading-relaxed">
             Encontre e agrupe Pull Requests do Renovate Bot de forma inteligente.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <div className="lg:col-span-3">
-            <div className="card bg-base-100 border border-base-300 shadow-sm">
-              <div className="card-body">
-                <h2 className="card-title text-xl mb-4">Busca</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+          <div className="lg:col-span-4">
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold border-b border-base-300 pb-3">Busca</h2>
                 <form onSubmit={handleConfigure} className="space-y-4">
                   <div className="form-control">
                     <label className="label">
@@ -96,28 +95,27 @@ export function MainPage({ onLogout, onLogin, isAuthenticated }: MainPageProps) 
                     />
                   </div>
 
-                  <div className="card-actions justify-end pt-4">
+                  <div className="pt-4">
                     <button type="submit" className="btn btn-primary w-full gap-2">
                       <Search size={18} />
                       Buscar
                     </button>
                   </div>
                 </form>
-              </div>
             </div>
           </div>
 
-          <div className="lg:col-span-9">
+          <div className="lg:col-span-8">
             {searchQuery ? (
               <PRList searchQuery={searchQuery} />
             ) : (
-              <div className="flex flex-col items-center justify-center h-full rounded-lg bg-base-100 border border-base-300 p-8 text-center">
-                <div className="text-primary mb-4">
-                  <Search size={48} />
+              <div className="flex flex-col items-center justify-center min-h-[400px] p-12 text-center">
+                <div className="text-primary/50 mb-6">
+                  <Search size={64} />
                 </div>
-                <h2 className="text-2xl font-bold mb-2">Realize uma busca</h2>
-                <p className="text-base-content/70">
-                  Utilize o formulário à esquerda para encontrar os Pull Requests.
+                <h2 className="text-3xl font-bold mb-3">Realize uma busca</h2>
+                <p className="text-lg text-base-content/60 max-w-md">
+                  Utilize o formulário ao lado para encontrar os Pull Requests.
                 </p>
               </div>
             )}
