@@ -4,6 +4,7 @@ import { relayEnvironment } from './relay/environment';
 import { AuthService } from './services/auth';
 import { LoginPage } from './components/LoginPage';
 import { MainPage } from './components/MainPage';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -29,17 +30,23 @@ function App() {
   };
 
   if (showLogin && !isAuthenticated) {
-    return <LoginPage onLogin={handleLogin} onSkip={() => setShowLogin(false)} />;
+    return (
+      <ErrorBoundary>
+        <LoginPage onLogin={handleLogin} onSkip={() => setShowLogin(false)} />
+      </ErrorBoundary>
+    );
   }
 
   return (
-    <RelayEnvironmentProvider environment={relayEnvironment}>
-      <MainPage
-        onLogout={handleLogout}
-        onLogin={handleShowLogin}
-        isAuthenticated={isAuthenticated}
-      />
-    </RelayEnvironmentProvider>
+    <ErrorBoundary>
+      <RelayEnvironmentProvider environment={relayEnvironment}>
+        <MainPage
+          onLogout={handleLogout}
+          onLogin={handleShowLogin}
+          isAuthenticated={isAuthenticated}
+        />
+      </RelayEnvironmentProvider>
+    </ErrorBoundary>
   );
 }
 

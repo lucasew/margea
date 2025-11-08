@@ -1,6 +1,6 @@
-import { Suspense, useState } from 'react';
+import { Suspense, useState, Component, ReactNode } from 'react';
 import { useLazyLoadQuery } from 'react-relay';
-import { RefreshCw, Download, Filter, GitPullRequest, GitMerge, XCircle, CheckCircle, Folder } from 'react-feather';
+import { RefreshCw, Download, Filter, GitPullRequest, GitMerge, XCircle, CheckCircle, Folder, AlertTriangle } from 'react-feather';
 import { SearchPRsQuery } from '../queries/SearchPRsQuery';
 import { SearchPRsQuery as SearchPRsQueryType } from '../queries/__generated__/SearchPRsQuery.graphql';
 import { groupPullRequests, filterPullRequests, calculateStats } from '../services/prGrouping';
@@ -231,6 +231,85 @@ interface PRListProps {
   searchQuery: string;
 }
 
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+class PRListErrorBoundary extends Component<
+  { children: ReactNode; onRetry: () => void },
+  ErrorBoundaryState
+> {
+  constructor(props: { children: ReactNode; onRetry: () => void }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('PR List error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="flex flex-col items-center justify-center min-h-screen gap-4 p-4">
+          <div className="card w-full max-w-2xl bg-base-100 shadow-xl">
+            <div className="card-body items-center text-center">
+              <AlertTriangle size={64} className="text-error mb-4" />
+              <h2 className="card-title text-2xl mb-2">Erro ao carregar PRs</h2>
+              <p className="text-base-content/70 mb-4">
+                Não foi possível carregar os Pull Requests do GitHub.
+              </p>
+
+              {this.state.error && (
+                <div className="alert alert-error w-full mb-4">
+                  <div className="flex flex-col items-start gap-2 w-full">
+                    <span className="font-semibold">Detalhes:</span>
+                    <code className="text-sm bg-base-200 p-2 rounded w-full text-left overflow-x-auto">
+                      {this.state.error.message}
+                    </code>
+                  </div>
+                </div>
+              )}
+
+              <div className="alert alert-info w-full mb-4">
+                <div className="flex flex-col items-start gap-2 w-full text-left">
+                  <span className="font-semibold">Possíveis causas:</span>
+                  <ul className="text-sm list-disc list-inside">
+                    <li>Token de autenticação inválido ou expirado</li>
+                    <li>Limite de requisições da API do GitHub excedido</li>
+                    <li>Problemas de conectividade com a internet</li>
+                    <li>Parâmetros de busca inválidos</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="card-actions">
+                <button
+                  onClick={() => {
+                    this.setState({ hasError: false, error: null });
+                    this.props.onRetry();
+                  }}
+                  className="btn btn-primary"
+                >
+                  <RefreshCw size={18} />
+                  Tentar novamente
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
 export function PRList({ searchQuery }: PRListProps) {
   const [key, setKey] = useState(0);
 
@@ -239,15 +318,17 @@ export function PRList({ searchQuery }: PRListProps) {
   };
 
   return (
-    <Suspense
-      fallback={
-        <div className="flex flex-col items-center justify-center min-h-screen gap-4">
-          <span className="loading loading-spinner loading-lg text-primary"></span>
-          <p className="text-lg text-base-content/70">Carregando Pull Requests...</p>
-        </div>
-      }
-    >
-      <PRListContent key={key} searchQuery={searchQuery} onRefresh={handleRefresh} />
-    </Suspense>
+    <PRListErrorBoundary onRetry={handleRefresh}>
+      <Suspense
+        fallback={
+          <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+            <span className="loading loading-spinner loading-lg text-primary"></span>
+            <p className="text-lg text-base-content/70">Carregando Pull Requests...</p>
+          </div>
+        }
+      >
+        <PRListContent key={key} searchQuery={searchQuery} onRefresh={handleRefresh} />
+      </Suspense>
+    </PRListErrorBoundary>
   );
 }

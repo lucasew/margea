@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { AlertCircle } from 'react-feather';
 import { Header } from './Header';
 import { Footer } from './Footer';
 import { PRList } from './PRList';
@@ -112,6 +113,30 @@ export function MainPage({ onLogout, onLogin, isAuthenticated }: MainPageProps) 
   return (
     <div className="min-h-screen flex flex-col">
       <Header onLogout={onLogout} onLogin={onLogin} isAuthenticated={isAuthenticated} />
+
+      {!isAuthenticated && (
+        <div className="bg-warning/10 border-b border-warning/30">
+          <div className="container mx-auto px-4 py-3">
+            <div className="flex items-center gap-3 text-warning-content">
+              <AlertCircle size={20} className="flex-shrink-0" />
+              <div className="flex-1">
+                <p className="text-sm font-semibold">Modo não autenticado</p>
+                <p className="text-xs opacity-80">
+                  Você está usando a API do GitHub sem autenticação. Limite de 60 requisições/hora.
+                  <button
+                    onClick={onLogin}
+                    className="ml-2 underline hover:no-underline font-semibold"
+                  >
+                    Fazer login
+                  </button>
+                  {' '}para aumentar para 5000 req/hora.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <main className="flex-1">
         <PRList searchQuery={buildSearchQuery()} />
       </main>
