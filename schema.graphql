@@ -1,0 +1,134 @@
+type Query {
+  viewer: User!
+  organization(login: String!): Organization
+  repository(owner: String!, name: String!): Repository
+  search(query: String!, type: SearchType!, first: Int, after: String): SearchResultItemConnection!
+}
+
+enum SearchType {
+  ISSUE
+  REPOSITORY
+  USER
+}
+
+type SearchResultItemConnection {
+  edges: [SearchResultItemEdge]
+  pageInfo: PageInfo!
+  issueCount: Int!
+}
+
+type SearchResultItemEdge {
+  node: SearchResultItem
+  cursor: String!
+}
+
+union SearchResultItem = PullRequest
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+type User {
+  login: String!
+  name: String
+  avatarUrl(size: Int): String!
+  organizations(first: Int): OrganizationConnection!
+}
+
+type OrganizationConnection {
+  nodes: [Organization]
+}
+
+type Organization {
+  login: String!
+  name: String
+  repositories(first: Int, after: String): RepositoryConnection!
+}
+
+type RepositoryConnection {
+  nodes: [Repository]
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type Repository {
+  id: ID!
+  name: String!
+  nameWithOwner: String!
+  owner: RepositoryOwner!
+  pullRequests(first: Int, after: String, states: [PullRequestState!], orderBy: IssueOrder): PullRequestConnection!
+}
+
+interface RepositoryOwner {
+  login: String!
+}
+
+type PullRequestConnection {
+  nodes: [PullRequest]
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type PullRequest {
+  id: ID!
+  number: Int!
+  title: String!
+  body: String
+  state: PullRequestState!
+  createdAt: String!
+  updatedAt: String!
+  mergedAt: String
+  closedAt: String
+  url: String!
+  baseRefName: String!
+  headRefName: String!
+  author: Actor
+  labels(first: Int): LabelConnection
+  repository: Repository!
+}
+
+enum PullRequestState {
+  OPEN
+  CLOSED
+  MERGED
+}
+
+input IssueOrder {
+  field: IssueOrderField!
+  direction: OrderDirection!
+}
+
+enum IssueOrderField {
+  CREATED_AT
+  UPDATED_AT
+  COMMENTS
+}
+
+enum OrderDirection {
+  ASC
+  DESC
+}
+
+interface Actor {
+  login: String!
+  avatarUrl(size: Int): String!
+}
+
+type Bot implements Actor {
+  login: String!
+  avatarUrl(size: Int): String!
+}
+
+type LabelConnection {
+  nodes: [Label]
+}
+
+type Label {
+  id: ID!
+  name: String!
+  color: String!
+  description: String
+}

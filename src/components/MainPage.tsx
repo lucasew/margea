@@ -1,0 +1,114 @@
+import { useState } from 'react';
+import { Header } from './Header';
+import { PRList } from './PRList';
+
+interface MainPageProps {
+  onLogout: () => void;
+}
+
+export function MainPage({ onLogout }: MainPageProps) {
+  const [searchConfig, setSearchConfig] = useState({
+    author: 'renovate[bot]',
+    owner: '',
+    repo: '',
+  });
+  const [isConfigured, setIsConfigured] = useState(false);
+
+  const handleConfigure = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsConfigured(true);
+  };
+
+  // Build GitHub search query
+  const buildSearchQuery = () => {
+    const parts = [`is:pr author:${searchConfig.author}`];
+
+    if (searchConfig.owner && searchConfig.repo) {
+      parts.push(`repo:${searchConfig.owner}/${searchConfig.repo}`);
+    } else if (searchConfig.owner) {
+      parts.push(`org:${searchConfig.owner}`);
+    }
+
+    return parts.join(' ');
+  };
+
+  if (!isConfigured) {
+    return (
+      <>
+        <Header onLogout={onLogout} />
+        <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-base-200">
+          <div className="card w-full max-w-md bg-base-100 shadow-xl">
+            <div className="card-body">
+              <h2 className="card-title text-2xl">Configurar Busca</h2>
+              <p className="text-base-content/70 mb-4">
+                Configure os parâmetros para buscar PRs do Renovate
+              </p>
+
+              <form onSubmit={handleConfigure}>
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Autor (bot)</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="renovate[bot]"
+                    className="input input-bordered"
+                    value={searchConfig.author}
+                    onChange={(e) => setSearchConfig({ ...searchConfig, author: e.target.value })}
+                    required
+                  />
+                </div>
+
+                <div className="form-control mt-4">
+                  <label className="label">
+                    <span className="label-text">Owner/Organização (opcional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="ex: facebook"
+                    className="input input-bordered"
+                    value={searchConfig.owner}
+                    onChange={(e) => setSearchConfig({ ...searchConfig, owner: e.target.value })}
+                  />
+                  <label className="label">
+                    <span className="label-text-alt">Deixe vazio para buscar em todos os seus repositórios</span>
+                  </label>
+                </div>
+
+                <div className="form-control mt-4">
+                  <label className="label">
+                    <span className="label-text">Repositório específico (opcional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="ex: react"
+                    className="input input-bordered"
+                    value={searchConfig.repo}
+                    onChange={(e) => setSearchConfig({ ...searchConfig, repo: e.target.value })}
+                    disabled={!searchConfig.owner}
+                  />
+                  <label className="label">
+                    <span className="label-text-alt">Requer owner/organização</span>
+                  </label>
+                </div>
+
+                <div className="card-actions justify-end mt-6">
+                  <button type="submit" className="btn btn-primary w-full">
+                    Buscar PRs
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <Header onLogout={onLogout} />
+      <PRList searchQuery={buildSearchQuery()} />
+    </>
+  );
+}
