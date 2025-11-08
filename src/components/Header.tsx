@@ -10,54 +10,50 @@ interface HeaderProps {
 
 export function Header({ onLogout, onLogin, isAuthenticated }: HeaderProps) {
   return (
-    <div className="navbar bg-base-100 shadow-lg overflow-hidden">
-      <div className="flex-1 overflow-hidden">
+    <header className="navbar bg-base-100 shadow-md border-b border-base-200 px-4">
+      <div className="flex-1">
         <div className="flex items-center gap-3">
-          <div className="bg-primary text-primary-content rounded-xl w-12 h-12 flex items-center justify-center flex-shrink-0">
-            <div className="w-6 h-6">
-              <Logo size={24} />
+          <div className="bg-primary text-primary-content rounded-lg w-10 h-10 flex items-center justify-center flex-shrink-0">
+            <div className="w-5 h-5">
+              <Logo size={20} />
             </div>
           </div>
-          <div>
-            <h1 className="text-xl md:text-2xl font-bold">
-              Margea
-            </h1>
-            <p className="text-xs text-base-content/60 hidden md:block">
-              Analisador de Pull Requests
-            </p>
+          <div className="flex items-center gap-2">
+            <h1 className="text-lg md:text-xl font-bold">Margea</h1>
+            <div className="badge badge-primary badge-sm">Beta</div>
           </div>
         </div>
       </div>
 
-      <div className="flex-none gap-3 flex items-center">
-        <div className="flex-shrink-0">
+      <div className="flex-none">
+        <div className="flex items-center gap-2">
           <ThemeToggle />
-        </div>
 
-        {isAuthenticated ? (
-          <button
-            onClick={onLogout}
-            className="btn btn-ghost btn-sm gap-2"
-            title="Sair"
-          >
-            <span className="w-[18px] h-[18px] flex-shrink-0">
-              <LogOut size={18} />
-            </span>
-            <span className="hidden md:inline">Sair</span>
-          </button>
-        ) : (
-          <button
-            onClick={onLogin}
-            className="btn btn-primary btn-sm gap-2"
-            title="Fazer login"
-          >
-            <span className="w-[18px] h-[18px] flex-shrink-0">
-              <LogIn size={18} />
-            </span>
-            <span className="hidden md:inline">Login</span>
-          </button>
-        )}
+          {isAuthenticated ? (
+            <button
+              onClick={onLogout}
+              className="btn btn-ghost btn-sm gap-2"
+              title="Sair"
+            >
+              <span className="w-4 h-4 flex-shrink-0">
+                <LogOut size={16} />
+              </span>
+              <span className="hidden md:inline">Sair</span>
+            </button>
+          ) : (
+            <button
+              onClick={onLogin}
+              className="btn btn-primary btn-sm gap-2"
+              title="Fazer login com GitHub"
+            >
+              <span className="w-4 h-4 flex-shrink-0">
+                <LogIn size={16} />
+              </span>
+              <span className="hidden md:inline">Login</span>
+            </button>
+          )}
+        </div>
       </div>
-    </div>
+    </header>
   );
 }
