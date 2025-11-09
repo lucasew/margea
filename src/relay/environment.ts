@@ -12,16 +12,20 @@ const GITHUB_GRAPHQL_URL = 'https://api.github.com/graphql';
 const fetchQuery: FetchFunction = async (operation, variables) => {
   const token = AuthService.getToken();
 
-  if (!token) {
-    throw new Error('No GitHub token found. Please authenticate first.');
+  // Allow unauthenticated requests but warn about rate limits
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  } else {
+    console.warn('Making unauthenticated request to GitHub API. Rate limits will be more restrictive (60 requests/hour vs 5000 with token).');
   }
 
   const response = await fetch(GITHUB_GRAPHQL_URL, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    },
+    headers,
     body: JSON.stringify({
       query: operation.text,
       variables,

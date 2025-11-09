@@ -1,0 +1,5 @@
+[tools]
+node = "24.10.0"
+
+[tasks.dev]
+run = "npm run dev"
