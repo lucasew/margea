@@ -1,4 +1,3 @@
-import { LogOut, LogIn } from 'react-feather';
 import { ThemeToggle } from './ThemeToggle';
 import { Logo } from './Logo';
 
