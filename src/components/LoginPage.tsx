@@ -1,4 +1,4 @@
-import { Github } from 'react-feather';
+import { GitHub } from 'react-feather';
 import { Logo } from './Logo';
 import { Footer } from './Footer';
 
@@ -28,7 +28,7 @@ export function LoginPage({ onSkip }: LoginPageProps) {
               onClick={handleGitHubLogin}
               className="btn btn-primary btn-lg gap-2"
             >
-              <Github size={24} />
+              <GitHub size={24} />
               Login com GitHub
             </button>
 
