@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { RelayEnvironmentProvider } from 'react-relay';
 import { relayEnvironment } from './relay/environment';
 import { AuthService } from './services/auth';
 import { LoginPage } from './components/LoginPage';
-import { MainPage } from './components/MainPage';
+import { HomePage } from './pages/HomePage';
+import { RepositoryPage } from './pages/RepositoryPage';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
 function App() {
@@ -46,15 +47,22 @@ function App() {
     );
   }
 
+  const commonProps = {
+    onLogout: handleLogout,
+    onLogin: handleShowLogin,
+    isAuthenticated,
+  };
+
   return (
     <ErrorBoundary>
       <RelayEnvironmentProvider environment={relayEnvironment}>
         <BrowserRouter>
-          <MainPage
-            onLogout={handleLogout}
-            onLogin={handleShowLogin}
-            isAuthenticated={isAuthenticated}
-          />
+          <Routes>
+            <Route path="/" element={<HomePage {...commonProps} />} />
+            <Route path="/orgs" element={<RepositoryPage {...commonProps} />} />
+            <Route path="/org/:owner" element={<RepositoryPage {...commonProps} />} />
+            <Route path="/:owner/:repo" element={<RepositoryPage {...commonProps} />} />
+          </Routes>
         </BrowserRouter>
       </RelayEnvironmentProvider>
     </ErrorBoundary>
