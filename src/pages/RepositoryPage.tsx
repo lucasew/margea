@@ -1,7 +1,9 @@
 import { useParams } from 'react-router-dom';
+import { Suspense } from 'react';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 import { PRList } from '../components/PRList';
+import { useViewer } from '../hooks/useViewer';
 
 interface RepositoryPageProps {
   onLogout: () => void;
@@ -10,26 +12,44 @@ interface RepositoryPageProps {
 }
 
 // Helper to build search query from URL params
-function buildSearchQuery(params: { owner?: string; repo?: string }): string {
+function buildSearchQuery(
+  params: { owner?: string; repo?: string },
+  organizations?: Array<{ login: string }>
+): string {
   const { owner, repo } = params;
 
   // Build base query
   let query = 'is:pr';
 
-  // Add scope (repo, org, or all)
+  // Add scope (repo, org, or all orgs)
   if (owner && repo) {
     query += ` repo:${owner}/${repo}`;
   } else if (owner) {
     query += ` org:${owner}`;
+  } else if (organizations && organizations.length > 0) {
+    // /orgs route - filter by user's organizations
+    const orgFilters = organizations.map(org => `org:${org.login}`).join(' ');
+    query += ` ${orgFilters}`;
   }
 
   return query;
 }
 
-export function RepositoryPage({ onLogout, onLogin, isAuthenticated }: RepositoryPageProps) {
+function RepositoryPageContent({ onLogout, onLogin, isAuthenticated }: RepositoryPageProps) {
   const params = useParams<{ owner?: string; repo?: string }>();
 
-  const searchQuery = buildSearchQuery(params);
+  // Load organizations only if authenticated and on /orgs route
+  let organizations: Array<{ login: string }> = [];
+  if (isAuthenticated && !params.owner && !params.repo) {
+    try {
+      const { organizations: orgs } = useViewer();
+      organizations = orgs;
+    } catch {
+      // If query fails, just use empty list
+    }
+  }
+
+  const searchQuery = buildSearchQuery(params, organizations);
 
   // Build page title
   let pageTitle = 'Todos os PRs';
@@ -83,5 +103,19 @@ export function RepositoryPage({ onLogout, onLogin, isAuthenticated }: Repositor
 
       <Footer />
     </div>
+  );
+}
+
+export function RepositoryPage(props: RepositoryPageProps) {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <span className="loading loading-spinner loading-lg"></span>
+        </div>
+      }
+    >
+      <RepositoryPageContent {...props} />
+    </Suspense>
   );
 }
