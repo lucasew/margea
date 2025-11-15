@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { Search } from 'react-feather';
 import { Header } from './Header';
 import { Footer } from './Footer';
 import { PRList } from './PRList';
+import { SearchForm } from './SearchForm';
 
 interface MainPageProps {
   onLogout: () => void;
@@ -12,7 +12,7 @@ interface MainPageProps {
 }
 
 // Helper to convert pathname to search query
-function pathnameToSearchQuery(pathname: string): string | null {
+function pathnameToSearchQuery(pathname: string, author?: string): string | null {
   const cleanPath = pathname.replace(/^\/+|\/+$/g, '');
 
   if (!cleanPath) {
@@ -21,19 +21,27 @@ function pathnameToSearchQuery(pathname: string): string | null {
 
   const parts = cleanPath.split('/');
 
+  // Build base query
+  let query = 'is:pr';
+
+  // Add author if provided
+  if (author) {
+    query += ` author:${author}`;
+  }
+
   // /orgs
   if (parts.length === 1 && parts[0] === 'orgs') {
-    return 'is:pr author:renovate[bot]';
+    return query;
   }
 
   // /org/:orgName
   if (parts.length === 2 && parts[0] === 'org') {
-    return `is:pr author:renovate[bot] org:${decodeURIComponent(parts[1])}`;
+    return `${query} org:${decodeURIComponent(parts[1])}`;
   }
 
   // /:orgName/:repoName
   if (parts.length === 2) {
-    return `is:pr author:renovate[bot] repo:${decodeURIComponent(parts[0])}/${decodeURIComponent(parts[1])}`;
+    return `${query} repo:${decodeURIComponent(parts[0])}/${decodeURIComponent(parts[1])}`;
   }
 
   return null;
@@ -41,51 +49,13 @@ function pathnameToSearchQuery(pathname: string): string | null {
 
 export function MainPage({ onLogout, onLogin, isAuthenticated }: MainPageProps) {
   const location = useLocation();
-  const navigate = useNavigate();
-  const [searchConfig, setSearchConfig] = useState({
-    author: 'renovate[bot]',
-    owner: '',
-    repo: '',
-  });
+
+  // Extract author from search params
+  const searchParams = new URLSearchParams(location.search);
+  const authorFromUrl = searchParams.get('author') || '';
 
   // Get search query from current pathname
-  const searchQuery = pathnameToSearchQuery(location.pathname);
-
-  // Update form fields when route changes
-  useEffect(() => {
-    const cleanPath = location.pathname.replace(/^\/+|\/+$/g, '');
-    const parts = cleanPath.split('/');
-
-    if (!cleanPath) {
-      // home
-      setSearchConfig(prev => ({ ...prev, owner: '', repo: '' }));
-    } else if (parts.length === 1 && parts[0] === 'orgs') {
-      // /orgs
-      setSearchConfig(prev => ({ ...prev, owner: '', repo: '' }));
-    } else if (parts.length === 2 && parts[0] === 'org') {
-      // /org/:orgName
-      setSearchConfig(prev => ({ ...prev, owner: decodeURIComponent(parts[1]), repo: '' }));
-    } else if (parts.length === 2) {
-      // /:orgName/:repoName
-      setSearchConfig(prev => ({
-        ...prev,
-        owner: decodeURIComponent(parts[0]),
-        repo: decodeURIComponent(parts[1])
-      }));
-    }
-  }, [location.pathname]);
-
-  const handleConfigure = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (searchConfig.owner && searchConfig.repo) {
-      navigate(`/${encodeURIComponent(searchConfig.owner)}/${encodeURIComponent(searchConfig.repo)}`);
-    } else if (searchConfig.owner) {
-      navigate(`/org/${encodeURIComponent(searchConfig.owner)}`);
-    } else {
-      navigate('/orgs');
-    }
-  };
+  const searchQuery = pathnameToSearchQuery(location.pathname, authorFromUrl);
 
   return (
     <div className="min-h-screen flex flex-col bg-base-100">
@@ -95,7 +65,7 @@ export function MainPage({ onLogout, onLogin, isAuthenticated }: MainPageProps) 
         <div className="mb-16">
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6">Margea</h1>
           <p className="text-xl md:text-2xl text-base-content/70 max-w-3xl leading-relaxed">
-            Encontre e agrupe Pull Requests do Renovate Bot de forma inteligente.
+            Encontre e agrupe Pull Requests de forma inteligente.
           </p>
         </div>
 
@@ -103,61 +73,7 @@ export function MainPage({ onLogout, onLogin, isAuthenticated }: MainPageProps) 
           <div className="lg:col-span-4">
             <div className="space-y-6">
               <h2 className="text-2xl font-bold border-b border-base-300 pb-3">Busca</h2>
-                <form onSubmit={handleConfigure} className="space-y-4">
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text font-medium">Autor</span>
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="renovate[bot]"
-                      className="input input-bordered w-full"
-                      value={searchConfig.author}
-                      onChange={(e) =>
-                        setSearchConfig({ ...searchConfig, author: e.target.value })
-                      }
-                      required
-                    />
-                  </div>
-
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text font-medium">Owner/Organização</span>
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="ex: facebook"
-                      className="input input-bordered w-full"
-                      value={searchConfig.owner}
-                      onChange={(e) =>
-                        setSearchConfig({ ...searchConfig, owner: e.target.value })
-                      }
-                    />
-                  </div>
-
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text font-medium">Repositório</span>
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="ex: react"
-                      className="input input-bordered w-full"
-                      value={searchConfig.repo}
-                      onChange={(e) =>
-                        setSearchConfig({ ...searchConfig, repo: e.target.value })
-                      }
-                      disabled={!searchConfig.owner}
-                    />
-                  </div>
-
-                  <div className="pt-4">
-                    <button type="submit" className="btn btn-primary w-full gap-2">
-                      <Search size={18} />
-                      Buscar
-                    </button>
-                  </div>
-                </form>
+              <SearchForm isAuthenticated={isAuthenticated} />
             </div>
           </div>
 
