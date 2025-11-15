@@ -1,8 +1,7 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Search, LogIn } from 'react-feather';
+import { LogIn } from 'react-feather';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
+import { SearchForm } from '../components/SearchForm';
 
 interface HomePageProps {
   onLogout: () => void;
@@ -11,24 +10,6 @@ interface HomePageProps {
 }
 
 export function HomePage({ onLogout, onLogin, isAuthenticated }: HomePageProps) {
-  const navigate = useNavigate();
-  const [searchConfig, setSearchConfig] = useState({
-    author: 'renovate[bot]',
-    owner: '',
-    repo: '',
-  });
-
-  const handleConfigure = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (searchConfig.owner && searchConfig.repo) {
-      navigate(`/${encodeURIComponent(searchConfig.owner)}/${encodeURIComponent(searchConfig.repo)}`);
-    } else if (searchConfig.owner) {
-      navigate(`/org/${encodeURIComponent(searchConfig.owner)}`);
-    } else {
-      navigate('/orgs');
-    }
-  };
 
   return (
     <div className="min-h-screen flex flex-col bg-base-100">
@@ -40,7 +21,7 @@ export function HomePage({ onLogout, onLogin, isAuthenticated }: HomePageProps) 
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-6xl font-bold mb-4">Margea</h1>
             <p className="text-lg md:text-xl text-base-content/70 max-w-2xl mx-auto">
-              Encontre e agrupe Pull Requests do Renovate Bot de forma inteligente.
+              Encontre e agrupe Pull Requests de forma inteligente.
             </p>
           </div>
 
@@ -64,75 +45,7 @@ export function HomePage({ onLogout, onLogin, isAuthenticated }: HomePageProps) 
           <div className="card bg-base-200 shadow-xl">
             <div className="card-body">
               <h2 className="card-title text-2xl mb-4">Buscar Pull Requests</h2>
-
-              <form onSubmit={handleConfigure} className="space-y-4">
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text font-medium">Autor</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="renovate[bot]"
-                    className="input input-bordered w-full"
-                    value={searchConfig.author}
-                    onChange={(e) =>
-                      setSearchConfig({ ...searchConfig, author: e.target.value })
-                    }
-                    required
-                  />
-                  <label className="label">
-                    <span className="label-text-alt">Autor dos PRs a serem buscados</span>
-                  </label>
-                </div>
-
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text font-medium">Owner/Organização</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="ex: facebook"
-                    className="input input-bordered w-full"
-                    value={searchConfig.owner}
-                    onChange={(e) =>
-                      setSearchConfig({ ...searchConfig, owner: e.target.value })
-                    }
-                  />
-                  <label className="label">
-                    <span className="label-text-alt">
-                      Opcional: deixe vazio para buscar em todas as organizações
-                    </span>
-                  </label>
-                </div>
-
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text font-medium">Repositório</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="ex: react"
-                    className="input input-bordered w-full"
-                    value={searchConfig.repo}
-                    onChange={(e) =>
-                      setSearchConfig({ ...searchConfig, repo: e.target.value })
-                    }
-                    disabled={!searchConfig.owner}
-                  />
-                  <label className="label">
-                    <span className="label-text-alt">
-                      Opcional: especifique um repositório específico
-                    </span>
-                  </label>
-                </div>
-
-                <div className="pt-4">
-                  <button type="submit" className="btn btn-primary w-full gap-2 btn-lg">
-                    <Search size={20} />
-                    Buscar Pull Requests
-                  </button>
-                </div>
-              </form>
+              <SearchForm isAuthenticated={isAuthenticated} />
             </div>
           </div>
 
