@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { BrowserRouter } from 'react-router-dom';
 import { RelayEnvironmentProvider } from 'react-relay';
 import { relayEnvironment } from './relay/environment';
 import { AuthService } from './services/auth';
@@ -48,11 +49,13 @@ function App() {
   return (
     <ErrorBoundary>
       <RelayEnvironmentProvider environment={relayEnvironment}>
-        <MainPage
-          onLogout={handleLogout}
-          onLogin={handleShowLogin}
-          isAuthenticated={isAuthenticated}
-        />
+        <BrowserRouter>
+          <MainPage
+            onLogout={handleLogout}
+            onLogin={handleShowLogin}
+            isAuthenticated={isAuthenticated}
+          />
+        </BrowserRouter>
       </RelayEnvironmentProvider>
     </ErrorBoundary>
   );

@@ -1,4 +1,5 @@
 import { Suspense, useState, Component, ReactNode } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useLazyLoadQuery } from 'react-relay';
 import { RefreshCw, Download, Filter, GitPullRequest, GitMerge, XCircle, CheckCircle, Folder, AlertTriangle } from 'react-feather';
 import { SearchPRsQuery } from '../queries/SearchPRsQuery';
@@ -14,9 +15,11 @@ interface PRListContentProps {
 }
 
 function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
-  const [selectedGroup, setSelectedGroup] = useState<PRGroup | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
   const [filterRepo, setFilterRepo] = useState('');
   const [filterState, setFilterState] = useState<'ALL' | 'OPEN' | 'CLOSED' | 'MERGED'>('ALL');
+
+  const groupKey = searchParams.get('group');
 
   const data = useLazyLoadQuery<SearchPRsQueryType>(
     SearchPRsQuery,
@@ -91,8 +94,20 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
     URL.revokeObjectURL(url);
   };
 
-  if (selectedGroup) {
-    return <PRGroupDetail group={selectedGroup} onBack={() => setSelectedGroup(null)} />;
+  const handleSelectGroup = (group: PRGroup) => {
+    setSearchParams({ group: group.key });
+  };
+
+  const handleBackFromGroup = () => {
+    setSearchParams({});
+  };
+
+  // Show group detail if a group is selected via query param
+  if (groupKey) {
+    const selectedGroup = groups.find(g => g.key === groupKey);
+    if (selectedGroup) {
+      return <PRGroupDetail group={selectedGroup} onBack={handleBackFromGroup} />;
+    }
   }
 
   return (
@@ -217,7 +232,7 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {groups.map((group) => (
-              <PRGroupCard key={group.key} group={group} onExpand={setSelectedGroup} />
+              <PRGroupCard key={group.key} group={group} onExpand={handleSelectGroup} />
             ))}
           </div>
         )}

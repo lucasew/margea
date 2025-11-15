@@ -6,26 +6,34 @@ import { PullRequest, PRGroup } from '../types';
  * - "Update dependency react to v18.2.0" -> "react"
  * - "chore(deps): update react monorepo" -> "react"
  * - "Update @types/node to v20.0.0" -> "@types/node"
+ * - "fix(deps): update module tailscale.com to v1.90.5" -> "tailscale.com"
+ * - "Update actions/upload-artifact action to v5" -> "actions/upload-artifact"
  */
 function extractPackageName(title: string): string {
+  // Remove conventional commit prefixes like "fix(deps):", "chore(deps):", etc.
+  const cleanTitle = title.replace(/^(fix|chore|feat|docs|style|refactor|perf|test|build|ci|revert)\([^)]*\):\s*/i, '');
+
   // Common patterns for Renovate PRs
   const patterns = [
-    /Update dependency (@?[\w-\/]+)/i,
-    /Update (@?[\w-\/]+) to/i,
-    /chore\(deps\): update (@?[\w-\/]+)/i,
-    /Update (@?[\w-\/]+) monorepo/i,
-    /^(@?[\w-\/]+):/,
+    // "Update dependency <package>" or "update module <package>"
+    /update (?:dependency|module) (@?[\w\-./]+)/i,
+    // "Update <package> to vX.X.X" or "Update <package> action to vX.X.X"
+    /update (@?[\w\-./]+(?:\/[\w\-./]+)*)(?:\s+(?:action|monorepo))?\s+to\s+v?[\d.]+/i,
+    // "Update <package> monorepo"
+    /update (@?[\w\-./]+(?:\/[\w\-./]+)*) monorepo/i,
+    // Generic "update <package>"
+    /update (@?[\w\-./]+(?:\/[\w\-./]+)*)/i,
   ];
 
   for (const pattern of patterns) {
-    const match = title.match(pattern);
+    const match = cleanTitle.match(pattern);
     if (match && match[1]) {
       return match[1];
     }
   }
 
   // Fallback: use first word
-  const firstWord = title.split(/\s+/)[0];
+  const firstWord = cleanTitle.split(/\s+/)[0];
   return firstWord || 'unknown';
 }
 

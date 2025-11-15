@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Search } from 'react-feather';
 import { Header } from './Header';
 import { Footer } from './Footer';
@@ -10,25 +11,80 @@ interface MainPageProps {
   isAuthenticated: boolean;
 }
 
+// Helper to convert pathname to search query
+function pathnameToSearchQuery(pathname: string): string | null {
+  const cleanPath = pathname.replace(/^\/+|\/+$/g, '');
+
+  if (!cleanPath) {
+    return null; // home
+  }
+
+  const parts = cleanPath.split('/');
+
+  // /orgs
+  if (parts.length === 1 && parts[0] === 'orgs') {
+    return 'is:pr author:renovate[bot]';
+  }
+
+  // /org/:orgName
+  if (parts.length === 2 && parts[0] === 'org') {
+    return `is:pr author:renovate[bot] org:${decodeURIComponent(parts[1])}`;
+  }
+
+  // /:orgName/:repoName
+  if (parts.length === 2) {
+    return `is:pr author:renovate[bot] repo:${decodeURIComponent(parts[0])}/${decodeURIComponent(parts[1])}`;
+  }
+
+  return null;
+}
+
 export function MainPage({ onLogout, onLogin, isAuthenticated }: MainPageProps) {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [searchConfig, setSearchConfig] = useState({
     author: 'renovate[bot]',
     owner: '',
     repo: '',
   });
-  const [searchQuery, setSearchQuery] = useState('');
+
+  // Get search query from current pathname
+  const searchQuery = pathnameToSearchQuery(location.pathname);
+
+  // Update form fields when route changes
+  useEffect(() => {
+    const cleanPath = location.pathname.replace(/^\/+|\/+$/g, '');
+    const parts = cleanPath.split('/');
+
+    if (!cleanPath) {
+      // home
+      setSearchConfig(prev => ({ ...prev, owner: '', repo: '' }));
+    } else if (parts.length === 1 && parts[0] === 'orgs') {
+      // /orgs
+      setSearchConfig(prev => ({ ...prev, owner: '', repo: '' }));
+    } else if (parts.length === 2 && parts[0] === 'org') {
+      // /org/:orgName
+      setSearchConfig(prev => ({ ...prev, owner: decodeURIComponent(parts[1]), repo: '' }));
+    } else if (parts.length === 2) {
+      // /:orgName/:repoName
+      setSearchConfig(prev => ({
+        ...prev,
+        owner: decodeURIComponent(parts[0]),
+        repo: decodeURIComponent(parts[1])
+      }));
+    }
+  }, [location.pathname]);
 
   const handleConfigure = (e: React.FormEvent) => {
     e.preventDefault();
-    const parts = [`is:pr author:${searchConfig.author}`];
 
     if (searchConfig.owner && searchConfig.repo) {
-      parts.push(`repo:${searchConfig.owner}/${searchConfig.repo}`);
+      navigate(`/${encodeURIComponent(searchConfig.owner)}/${encodeURIComponent(searchConfig.repo)}`);
     } else if (searchConfig.owner) {
-      parts.push(`org:${searchConfig.owner}`);
+      navigate(`/org/${encodeURIComponent(searchConfig.owner)}`);
+    } else {
+      navigate('/orgs');
     }
-
-    setSearchQuery(parts.join(' '));
   };
 
   return (
