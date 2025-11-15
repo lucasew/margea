@@ -9,19 +9,18 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setIsAuthenticated(AuthService.isAuthenticated());
+    // Verificar autenticação no mount
+    AuthService.isAuthenticated().then((authenticated) => {
+      setIsAuthenticated(authenticated);
+      setIsLoading(false);
+    });
   }, []);
 
-  const handleLogin = (token: string) => {
-    AuthService.saveToken(token);
-    setIsAuthenticated(true);
-    setShowLogin(false);
-  };
-
-  const handleLogout = () => {
-    AuthService.removeToken();
+  const handleLogout = async () => {
+    await AuthService.logout();
     setIsAuthenticated(false);
   };
 
@@ -29,10 +28,19 @@ function App() {
     setShowLogin(true);
   };
 
+  // Mostrar loading enquanto verifica autenticação
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <span className="loading loading-spinner loading-lg"></span>
+      </div>
+    );
+  }
+
   if (showLogin && !isAuthenticated) {
     return (
       <ErrorBoundary>
-        <LoginPage onLogin={handleLogin} onSkip={() => setShowLogin(false)} />
+        <LoginPage onSkip={() => setShowLogin(false)} />
       </ErrorBoundary>
     );
   }

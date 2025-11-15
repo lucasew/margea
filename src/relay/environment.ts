@@ -10,7 +10,8 @@ import { AuthService } from '../services/auth';
 const GITHUB_GRAPHQL_URL = 'https://api.github.com/graphql';
 
 const fetchQuery: FetchFunction = async (operation, variables) => {
-  const token = AuthService.getToken();
+  // Buscar token da API (agora é async)
+  const token = await AuthService.getToken();
 
   // Allow unauthenticated requests but warn about rate limits
   const headers: Record<string, string> = {
