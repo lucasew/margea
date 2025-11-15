@@ -7,12 +7,6 @@ interface PRGroupCardProps {
 }
 
 export function PRGroupCard({ group, onExpand }: PRGroupCardProps) {
-  const stateColors = {
-    OPEN: 'badge-success',
-    MERGED: 'badge-info',
-    CLOSED: 'badge-error',
-  };
-
   const states = group.prs.reduce((acc, pr) => {
     acc[pr.state] = (acc[pr.state] || 0) + 1;
     return acc;
