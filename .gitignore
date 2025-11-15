@@ -25,3 +25,7 @@ dist-ssr
 
 # Relay
 **/__generated__/**
+
+# Playwright
+playwright-report/
+test-results/
