@@ -10,7 +10,6 @@ interface SearchFormProps {
 function SearchFormContent({ isAuthenticated }: SearchFormProps) {
   const navigate = useNavigate();
   const [searchConfig, setSearchConfig] = useState({
-    author: '',
     owner: '',
     repo: '',
   });
@@ -29,41 +28,17 @@ function SearchFormContent({ isAuthenticated }: SearchFormProps) {
   const handleConfigure = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Build URL with author as query parameter
-    const authorParam = searchConfig.author ? `?author=${encodeURIComponent(searchConfig.author)}` : '';
-
     if (searchConfig.owner && searchConfig.repo) {
-      navigate(`/${encodeURIComponent(searchConfig.owner)}/${encodeURIComponent(searchConfig.repo)}${authorParam}`);
+      navigate(`/${encodeURIComponent(searchConfig.owner)}/${encodeURIComponent(searchConfig.repo)}`);
     } else if (searchConfig.owner) {
-      navigate(`/org/${encodeURIComponent(searchConfig.owner)}${authorParam}`);
+      navigate(`/org/${encodeURIComponent(searchConfig.owner)}`);
     } else {
-      navigate(`/orgs${authorParam}`);
+      navigate(`/orgs`);
     }
   };
 
   return (
     <form onSubmit={handleConfigure} className="space-y-4">
-      <div className="form-control">
-        <label className="label">
-          <span className="label-text font-medium">Autor</span>
-        </label>
-        <select
-          className="select select-bordered w-full"
-          value={searchConfig.author}
-          onChange={(e) =>
-            setSearchConfig({ ...searchConfig, author: e.target.value })
-          }
-        >
-          <option value="">Todos os autores</option>
-          <option value="renovate[bot]">renovate[bot]</option>
-          <option value="dependabot[bot]">dependabot[bot]</option>
-          <option value="github-actions[bot]">github-actions[bot]</option>
-        </select>
-        <label className="label">
-          <span className="label-text-alt">Selecione o autor dos PRs ou deixe vazio para todos</span>
-        </label>
-      </div>
-
       <div className="form-control">
         <label className="label">
           <span className="label-text font-medium">Owner/Organização</span>
@@ -137,12 +112,6 @@ export function SearchForm({ isAuthenticated }: SearchFormProps) {
     <Suspense
       fallback={
         <form className="space-y-4">
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text font-medium">Autor</span>
-            </label>
-            <div className="skeleton h-12 w-full"></div>
-          </div>
           <div className="form-control">
             <label className="label">
               <span className="label-text font-medium">Owner/Organização</span>

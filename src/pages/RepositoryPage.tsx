@@ -1,4 +1,4 @@
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 import { PRList } from '../components/PRList';
@@ -10,16 +10,11 @@ interface RepositoryPageProps {
 }
 
 // Helper to build search query from URL params
-function buildSearchQuery(params: { owner?: string; repo?: string; author?: string }): string {
-  const { owner, repo, author } = params;
+function buildSearchQuery(params: { owner?: string; repo?: string }): string {
+  const { owner, repo } = params;
 
   // Build base query
   let query = 'is:pr';
-
-  // Add author filter if provided
-  if (author) {
-    query += ` author:${author}`;
-  }
 
   // Add scope (repo, org, or all)
   if (owner && repo) {
@@ -33,10 +28,8 @@ function buildSearchQuery(params: { owner?: string; repo?: string; author?: stri
 
 export function RepositoryPage({ onLogout, onLogin, isAuthenticated }: RepositoryPageProps) {
   const params = useParams<{ owner?: string; repo?: string }>();
-  const [searchParams] = useSearchParams();
-  const author = searchParams.get('author') || undefined;
 
-  const searchQuery = buildSearchQuery({ ...params, author });
+  const searchQuery = buildSearchQuery(params);
 
   // Build page title
   let pageTitle = 'Todos os PRs';
@@ -46,8 +39,7 @@ export function RepositoryPage({ onLogout, onLogin, isAuthenticated }: Repositor
     pageTitle = params.owner;
   }
 
-  // Add author to subtitle
-  const subtitle = author ? `Pull Requests de ${author}` : 'Pull Requests';
+  const subtitle = 'Pull Requests';
 
   return (
     <div className="min-h-screen flex flex-col bg-base-100">
