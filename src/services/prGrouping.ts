@@ -38,7 +38,7 @@ function extractPackageName(title: string): string {
 }
 
 /**
- * Group PRs by package name, base branch, and labels
+ * Group PRs by package name, base branch, labels, and author
  */
 export function groupPullRequests(prs: PullRequest[]): PRGroup[] {
   const groups = new Map<string, PRGroup>();
@@ -48,8 +48,9 @@ export function groupPullRequests(prs: PullRequest[]): PRGroup[] {
     const baseRef = pr.baseRefName;
     const labels = pr.labels?.nodes?.map(l => l.name).sort() || [];
     const labelsKey = labels.join(',');
+    const author = pr.author?.login || 'unknown';
 
-    const key = `${packageName}|${baseRef}|${labelsKey}`;
+    const key = `${packageName}|${baseRef}|${labelsKey}|${author}`;
 
     if (!groups.has(key)) {
       groups.set(key, {
@@ -67,8 +68,15 @@ export function groupPullRequests(prs: PullRequest[]): PRGroup[] {
     group.count++;
   }
 
-  // Sort groups by count (descending) and then by package name
+  // Sort groups by author, then count (descending), then package name
   return Array.from(groups.values()).sort((a, b) => {
+    const authorA = a.prs[0]?.author?.login || 'unknown';
+    const authorB = b.prs[0]?.author?.login || 'unknown';
+
+    if (authorA !== authorB) {
+      return authorA.localeCompare(authorB);
+    }
+
     if (b.count !== a.count) {
       return b.count - a.count;
     }

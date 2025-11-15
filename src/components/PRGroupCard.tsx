@@ -1,4 +1,4 @@
-import { Package, GitBranch, Tag } from 'react-feather';
+import { Package, GitBranch, Tag, User } from 'react-feather';
 import { PRGroup } from '../types';
 
 interface PRGroupCardProps {
@@ -19,6 +19,7 @@ export function PRGroupCard({ group, onExpand }: PRGroupCardProps) {
   }, {} as Record<string, number>);
 
   const repoCount = new Set(group.prs.map(pr => pr.repository.nameWithOwner)).size;
+  const author = group.prs[0]?.author;
 
   return (
     <div
@@ -32,6 +33,21 @@ export function PRGroupCard({ group, onExpand }: PRGroupCardProps) {
           </div>
           <div className="badge badge-neutral badge-lg flex-shrink-0">{group.count}</div>
         </div>
+
+        {author && (
+          <div className="flex items-center gap-2 mb-3">
+            {author.avatarUrl ? (
+              <img
+                src={author.avatarUrl}
+                alt={author.login}
+                className="w-5 h-5 rounded-full"
+              />
+            ) : (
+              <User size={16} className="text-base-content/60" />
+            )}
+            <span className="text-sm text-base-content/70 font-medium">{author.login}</span>
+          </div>
+        )}
 
         <div className="divider my-1"></div>
 
@@ -59,20 +75,65 @@ export function PRGroupCard({ group, onExpand }: PRGroupCardProps) {
 
         <div className="divider my-1"></div>
 
-        <div className="flex flex-wrap gap-2 justify-between items-center">
-          <div className="flex flex-wrap gap-1">
-            {Object.entries(states).map(([state, count]) => (
-              <div key={state} className={`badge ${stateColors[state as keyof typeof stateColors]} badge-sm`}>
-                {state}: {count}
-              </div>
-            ))}
+        {/* Progress Bar com cores por estado */}
+        <div className="space-y-2">
+          <div className="flex justify-between text-xs text-base-content/70 font-medium">
+            <span>Status dos PRs</span>
+            {repoCount > 1 && (
+              <span className="text-base-content/50">{repoCount} repos</span>
+            )}
           </div>
 
-          {repoCount > 1 && (
-            <div className="badge badge-ghost badge-sm">
-              {repoCount} repos
-            </div>
-          )}
+          <div className="flex h-4 w-full rounded-full overflow-hidden bg-base-300">
+            {states.OPEN && (
+              <div
+                className="bg-success flex items-center justify-center text-[10px] font-bold text-success-content"
+                style={{ width: `${(states.OPEN / group.count) * 100}%` }}
+                title={`Abertos: ${states.OPEN}`}
+              >
+                {states.OPEN > 0 && <span className="px-1">{states.OPEN}</span>}
+              </div>
+            )}
+            {states.MERGED && (
+              <div
+                className="bg-info flex items-center justify-center text-[10px] font-bold text-info-content"
+                style={{ width: `${(states.MERGED / group.count) * 100}%` }}
+                title={`Merged: ${states.MERGED}`}
+              >
+                {states.MERGED > 0 && <span className="px-1">{states.MERGED}</span>}
+              </div>
+            )}
+            {states.CLOSED && (
+              <div
+                className="bg-error flex items-center justify-center text-[10px] font-bold text-error-content"
+                style={{ width: `${(states.CLOSED / group.count) * 100}%` }}
+                title={`Fechados: ${states.CLOSED}`}
+              >
+                {states.CLOSED > 0 && <span className="px-1">{states.CLOSED}</span>}
+              </div>
+            )}
+          </div>
+
+          <div className="flex gap-3 text-xs">
+            {states.OPEN && (
+              <div className="flex items-center gap-1">
+                <div className="w-2 h-2 rounded-full bg-success"></div>
+                <span className="text-base-content/60">Abertos: {states.OPEN}</span>
+              </div>
+            )}
+            {states.MERGED && (
+              <div className="flex items-center gap-1">
+                <div className="w-2 h-2 rounded-full bg-info"></div>
+                <span className="text-base-content/60">Merged: {states.MERGED}</span>
+              </div>
+            )}
+            {states.CLOSED && (
+              <div className="flex items-center gap-1">
+                <div className="w-2 h-2 rounded-full bg-error"></div>
+                <span className="text-base-content/60">Fechados: {states.CLOSED}</span>
+              </div>
+            )}
+          </div>
         </div>
     </div>
   );
