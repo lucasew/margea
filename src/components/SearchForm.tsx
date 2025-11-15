@@ -100,9 +100,13 @@ function SearchFormContent({ isAuthenticated }: SearchFormProps) {
       </div>
 
       <div className="pt-4">
-        <button type="submit" className="btn btn-primary w-full gap-2 btn-lg">
+        <button
+          type="submit"
+          className="btn btn-primary w-full gap-2 btn-lg"
+          disabled={!isAuthenticated}
+        >
           <Search size={20} />
-          Buscar Pull Requests
+          {isAuthenticated ? 'Buscar Pull Requests' : 'Login necessário para buscar'}
         </button>
       </div>
     </form>
