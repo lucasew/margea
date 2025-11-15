@@ -44,16 +44,12 @@ export default async function handler(req: Request) {
 
   // Redirecionar com cookie
   const baseUrl = new URL(req.url).origin;
-  const response = Response.redirect(baseUrl, 302);
 
-  response.headers.set('Set-Cookie',
-    `session=${session}; ` +
-    `HttpOnly; ` +
-    `Secure; ` +
-    `SameSite=Strict; ` +
-    `Max-Age=${60 * 60 * 24 * 7}; ` +
-    `Path=/`
-  );
-
-  return response;
+  return new Response(null, {
+    status: 302,
+    headers: {
+      'Location': baseUrl,
+      'Set-Cookie': `session=${session}; HttpOnly; Secure; SameSite=Strict; Max-Age=${60 * 60 * 24 * 7}; Path=/`
+    }
+  });
 }
