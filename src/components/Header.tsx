@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { ThemeToggle } from './ThemeToggle';
 import { Logo } from './Logo';
 
@@ -12,10 +13,10 @@ export function Header({ onLogout, onLogin, isAuthenticated }: HeaderProps) {
     <header className="border-b border-base-300">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between py-4">
-          <div className="flex items-center gap-3">
+          <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
             <Logo size={24} />
             <span className="font-bold text-lg">Margea</span>
-          </div>
+          </Link>
           <div className="flex items-center gap-3">
             <ThemeToggle />
             {isAuthenticated ? (

@@ -18,6 +18,8 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [filterRepo, setFilterRepo] = useState('');
   const [filterState, setFilterState] = useState<'ALL' | 'OPEN' | 'CLOSED' | 'MERGED'>('ALL');
+  const [filterAuthor, setFilterAuthor] = useState('');
+  const [filterOwner, setFilterOwner] = useState('');
 
   const groupKey = searchParams.get('group');
 
@@ -78,6 +80,8 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
   const filteredPrs = filterPullRequests(prs, {
     repository: filterRepo,
     state: filterState,
+    author: filterAuthor,
+    owner: filterOwner,
   });
 
   const groups = groupPullRequests(filteredPrs);
@@ -164,51 +168,76 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
               Filtros e Ações
             </h3>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-              <div className="form-control lg:col-span-5">
-                <label className="label">
-                  <span className="label-text font-semibold">Filtrar por repositório</span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="ex: owner/repo"
-                  className="input input-bordered w-full"
-                  value={filterRepo}
-                  onChange={(e) => setFilterRepo(e.target.value)}
-                />
-              </div>
-
-              <div className="form-control lg:col-span-3">
-                <label className="label">
-                  <span className="label-text font-semibold">Status</span>
-                </label>
-                <select
-                  className="select select-bordered w-full"
-                  value={filterState}
-                  onChange={(e) => setFilterState(e.target.value as any)}
-                >
-                  <option value="ALL">Todos</option>
-                  <option value="OPEN">Abertos</option>
-                  <option value="MERGED">Merged</option>
-                  <option value="CLOSED">Fechados</option>
-                </select>
-              </div>
-
-              <div className="form-control lg:col-span-4">
-                <label className="label">
-                  <span className="label-text opacity-0">Ações</span>
-                </label>
-                <div className="join w-full">
-                  <button onClick={onRefresh} className="btn btn-primary join-item flex-1">
-                    <RefreshCw size={18} />
-                    Atualizar
-                  </button>
-
-                  <button onClick={handleExportJSON} className="btn btn-secondary join-item flex-1">
-                    <Download size={18} />
-                    Exportar
-                  </button>
+            <div className="space-y-4">
+              {/* Filtros - Linha 1 */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text font-semibold">Repositório</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="ex: owner/repo"
+                    className="input input-bordered w-full"
+                    value={filterRepo}
+                    onChange={(e) => setFilterRepo(e.target.value)}
+                  />
                 </div>
+
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text font-semibold">Owner/Org</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="ex: facebook"
+                    className="input input-bordered w-full"
+                    value={filterOwner}
+                    onChange={(e) => setFilterOwner(e.target.value)}
+                  />
+                </div>
+
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text font-semibold">Autor</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="ex: renovate[bot]"
+                    className="input input-bordered w-full"
+                    value={filterAuthor}
+                    onChange={(e) => setFilterAuthor(e.target.value)}
+                  />
+                </div>
+
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text font-semibold">Status</span>
+                  </label>
+                  <select
+                    className="select select-bordered w-full"
+                    value={filterState}
+                    onChange={(e) => setFilterState(e.target.value as any)}
+                  >
+                    <option value="ALL">Todos</option>
+                    <option value="OPEN">Abertos</option>
+                    <option value="MERGED">Merged</option>
+                    <option value="CLOSED">Fechados</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Ações - Linha 2 */}
+              <div className="flex gap-2">
+                <button onClick={onRefresh} className="btn btn-primary flex-1">
+                  <RefreshCw size={18} />
+                  Atualizar
+                </button>
+
+                <button onClick={handleExportJSON} className="btn btn-secondary flex-1">
+                  <Download size={18} />
+                  Exportar JSON
+                </button>
               </div>
             </div>
           </div>

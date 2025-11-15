@@ -1,4 +1,4 @@
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 import { PRList } from '../components/PRList';
@@ -10,16 +10,11 @@ interface RepositoryPageProps {
 }
 
 // Helper to build search query from URL params
-function buildSearchQuery(params: { owner?: string; repo?: string; author?: string }): string {
-  const { owner, repo, author } = params;
+function buildSearchQuery(params: { owner?: string; repo?: string }): string {
+  const { owner, repo } = params;
 
   // Build base query
   let query = 'is:pr';
-
-  // Add author filter if provided
-  if (author) {
-    query += ` author:${author}`;
-  }
 
   // Add scope (repo, org, or all)
   if (owner && repo) {
@@ -33,10 +28,8 @@ function buildSearchQuery(params: { owner?: string; repo?: string; author?: stri
 
 export function RepositoryPage({ onLogout, onLogin, isAuthenticated }: RepositoryPageProps) {
   const params = useParams<{ owner?: string; repo?: string }>();
-  const [searchParams] = useSearchParams();
-  const author = searchParams.get('author') || undefined;
 
-  const searchQuery = buildSearchQuery({ ...params, author });
+  const searchQuery = buildSearchQuery(params);
 
   // Build page title
   let pageTitle = 'Todos os PRs';
@@ -46,8 +39,7 @@ export function RepositoryPage({ onLogout, onLogin, isAuthenticated }: Repositor
     pageTitle = params.owner;
   }
 
-  // Add author to subtitle
-  const subtitle = author ? `Pull Requests de ${author}` : 'Pull Requests';
+  const subtitle = 'Pull Requests';
 
   return (
     <div className="min-h-screen flex flex-col bg-base-100">
@@ -64,8 +56,29 @@ export function RepositoryPage({ onLogout, onLogin, isAuthenticated }: Repositor
           </div>
         </div>
 
-        {/* PR List with Dashboard */}
-        <PRList searchQuery={searchQuery} />
+        {/* Show login required message if not authenticated */}
+        {!isAuthenticated ? (
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div className="alert alert-warning shadow-lg max-w-2xl mx-auto">
+              <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <div>
+                <h3 className="font-bold">Login necessário</h3>
+                <div className="text-sm">
+                  Você precisa estar autenticado para buscar pull requests.
+                  A API do GitHub não permite buscas adequadas sem autenticação.
+                </div>
+              </div>
+              <button onClick={onLogin} className="btn btn-sm btn-primary">
+                Fazer Login
+              </button>
+            </div>
+          </div>
+        ) : (
+          /* PR List with Dashboard */
+          <PRList searchQuery={searchQuery} />
+        )}
       </main>
 
       <Footer />
