@@ -8,14 +8,14 @@ Margea é um webapp totalmente frontend (sem backend) que permite analisar, agru
 
 ## ✨ Funcionalidades
 
-- 🔐 **Autenticação segura**: Token armazenado apenas localmente (localStorage)
+- 🔐 **OAuth com GitHub**: Login seguro com GitHub (sem necessidade de gerar tokens manualmente)
 - 🔍 **Busca configurável**: Busque PRs por autor, organização ou repositório
 - 📊 **Agrupamento inteligente**: PRs agrupados por pacote, branch base e labels
 - 📈 **Estatísticas**: Visualize totais, status e métricas dos PRs
 - 🎨 **Filtros**: Filtre por repositório e status (open, merged, closed)
 - 🌓 **Dark mode**: Alterne entre temas claro e escuro
 - 💾 **Exportação**: Exporte grupos como JSON
-- ⚡ **100% Frontend**: Sem backend, apenas arquivos estáticos
+- ⚡ **Edge Functions**: Serverless com Vercel Edge (sem cold starts)
 
 ## 🚀 Como Usar
 
@@ -32,19 +32,31 @@ yarn install
 bun install
 ```
 
-### 2. Gerar Token do GitHub
+### 2. Configurar GitHub OAuth App
 
-Para usar o Margea, você precisa de um Personal Access Token do GitHub:
+Para usar o Margea com autenticação OAuth, você precisa criar um GitHub OAuth App:
 
-1. Acesse [GitHub Settings → Developer settings](https://github.com/settings/tokens)
-2. Clique em **Personal access tokens** → **Tokens (classic)**
-3. Clique em **Generate new token (classic)**
-4. Dê um nome ao token (ex: "Margea")
-5. Selecione as seguintes permissões:
-   - `repo` (Full control of private repositories)
-   - Ou, se quiser acesso apenas a repositórios públicos: `public_repo`
-6. Clique em **Generate token**
-7. **Copie o token** (você só verá uma vez!)
+**Passos:**
+
+1. Acesse [GitHub Developer Settings](https://github.com/settings/developers)
+2. Clique em **OAuth Apps** → **New OAuth App**
+3. Configure:
+   - **Application name**: `margea-dev`
+   - **Homepage URL**: `http://localhost:5173`
+   - **Callback URL**: `http://localhost:5173/api/auth/callback`
+4. Copie o **Client ID** e gere um **Client Secret**
+5. Configure as variáveis de ambiente (veja `.env.example`)
+
+```bash
+# Copie o arquivo de exemplo
+cp .env.example .env.local
+
+# Edite e preencha com suas credenciais
+# GITHUB_CLIENT_ID=...
+# GITHUB_CLIENT_SECRET=...
+# GITHUB_CALLBACK_URL=http://localhost:5173/api/auth/callback
+# SESSION_SECRET=$(openssl rand -base64 32)
+```
 
 ### 3. Compilar Schema GraphQL (Opcional)
 
@@ -83,7 +95,7 @@ O app estará disponível em `http://localhost:3000`
 
 ### 1. Login
 
-Na primeira tela, cole seu GitHub Token no campo de autenticação e clique em **Entrar**.
+Na primeira tela, clique em **"Login com GitHub"**. Você será redirecionado para o GitHub para autorizar o app. Após autorizar, será redirecionado de volta ao Margea automaticamente.
 
 ### 2. Configurar Busca
 
@@ -125,10 +137,16 @@ Clique em um grupo para ver:
 
 ```
 margea/
+├── api/                     # Vercel Edge Functions
+│   └── auth/                # OAuth endpoints
+│       ├── github.ts        # Inicia OAuth flow
+│       ├── callback.ts      # Recebe código e gera token
+│       ├── token.ts         # Retorna token para frontend
+│       └── logout.ts        # Limpa sessão
 ├── src/
 │   ├── components/          # Componentes React
 │   │   ├── Header.tsx       # Header com logout e theme toggle
-│   │   ├── LoginPage.tsx    # Tela de login
+│   │   ├── LoginPage.tsx    # Tela de login OAuth
 │   │   ├── MainPage.tsx     # Página principal com config
 │   │   ├── PRList.tsx       # Lista de PRs e grupos
 │   │   ├── PRGroupCard.tsx  # Card de grupo
@@ -140,13 +158,15 @@ margea/
 │   ├── relay/               # Configuração do Relay
 │   │   └── environment.ts
 │   ├── services/            # Serviços
-│   │   ├── auth.ts          # Autenticação
+│   │   ├── auth.ts          # Autenticação OAuth
 │   │   └── prGrouping.ts    # Lógica de agrupamento
 │   ├── types/               # Tipos TypeScript
 │   │   └── index.ts
 │   ├── App.tsx              # Componente principal
 │   ├── main.tsx             # Entry point
 │   └── index.css            # Estilos globais
+├── .env.example             # Exemplo de variáveis de ambiente
+├── GITHUB_APP_SETUP.md      # Guia de setup do GitHub OAuth
 ├── index.html
 ├── package.json
 ├── vite.config.ts
@@ -158,19 +178,24 @@ margea/
 
 ## 🛠️ Stack Técnica
 
-- **React 18**: Framework UI
+- **React 19**: Framework UI
 - **Vite**: Build tool e dev server
-- **Relay**: Cliente GraphQL com type-safety
+- **Relay 20**: Cliente GraphQL com type-safety
 - **TypeScript**: Type safety
-- **TailwindCSS + DaisyUI**: Estilização e componentes
+- **TailwindCSS 4 + DaisyUI 5**: Estilização e componentes
+- **Vercel Edge Functions**: OAuth serverless (sem cold starts)
+- **Jose**: JWT para sessões seguras
 - **GitHub GraphQL API v4**: Fonte de dados
 
 ## 🔒 Segurança
 
-- O token do GitHub é armazenado apenas no `localStorage` do seu navegador
-- Nenhum dado é enviado para servidores externos (exceto GitHub API)
-- O app pode ser servido como arquivos estáticos
-- Recomenda-se usar tokens com escopo mínimo necessário
+- ✅ **OAuth seguro**: Autenticação via GitHub OAuth (sem necessidade de tokens manuais)
+- ✅ **Cookie httpOnly**: Token armazenado em cookie seguro (JavaScript não consegue acessar)
+- ✅ **JWT criptografado**: Sessões protegidas com JWT usando SESSION_SECRET
+- ✅ **HTTPS obrigatório**: Em produção, cookies só funcionam via HTTPS
+- ✅ **SameSite strict**: Proteção contra CSRF
+- ✅ **Edge Functions**: Processamento serverless próximo ao usuário
+- ℹ️ **Nenhum dado persistido**: Tokens não são salvos em banco de dados
 
 ## 📝 Notas
 
@@ -188,22 +213,38 @@ A API do GitHub tem rate limits:
 
 ## 🚀 Deploy
 
-Para fazer deploy do app:
+### Vercel (Recomendado)
+
+O app foi otimizado para deploy na Vercel com Edge Functions:
+
+```bash
+# 1. Instale a CLI da Vercel
+npm i -g vercel
+
+# 2. Configure variáveis de ambiente
+vercel env add GITHUB_CLIENT_ID
+vercel env add GITHUB_CLIENT_SECRET
+vercel env add GITHUB_CALLBACK_URL
+vercel env add SESSION_SECRET
+
+# 3. Deploy
+vercel --prod
+```
+
+**Importante:** Configure o `GITHUB_CALLBACK_URL` com a URL de produção da Vercel (ex: `https://seu-app.vercel.app/api/auth/callback`)
+
+### Outras Plataformas
+
+Para outras plataformas que suportam Edge Functions/Serverless:
 
 ```bash
 # Build
 npm run build
 
 # Os arquivos estarão em dist/
-# Você pode servir essa pasta com qualquer servidor estático
 ```
 
-**Opções de deploy:**
-
-- **Vercel**: `vercel deploy`
-- **Netlify**: Arraste a pasta `dist/` para Netlify
-- **GitHub Pages**: Configure para servir a pasta `dist/`
-- **Qualquer servidor estático**: Nginx, Apache, etc.
+**Nota:** O app requer suporte a Edge Functions para OAuth. Se sua plataforma não suporta, você pode adaptar as funções em `/api/auth/` para Serverless Functions tradicionais.
 
 ## 🤝 Contribuindo
 

@@ -1,19 +1,37 @@
-const TOKEN_KEY = 'github_token';
-
 export const AuthService = {
-  saveToken(token: string): void {
-    localStorage.setItem(TOKEN_KEY, token);
+  async getToken(): Promise<string | null> {
+    try {
+      const response = await fetch('/api/auth/token', {
+        credentials: 'include', // Importante: envia cookies
+      });
+
+      if (!response.ok) {
+        return null;
+      }
+
+      const data = await response.json();
+      return data.token || null;
+    } catch (error) {
+      console.error('Error fetching token:', error);
+      return null;
+    }
   },
 
-  getToken(): string | null {
-    return localStorage.getItem(TOKEN_KEY);
+  async logout(): Promise<void> {
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      // Recarregar página para limpar estado
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
   },
 
-  removeToken(): void {
-    localStorage.removeItem(TOKEN_KEY);
-  },
-
-  isAuthenticated(): boolean {
-    return !!this.getToken();
+  async isAuthenticated(): Promise<boolean> {
+    const token = await this.getToken();
+    return !!token;
   }
 };
