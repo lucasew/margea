@@ -1,4 +1,5 @@
 import { Suspense, useState, Component, ReactNode } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useLazyLoadQuery } from 'react-relay';
 import { RefreshCw, Download, Filter, GitPullRequest, GitMerge, XCircle, CheckCircle, Folder, AlertTriangle } from 'react-feather';
 import { SearchPRsQuery } from '../queries/SearchPRsQuery';
@@ -7,18 +8,18 @@ import { groupPullRequests, filterPullRequests, calculateStats } from '../servic
 import { PRGroupCard } from './PRGroupCard';
 import { PRGroupDetail } from './PRGroupDetail';
 import { PRGroup, PullRequest } from '../types';
-import { useRouter, type Route } from '../router';
 
 interface PRListContentProps {
   searchQuery: string;
   onRefresh: () => void;
-  currentRoute: Route;
 }
 
-function PRListContent({ searchQuery, onRefresh, currentRoute }: PRListContentProps) {
-  const { navigate } = useRouter();
+function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [filterRepo, setFilterRepo] = useState('');
   const [filterState, setFilterState] = useState<'ALL' | 'OPEN' | 'CLOSED' | 'MERGED'>('ALL');
+
+  const groupKey = searchParams.get('group');
 
   const data = useLazyLoadQuery<SearchPRsQueryType>(
     SearchPRsQuery,
@@ -94,21 +95,16 @@ function PRListContent({ searchQuery, onRefresh, currentRoute }: PRListContentPr
   };
 
   const handleSelectGroup = (group: PRGroup) => {
-    navigate({
-      type: 'group',
-      searchQuery,
-      groupKey: group.key
-    });
+    setSearchParams({ group: group.key });
   };
 
   const handleBackFromGroup = () => {
-    // This will trigger browser back, which will restore the previous route
-    window.history.back();
+    setSearchParams({});
   };
 
-  // Show group detail if we're in group route
-  if (currentRoute.type === 'group') {
-    const selectedGroup = groups.find(g => g.key === currentRoute.groupKey);
+  // Show group detail if a group is selected via query param
+  if (groupKey) {
+    const selectedGroup = groups.find(g => g.key === groupKey);
     if (selectedGroup) {
       return <PRGroupDetail group={selectedGroup} onBack={handleBackFromGroup} />;
     }
@@ -247,7 +243,6 @@ function PRListContent({ searchQuery, onRefresh, currentRoute }: PRListContentPr
 
 interface PRListProps {
   searchQuery: string;
-  currentRoute: Route;
 }
 
 interface ErrorBoundaryState {
@@ -329,7 +324,7 @@ class PRListErrorBoundary extends Component<
   }
 }
 
-export function PRList({ searchQuery, currentRoute }: PRListProps) {
+export function PRList({ searchQuery }: PRListProps) {
   const [key, setKey] = useState(0);
 
   const handleRefresh = () => {
@@ -346,7 +341,7 @@ export function PRList({ searchQuery, currentRoute }: PRListProps) {
           </div>
         }
       >
-        <PRListContent key={key} searchQuery={searchQuery} onRefresh={handleRefresh} currentRoute={currentRoute} />
+        <PRListContent key={key} searchQuery={searchQuery} onRefresh={handleRefresh} />
       </Suspense>
     </PRListErrorBoundary>
   );

@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Search } from 'react-feather';
 import { Header } from './Header';
 import { Footer } from './Footer';
 import { PRList } from './PRList';
-import { useRouter, routeToSearchQuery } from '../router';
 
 interface MainPageProps {
   onLogout: () => void;
@@ -11,47 +11,79 @@ interface MainPageProps {
   isAuthenticated: boolean;
 }
 
+// Helper to convert pathname to search query
+function pathnameToSearchQuery(pathname: string): string | null {
+  const cleanPath = pathname.replace(/^\/+|\/+$/g, '');
+
+  if (!cleanPath) {
+    return null; // home
+  }
+
+  const parts = cleanPath.split('/');
+
+  // /orgs
+  if (parts.length === 1 && parts[0] === 'orgs') {
+    return 'is:pr author:renovate[bot]';
+  }
+
+  // /org/:orgName
+  if (parts.length === 2 && parts[0] === 'org') {
+    return `is:pr author:renovate[bot] org:${decodeURIComponent(parts[1])}`;
+  }
+
+  // /:orgName/:repoName
+  if (parts.length === 2) {
+    return `is:pr author:renovate[bot] repo:${decodeURIComponent(parts[0])}/${decodeURIComponent(parts[1])}`;
+  }
+
+  return null;
+}
+
 export function MainPage({ onLogout, onLogin, isAuthenticated }: MainPageProps) {
-  const { currentRoute, navigate } = useRouter();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [searchConfig, setSearchConfig] = useState({
     author: 'renovate[bot]',
     owner: '',
     repo: '',
   });
 
-  // Get search query from current route
-  const searchQuery = routeToSearchQuery(currentRoute);
+  // Get search query from current pathname
+  const searchQuery = pathnameToSearchQuery(location.pathname);
 
   // Update form fields when route changes
   useEffect(() => {
-    if (currentRoute.type === 'org') {
-      setSearchConfig(prev => ({ ...prev, owner: currentRoute.orgName, repo: '' }));
-    } else if (currentRoute.type === 'repo') {
+    const cleanPath = location.pathname.replace(/^\/+|\/+$/g, '');
+    const parts = cleanPath.split('/');
+
+    if (!cleanPath) {
+      // home
+      setSearchConfig(prev => ({ ...prev, owner: '', repo: '' }));
+    } else if (parts.length === 1 && parts[0] === 'orgs') {
+      // /orgs
+      setSearchConfig(prev => ({ ...prev, owner: '', repo: '' }));
+    } else if (parts.length === 2 && parts[0] === 'org') {
+      // /org/:orgName
+      setSearchConfig(prev => ({ ...prev, owner: decodeURIComponent(parts[1]), repo: '' }));
+    } else if (parts.length === 2) {
+      // /:orgName/:repoName
       setSearchConfig(prev => ({
         ...prev,
-        owner: currentRoute.orgName,
-        repo: currentRoute.repoName
+        owner: decodeURIComponent(parts[0]),
+        repo: decodeURIComponent(parts[1])
       }));
-    } else if (currentRoute.type === 'orgs') {
-      setSearchConfig(prev => ({ ...prev, owner: '', repo: '' }));
-    } else if (currentRoute.type === 'home') {
-      setSearchConfig(prev => ({ ...prev, owner: '', repo: '' }));
     }
-  }, [currentRoute]);
+  }, [location.pathname]);
 
   const handleConfigure = (e: React.FormEvent) => {
     e.preventDefault();
 
     if (searchConfig.owner && searchConfig.repo) {
-      navigate({
-        type: 'repo',
-        orgName: searchConfig.owner,
-        repoName: searchConfig.repo
-      });
+      navigate(`/${encodeURIComponent(searchConfig.owner)}/${encodeURIComponent(searchConfig.repo)}`);
     } else if (searchConfig.owner) {
-      navigate({ type: 'org', orgName: searchConfig.owner });
+      navigate(`/org/${encodeURIComponent(searchConfig.owner)}`);
     } else {
-      navigate({ type: 'orgs' });
+      navigate('/orgs');
     }
   };
 
@@ -131,7 +163,7 @@ export function MainPage({ onLogout, onLogin, isAuthenticated }: MainPageProps) 
 
           <div className="lg:col-span-8">
             {searchQuery ? (
-              <PRList searchQuery={searchQuery} currentRoute={currentRoute} />
+              <PRList searchQuery={searchQuery} />
             ) : (
               <div className="flex flex-col items-center justify-center min-h-[400px] p-12 text-center">
                 <div className="text-primary/50 mb-6">

@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
+import { BrowserRouter } from 'react-router-dom';
 import { RelayEnvironmentProvider } from 'react-relay';
 import { relayEnvironment } from './relay/environment';
 import { AuthService } from './services/auth';
 import { LoginPage } from './components/LoginPage';
 import { MainPage } from './components/MainPage';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import { RouterProvider } from './router';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -49,13 +49,13 @@ function App() {
   return (
     <ErrorBoundary>
       <RelayEnvironmentProvider environment={relayEnvironment}>
-        <RouterProvider>
+        <BrowserRouter>
           <MainPage
             onLogout={handleLogout}
             onLogin={handleShowLogin}
             isAuthenticated={isAuthenticated}
           />
-        </RouterProvider>
+        </BrowserRouter>
       </RelayEnvironmentProvider>
     </ErrorBoundary>
   );
