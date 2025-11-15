@@ -33,6 +33,14 @@ const fetchQuery: FetchFunction = async (operation, variables) => {
     }),
   });
 
+  // Handle 401 Unauthorized - logout and reload
+  if (response.status === 401) {
+    console.error('401 Unauthorized - logging out user');
+    await AuthService.logout();
+    window.location.href = '/';
+    throw new Error('Sessão expirada. Por favor, faça login novamente.');
+  }
+
   const json = await response.json();
 
   // Check for rate limit info
