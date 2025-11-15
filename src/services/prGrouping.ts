@@ -47,6 +47,8 @@ export function filterPullRequests(
   filters: {
     repository?: string;
     state?: 'OPEN' | 'CLOSED' | 'MERGED' | 'ALL';
+    author?: string;
+    owner?: string;
   }
 ): PullRequest[] {
   let filtered = [...prs];
@@ -59,6 +61,18 @@ export function filterPullRequests(
 
   if (filters.state && filters.state !== 'ALL') {
     filtered = filtered.filter(pr => pr.state === filters.state);
+  }
+
+  if (filters.author) {
+    filtered = filtered.filter(pr =>
+      pr.author?.login.toLowerCase().includes(filters.author!.toLowerCase())
+    );
+  }
+
+  if (filters.owner) {
+    filtered = filtered.filter(pr =>
+      pr.repository.owner.login.toLowerCase().includes(filters.owner!.toLowerCase())
+    );
   }
 
   return filtered;
