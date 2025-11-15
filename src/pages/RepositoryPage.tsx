@@ -14,7 +14,8 @@ interface RepositoryPageProps {
 // Helper to build search query from URL params
 function buildSearchQuery(
   params: { owner?: string; repo?: string },
-  organizations?: Array<{ login: string }>
+  organizations?: Array<{ login: string }>,
+  userLogin?: string
 ): string {
   const { owner, repo } = params;
 
@@ -27,9 +28,14 @@ function buildSearchQuery(
   } else if (owner) {
     query += ` org:${owner}`;
   } else if (organizations && organizations.length > 0) {
-    // /orgs route - filter by user's organizations
+    // /orgs route - filter by user's organizations and user's own PRs
     const orgFilters = organizations.map(org => `org:${org.login}`).join(' ');
     query += ` ${orgFilters}`;
+
+    // Also include PRs authored by the user
+    if (userLogin) {
+      query += ` author:${userLogin}`;
+    }
   }
 
   return query;
@@ -40,16 +46,18 @@ function RepositoryPageContent({ onLogout, onLogin, isAuthenticated }: Repositor
 
   // Load organizations only if authenticated and on /orgs route
   let organizations: Array<{ login: string }> = [];
+  let userLogin: string | undefined;
   if (isAuthenticated && !params.owner && !params.repo) {
     try {
-      const { organizations: orgs } = useViewer();
+      const { organizations: orgs, viewer } = useViewer();
       organizations = orgs;
+      userLogin = viewer.login;
     } catch {
       // If query fails, just use empty list
     }
   }
 
-  const searchQuery = buildSearchQuery(params, organizations);
+  const searchQuery = buildSearchQuery(params, organizations, userLogin);
 
   // Build page title
   let pageTitle = 'Todos os PRs';
