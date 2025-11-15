@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search } from 'react-feather';
 import { Header } from './Header';
 import { Footer } from './Footer';
 import { PRList } from './PRList';
+import { useRouter, routeToSearchQuery } from '../router';
 
 interface MainPageProps {
   onLogout: () => void;
@@ -11,24 +12,47 @@ interface MainPageProps {
 }
 
 export function MainPage({ onLogout, onLogin, isAuthenticated }: MainPageProps) {
+  const { currentRoute, navigate } = useRouter();
   const [searchConfig, setSearchConfig] = useState({
     author: 'renovate[bot]',
     owner: '',
     repo: '',
   });
-  const [searchQuery, setSearchQuery] = useState('');
+
+  // Get search query from current route
+  const searchQuery = routeToSearchQuery(currentRoute);
+
+  // Update form fields when route changes
+  useEffect(() => {
+    if (currentRoute.type === 'org') {
+      setSearchConfig(prev => ({ ...prev, owner: currentRoute.orgName, repo: '' }));
+    } else if (currentRoute.type === 'repo') {
+      setSearchConfig(prev => ({
+        ...prev,
+        owner: currentRoute.orgName,
+        repo: currentRoute.repoName
+      }));
+    } else if (currentRoute.type === 'orgs') {
+      setSearchConfig(prev => ({ ...prev, owner: '', repo: '' }));
+    } else if (currentRoute.type === 'home') {
+      setSearchConfig(prev => ({ ...prev, owner: '', repo: '' }));
+    }
+  }, [currentRoute]);
 
   const handleConfigure = (e: React.FormEvent) => {
     e.preventDefault();
-    const parts = [`is:pr author:${searchConfig.author}`];
 
     if (searchConfig.owner && searchConfig.repo) {
-      parts.push(`repo:${searchConfig.owner}/${searchConfig.repo}`);
+      navigate({
+        type: 'repo',
+        orgName: searchConfig.owner,
+        repoName: searchConfig.repo
+      });
     } else if (searchConfig.owner) {
-      parts.push(`org:${searchConfig.owner}`);
+      navigate({ type: 'org', orgName: searchConfig.owner });
+    } else {
+      navigate({ type: 'orgs' });
     }
-
-    setSearchQuery(parts.join(' '));
   };
 
   return (
@@ -107,7 +131,7 @@ export function MainPage({ onLogout, onLogin, isAuthenticated }: MainPageProps) 
 
           <div className="lg:col-span-8">
             {searchQuery ? (
-              <PRList searchQuery={searchQuery} />
+              <PRList searchQuery={searchQuery} currentRoute={currentRoute} />
             ) : (
               <div className="flex flex-col items-center justify-center min-h-[400px] p-12 text-center">
                 <div className="text-primary/50 mb-6">
