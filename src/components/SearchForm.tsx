@@ -71,7 +71,9 @@ function SearchFormContent({ isAuthenticated }: SearchFormProps) {
         )}
         <label className="label">
           <span className="label-text-alt">
-            Opcional: deixe vazio para buscar em todas as organizações
+            {isAuthenticated
+              ? 'Deixe vazio para buscar em todas as suas organizações'
+              : 'Deixe vazio para buscar em todas as organizações públicas'}
           </span>
         </label>
       </div>
