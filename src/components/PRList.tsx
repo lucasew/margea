@@ -16,12 +16,29 @@ interface PRListContentProps {
 
 function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [filterRepo, setFilterRepo] = useState('');
-  const [filterState, setFilterState] = useState<'ALL' | 'OPEN' | 'CLOSED' | 'MERGED'>('ALL');
-  const [filterAuthor, setFilterAuthor] = useState('');
-  const [filterOwner, setFilterOwner] = useState('');
 
   const groupKey = searchParams.get('group');
+
+  // Read filters from URL
+  const filterRepo = searchParams.get('repo') || '';
+  const filterState = (searchParams.get('state') || 'ALL') as 'ALL' | 'OPEN' | 'CLOSED' | 'MERGED';
+  const filterAuthor = searchParams.get('author') || '';
+  const filterOwner = searchParams.get('owner') || '';
+
+  // Helper to update filters in URL
+  const updateFilter = (key: string, value: string) => {
+    const newParams = new URLSearchParams(searchParams);
+    if (value) {
+      newParams.set(key, value);
+    } else {
+      newParams.delete(key);
+    }
+    // Preserve group param if it exists
+    if (groupKey) {
+      newParams.set('group', groupKey);
+    }
+    setSearchParams(newParams);
+  };
 
   const data = useLazyLoadQuery<SearchPRsQueryType>(
     SearchPRsQuery,
@@ -86,6 +103,11 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
 
   const groups = groupPullRequests(filteredPrs);
   const stats = calculateStats(filteredPrs);
+
+  // Extract unique values for dropdowns from ALL PRs (not filtered)
+  const uniqueRepos = Array.from(new Set(prs.map(pr => `${pr.repository.owner.login}/${pr.repository.name}`))).sort();
+  const uniqueOwners = Array.from(new Set(prs.map(pr => pr.repository.owner.login))).sort();
+  const uniqueAuthors = Array.from(new Set(prs.map(pr => pr.author?.login).filter(Boolean) as string[])).sort();
 
   const handleExportJSON = () => {
     const dataStr = JSON.stringify(groups, null, 2);
@@ -175,39 +197,48 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
                   <label className="label">
                     <span className="label-text font-semibold">Repositório</span>
                   </label>
-                  <input
-                    type="text"
-                    placeholder="ex: owner/repo"
-                    className="input input-bordered w-full"
+                  <select
+                    className="select select-bordered w-full"
                     value={filterRepo}
-                    onChange={(e) => setFilterRepo(e.target.value)}
-                  />
+                    onChange={(e) => updateFilter('repo', e.target.value)}
+                  >
+                    <option value="">Todos</option>
+                    {uniqueRepos.map(repo => (
+                      <option key={repo} value={repo}>{repo}</option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="form-control">
                   <label className="label">
                     <span className="label-text font-semibold">Owner/Org</span>
                   </label>
-                  <input
-                    type="text"
-                    placeholder="ex: facebook"
-                    className="input input-bordered w-full"
+                  <select
+                    className="select select-bordered w-full"
                     value={filterOwner}
-                    onChange={(e) => setFilterOwner(e.target.value)}
-                  />
+                    onChange={(e) => updateFilter('owner', e.target.value)}
+                  >
+                    <option value="">Todos</option>
+                    {uniqueOwners.map(owner => (
+                      <option key={owner} value={owner}>{owner}</option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="form-control">
                   <label className="label">
                     <span className="label-text font-semibold">Autor</span>
                   </label>
-                  <input
-                    type="text"
-                    placeholder="ex: renovate[bot]"
-                    className="input input-bordered w-full"
+                  <select
+                    className="select select-bordered w-full"
                     value={filterAuthor}
-                    onChange={(e) => setFilterAuthor(e.target.value)}
-                  />
+                    onChange={(e) => updateFilter('author', e.target.value)}
+                  >
+                    <option value="">Todos</option>
+                    {uniqueAuthors.map(author => (
+                      <option key={author} value={author}>{author}</option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="form-control">
@@ -217,7 +248,7 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
                   <select
                     className="select select-bordered w-full"
                     value={filterState}
-                    onChange={(e) => setFilterState(e.target.value as any)}
+                    onChange={(e) => updateFilter('state', e.target.value)}
                   >
                     <option value="ALL">Todos</option>
                     <option value="OPEN">Abertos</option>

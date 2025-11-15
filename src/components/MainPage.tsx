@@ -1,9 +1,11 @@
 import { useLocation } from 'react-router-dom';
+import { Suspense } from 'react';
 import { Search } from 'react-feather';
 import { Header } from './Header';
 import { Footer } from './Footer';
 import { PRList } from './PRList';
 import { SearchForm } from './SearchForm';
+import { useViewer } from '../hooks/useViewer';
 
 interface MainPageProps {
   onLogout: () => void;
@@ -12,7 +14,7 @@ interface MainPageProps {
 }
 
 // Helper to convert pathname to search query
-function pathnameToSearchQuery(pathname: string, author?: string): string | null {
+function pathnameToSearchQuery(pathname: string, author?: string, organizations?: Array<{ login: string }>): string | null {
   const cleanPath = pathname.replace(/^\/+|\/+$/g, '');
 
   if (!cleanPath) {
@@ -29,8 +31,13 @@ function pathnameToSearchQuery(pathname: string, author?: string): string | null
     query += ` author:${author}`;
   }
 
-  // /orgs
+  // /orgs - filter by user's organizations
   if (parts.length === 1 && parts[0] === 'orgs') {
+    if (organizations && organizations.length > 0) {
+      // Add org filter for each organization
+      const orgFilters = organizations.map(org => `org:${org.login}`).join(' ');
+      return `${query} ${orgFilters}`;
+    }
     return query;
   }
 
@@ -47,15 +54,26 @@ function pathnameToSearchQuery(pathname: string, author?: string): string | null
   return null;
 }
 
-export function MainPage({ onLogout, onLogin, isAuthenticated }: MainPageProps) {
+function MainPageContent({ onLogout, onLogin, isAuthenticated }: MainPageProps) {
   const location = useLocation();
 
   // Extract author from search params
   const searchParams = new URLSearchParams(location.search);
   const authorFromUrl = searchParams.get('author') || '';
 
+  // Load organizations only if authenticated
+  let organizations: Array<{ login: string }> = [];
+  if (isAuthenticated) {
+    try {
+      const { organizations: orgs } = useViewer();
+      organizations = orgs;
+    } catch {
+      // If query fails, just use empty list
+    }
+  }
+
   // Get search query from current pathname
-  const searchQuery = pathnameToSearchQuery(location.pathname, authorFromUrl);
+  const searchQuery = pathnameToSearchQuery(location.pathname, authorFromUrl, organizations);
 
   return (
     <div className="min-h-screen flex flex-col bg-base-100">
@@ -96,5 +114,19 @@ export function MainPage({ onLogout, onLogin, isAuthenticated }: MainPageProps) 
       </main>
       <Footer />
     </div>
+  );
+}
+
+export function MainPage(props: MainPageProps) {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <span className="loading loading-spinner loading-lg"></span>
+        </div>
+      }
+    >
+      <MainPageContent {...props} />
+    </Suspense>
   );
 }
