@@ -1,18 +1,26 @@
 import { PullRequest, PRGroup } from '../types';
 
 /**
- * Group PRs by title, base branch, and labels
+ * Normalize base ref to group main and master together
+ */
+function normalizeBaseRef(baseRef: string): string {
+  return baseRef === 'master' ? 'main' : baseRef;
+}
+
+/**
+ * Group PRs by title, author, base branch (main=master), and labels
  */
 export function groupPullRequests(prs: PullRequest[]): PRGroup[] {
   const groups = new Map<string, PRGroup>();
 
   for (const pr of prs) {
     const title = pr.title;
-    const baseRef = pr.baseRefName;
+    const author = pr.author?.login || 'unknown';
+    const baseRef = normalizeBaseRef(pr.baseRefName);
     const labels = pr.labels?.nodes?.map(l => l.name).sort() || [];
     const labelsKey = labels.join(',');
 
-    const key = `${title}|${baseRef}|${labelsKey}`;
+    const key = `${title}|${author}|${baseRef}|${labelsKey}`;
 
     if (!groups.has(key)) {
       groups.set(key, {
