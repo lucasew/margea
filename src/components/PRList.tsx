@@ -24,6 +24,7 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
   const filterState = (searchParams.get('state') || 'ALL') as 'ALL' | 'OPEN' | 'CLOSED' | 'MERGED';
   const filterAuthor = searchParams.get('author') || '';
   const filterOwner = searchParams.get('owner') || '';
+  const prLimit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '100')));
 
   // Helper to update filters in URL
   const updateFilter = (key: string, value: string) => {
@@ -44,7 +45,7 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
     SearchPRsQuery,
     {
       searchQuery,
-      first: 100,
+      first: prLimit,
     }
   );
 
@@ -255,6 +256,30 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
                     <option value="MERGED">Merged</option>
                     <option value="CLOSED">Fechados</option>
                   </select>
+                </div>
+              </div>
+
+              {/* Filtros - Linha 2 - Limite de PRs */}
+              <div className="grid grid-cols-1 gap-4">
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text font-semibold">Limite de PRs por requisição</span>
+                    <span className="label-text-alt">Máx: 100</span>
+                  </label>
+                  <input
+                    type="number"
+                    className="input input-bordered w-full max-w-xs"
+                    value={prLimit}
+                    min={1}
+                    max={100}
+                    onChange={(e) => {
+                      const value = Math.min(100, Math.max(1, parseInt(e.target.value) || 1));
+                      updateFilter('limit', value.toString());
+                    }}
+                  />
+                  <label className="label">
+                    <span className="label-text-alt">Limite da API do GitHub: 100 por requisição, máximo 1.000 total via paginação</span>
+                  </label>
                 </div>
               </div>
 
