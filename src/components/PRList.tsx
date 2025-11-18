@@ -1,4 +1,4 @@
-import { Suspense, useState, Component, ReactNode } from 'react';
+import { Suspense, useState, Component, ReactNode, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useLazyLoadQuery } from 'react-relay';
 import { RefreshCw, Download, Filter, GitPullRequest, GitMerge, XCircle, CheckCircle, Folder, AlertTriangle } from 'react-feather';
@@ -25,8 +25,18 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
   const filterAuthor = searchParams.get('author') || '';
   const filterOwner = searchParams.get('owner') || '';
 
-  // State for PR limit
-  const [prLimit, setPrLimit] = useState(100);
+  // State for PR limit, synced with URL param
+  const [prLimit, setPrLimit] = useState(() => {
+    const limit = parseInt(searchParams.get('limit') || '100', 10);
+    return limit > 0 && limit <= 100 ? limit : 100;
+  });
+
+  useEffect(() => {
+    const limit = parseInt(searchParams.get('limit') || '100', 10);
+    const validLimit = limit > 0 && limit <= 100 ? limit : 100;
+    setPrLimit(validLimit);
+  }, [searchParams]);
+
 
   // Helper to update filters in URL
   const updateFilter = (key: string, value: string) => {
@@ -42,6 +52,12 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
     }
     setSearchParams(newParams);
   };
+
+  const handleLimitChange = (value: string) => {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set('limit', value);
+    setSearchParams(newParams, { replace: true });
+  }
 
   const data = useLazyLoadQuery<SearchPRsQueryType>(
     SearchPRsQuery,
@@ -263,18 +279,17 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
 
               {/* Ações - Linha 2 */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="form-control">
+              <div className="form-control">
                   <label className="label">
-                    <span className="label-text font-semibold">Limite de PRs: {prLimit}</span>
+                    <span className="label-text font-semibold">Limite de PRs</span>
                   </label>
                   <input
-                    type="range"
-                    min="100"
-                    max="1000"
-                    step="100"
+                    type="number"
+                    min="1"
+                    max="100"
                     value={prLimit}
-                    onChange={(e) => setPrLimit(Number(e.target.value))}
-                    className="range range-primary"
+                    onChange={(e) => handleLimitChange(e.target.value)}
+                    className="input input-bordered w-full"
                   />
                 </div>
 
