@@ -1,4 +1,5 @@
 import { LogIn } from 'react-feather';
+import { useTranslation } from 'react-i18next';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 import { SearchForm } from '../components/SearchForm';
@@ -10,6 +11,7 @@ interface HomePageProps {
 }
 
 export function HomePage({ onLogout, onLogin, isAuthenticated }: HomePageProps) {
+  const { t } = useTranslation();
 
   return (
     <div className="min-h-screen flex flex-col bg-base-100">
@@ -19,9 +21,9 @@ export function HomePage({ onLogout, onLogin, isAuthenticated }: HomePageProps) 
         <div className="max-w-2xl mx-auto">
           {/* Hero Section */}
           <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-6xl font-bold mb-4">Margea</h1>
+            <h1 className="text-4xl md:text-6xl font-bold mb-4">{t('homepage.title')}</h1>
             <p className="text-lg md:text-xl text-base-content/70 max-w-2xl mx-auto">
-              Encontre e agrupe Pull Requests de forma inteligente.
+              {t('homepage.subtitle')}
             </p>
           </div>
 
@@ -32,11 +34,11 @@ export function HomePage({ onLogout, onLogin, isAuthenticated }: HomePageProps) 
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
               <div className="flex-1">
-                <span>Faça login para uma melhor experiência e evitar limites de taxa da API.</span>
+                <span>{t('homepage.login_prompt')}</span>
               </div>
               <button onClick={onLogin} className="btn btn-sm btn-primary gap-2">
                 <LogIn size={16} />
-                Login
+                {t('header.login')}
               </button>
             </div>
           )}
@@ -44,7 +46,7 @@ export function HomePage({ onLogout, onLogin, isAuthenticated }: HomePageProps) 
           {/* Search Form */}
           <div className="card bg-base-200 shadow-xl">
             <div className="card-body">
-              <h2 className="card-title text-2xl mb-4">Buscar Pull Requests</h2>
+              <h2 className="card-title text-2xl mb-4">{t('search.title')}</h2>
               <SearchForm isAuthenticated={isAuthenticated} />
             </div>
           </div>
@@ -53,18 +55,18 @@ export function HomePage({ onLogout, onLogin, isAuthenticated }: HomePageProps) 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
             <div className="card bg-base-200">
               <div className="card-body">
-                <h3 className="font-semibold mb-2">Agrupamento Inteligente</h3>
+                <h3 className="font-semibold mb-2">{t('homepage.intelligent_grouping')}</h3>
                 <p className="text-sm text-base-content/70">
-                  PRs são automaticamente agrupados por dependência e tipo de atualização.
+                  {t('homepage.intelligent_grouping_description')}
                 </p>
               </div>
             </div>
 
             <div className="card bg-base-200">
               <div className="card-body">
-                <h3 className="font-semibold mb-2">Exportação Fácil</h3>
+                <h3 className="font-semibold mb-2">{t('homepage.easy_export')}</h3>
                 <p className="text-sm text-base-content/70">
-                  Exporte os grupos de PRs em formato JSON para análise posterior.
+                  {t('homepage.easy_export_description')}
                 </p>
               </div>
             </div>

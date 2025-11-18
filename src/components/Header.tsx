@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ThemeToggle } from './ThemeToggle';
 import { Logo } from './Logo';
 
@@ -9,6 +10,8 @@ interface HeaderProps {
 }
 
 export function Header({ onLogout, onLogin, isAuthenticated }: HeaderProps) {
+  const { t } = useTranslation();
+
   return (
     <header className="border-b border-base-300">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -21,11 +24,11 @@ export function Header({ onLogout, onLogin, isAuthenticated }: HeaderProps) {
             <ThemeToggle />
             {isAuthenticated ? (
               <button onClick={onLogout} className="btn btn-ghost btn-sm">
-                Sair
+                {t('header.logout')}
               </button>
             ) : (
               <button onClick={onLogin} className="btn btn-ghost btn-sm">
-                Login
+                {t('header.login')}
               </button>
             )}
           </div>

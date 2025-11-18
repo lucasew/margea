@@ -1,0 +1,40 @@
+{
+  "search": {
+    "title": "Search Pull Requests",
+    "description": "Enter a GitHub repository URL to get started.",
+    "placeholder": "Enter repository URL",
+    "button": "Search",
+    "owner_organization": "Owner/Organization",
+    "all_organizations": "All organizations",
+    "leave_blank_all_orgs": "Leave blank to search across all your organizations",
+    "leave_blank_all_public_orgs": "Leave blank to search across all public organizations",
+    "repository": "Repository",
+    "optional_specify_repository": "Optional: specify a single repository",
+    "search_pull_requests": "Search Pull Requests",
+    "login_required": "Login required to search"
+  },
+  "header": {
+    "login": "Login",
+    "logout": "Logout"
+  },
+  "footer": {
+    "text": "Margea is an experimental project to explore new ways of grouping pull requests.",
+    "description": "A tool for analyzing and grouping GitHub Pull Requests, with a focus on Renovate Bot updates.",
+    "resources": "Resources",
+    "how_to_generate_token": "How to generate a GitHub token",
+    "about_renovate": "About Renovate Bot",
+    "technologies": "Technologies",
+    "made_with": "Made with",
+    "using": "using React and GitHub API",
+    "rights_reserved": "All rights reserved."
+  },
+  "homepage": {
+    "title": "Margea",
+    "subtitle": "Find and group Pull Requests intelligently.",
+    "login_prompt": "Log in for a better experience and to avoid API rate limits.",
+    "intelligent_grouping": "Intelligent Grouping",
+    "intelligent_grouping_description": "PRs are automatically grouped by dependency and update type.",
+    "easy_export": "Easy Export",
+    "easy_export_description": "Export PR groups in JSON format for further analysis."
+  }
+}

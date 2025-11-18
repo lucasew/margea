@@ -1,6 +1,7 @@
 import { Suspense, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search } from 'react-feather';
+import { useTranslation } from 'react-i18next';
 import { useViewer } from '../hooks/useViewer';
 
 interface SearchFormProps {
@@ -8,6 +9,7 @@ interface SearchFormProps {
 }
 
 function SearchFormContent({ isAuthenticated }: SearchFormProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchConfig, setSearchConfig] = useState({
     owner: '',
@@ -41,7 +43,7 @@ function SearchFormContent({ isAuthenticated }: SearchFormProps) {
     <form onSubmit={handleConfigure} className="space-y-4">
       <div className="form-control">
         <label className="label">
-          <span className="label-text font-medium">Owner/Organização</span>
+          <span className="label-text font-medium">{t('search.owner_organization')}</span>
         </label>
         {isAuthenticated && organizations.length > 0 ? (
           <select
@@ -51,7 +53,7 @@ function SearchFormContent({ isAuthenticated }: SearchFormProps) {
               setSearchConfig({ ...searchConfig, owner: e.target.value })
             }
           >
-            <option value="">Todas as organizações</option>
+            <option value="">{t('search.all_organizations')}</option>
             {organizations.map((org) => (
               <option key={org.login} value={org.login}>
                 {org.name || org.login}
@@ -72,15 +74,15 @@ function SearchFormContent({ isAuthenticated }: SearchFormProps) {
         <label className="label">
           <span className="label-text-alt">
             {isAuthenticated
-              ? 'Deixe vazio para buscar em todas as suas organizações'
-              : 'Deixe vazio para buscar em todas as organizações públicas'}
+              ? t('search.leave_blank_all_orgs')
+              : t('search.leave_blank_all_public_orgs')}
           </span>
         </label>
       </div>
 
       <div className="form-control">
         <label className="label">
-          <span className="label-text font-medium">Repositório</span>
+          <span className="label-text font-medium">{t('search.repository')}</span>
         </label>
         <input
           type="text"
@@ -94,7 +96,7 @@ function SearchFormContent({ isAuthenticated }: SearchFormProps) {
         />
         <label className="label">
           <span className="label-text-alt">
-            Opcional: especifique um repositório específico
+            {t('search.optional_specify_repository')}
           </span>
         </label>
       </div>
@@ -106,7 +108,7 @@ function SearchFormContent({ isAuthenticated }: SearchFormProps) {
           disabled={!isAuthenticated}
         >
           <Search size={20} />
-          {isAuthenticated ? 'Buscar Pull Requests' : 'Login necessário para buscar'}
+          {isAuthenticated ? t('search.search_pull_requests') : t('search.login_required')}
         </button>
       </div>
     </form>
@@ -114,19 +116,20 @@ function SearchFormContent({ isAuthenticated }: SearchFormProps) {
 }
 
 export function SearchForm({ isAuthenticated }: SearchFormProps) {
+  const { t } = useTranslation();
   return (
     <Suspense
       fallback={
         <form className="space-y-4">
           <div className="form-control">
             <label className="label">
-              <span className="label-text font-medium">Owner/Organização</span>
+              <span className="label-text font-medium">{t('search.owner_organization')}</span>
             </label>
             <div className="skeleton h-12 w-full"></div>
           </div>
           <div className="form-control">
             <label className="label">
-              <span className="label-text font-medium">Repositório</span>
+              <span className="label-text font-medium">{t('search.repository')}</span>
             </label>
             <div className="skeleton h-12 w-full"></div>
           </div>
