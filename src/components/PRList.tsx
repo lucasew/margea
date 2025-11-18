@@ -265,24 +265,17 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text font-semibold">Limite de PRs</span>
+                    <span className="label-text font-semibold">Limite de PRs: {prLimit}</span>
                   </label>
-                  <select
-                    className="select select-bordered w-full"
+                  <input
+                    type="range"
+                    min="100"
+                    max="1000"
+                    step="100"
                     value={prLimit}
                     onChange={(e) => setPrLimit(Number(e.target.value))}
-                  >
-                    <option value="100">100</option>
-                    <option value="200">200</option>
-                    <option value="300">300</option>
-                    <option value="400">400</option>
-                    <option value="500">500</option>
-                    <option value="600">600</option>
-                    <option value="700">700</option>
-                    <option value="800">800</option>
-                    <option value="900">900</option>
-                    <option value="1000">1000</option>
-                  </select>
+                    className="range range-primary"
+                  />
                 </div>
 
                 <button onClick={onRefresh} className="btn btn-primary w-full self-end">
