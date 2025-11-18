@@ -25,6 +25,9 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
   const filterAuthor = searchParams.get('author') || '';
   const filterOwner = searchParams.get('owner') || '';
 
+  // State for PR limit
+  const [prLimit, setPrLimit] = useState(100);
+
   // Helper to update filters in URL
   const updateFilter = (key: string, value: string) => {
     const newParams = new URLSearchParams(searchParams);
@@ -44,7 +47,7 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
     SearchPRsQuery,
     {
       searchQuery,
-      first: 100,
+      first: prLimit,
     }
   );
 
@@ -259,13 +262,28 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
               </div>
 
               {/* Ações - Linha 2 */}
-              <div className="flex gap-2">
-                <button onClick={onRefresh} className="btn btn-primary flex-1">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text font-semibold">Limite de PRs: {prLimit}</span>
+                  </label>
+                  <input
+                    type="range"
+                    min="100"
+                    max="1000"
+                    step="100"
+                    value={prLimit}
+                    onChange={(e) => setPrLimit(Number(e.target.value))}
+                    className="range range-primary"
+                  />
+                </div>
+
+                <button onClick={onRefresh} className="btn btn-primary w-full self-end">
                   <RefreshCw size={18} />
                   Atualizar
                 </button>
 
-                <button onClick={handleExportJSON} className="btn btn-secondary flex-1">
+                <button onClick={handleExportJSON} className="btn btn-secondary w-full self-end">
                   <Download size={18} />
                   Exportar JSON
                 </button>
