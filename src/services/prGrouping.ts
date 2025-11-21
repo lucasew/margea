@@ -14,7 +14,11 @@ export function groupPullRequests(prs: PullRequest[]): PRGroup[] {
   const groups = new Map<string, PRGroup>();
 
   for (const pr of prs) {
-    const title = pr.title;
+    let title = pr.title;
+    if (title.startsWith('Update dependency')) {
+      title = title.replace('Update dependency', 'chore(deps): update dependency');
+    }
+
     const author = pr.author?.login || 'unknown';
     const baseRef = normalizeBaseRef(pr.baseRefName);
     const labels = pr.labels?.nodes?.map(l => l.name).sort() || [];
