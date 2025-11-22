@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { ArrowLeft, Package, GitBranch, Tag, ExternalLink, Calendar, User, GitCommit, X, Check } from 'react-feather';
+import { ArrowLeft, Package, GitBranch, Tag, ExternalLink, Calendar, User, GitCommit, X, Check, AlertCircle } from 'react-feather';
 import { PRGroup, BulkActionType, BulkActionProgress } from '../types';
 import { BulkActionsService } from '../services/bulkActions';
 import { BulkActionModal } from './BulkActionModal';
+import { useAuth } from '../hooks/useAuth';
 
 interface PRGroupDetailProps {
   group: PRGroup;
@@ -10,6 +11,7 @@ interface PRGroupDetailProps {
 }
 
 export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
+  const { hasWritePermission, mode } = useAuth();
   const [selectedPRs, setSelectedPRs] = useState<Set<string>>(new Set());
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [actionType, setActionType] = useState<BulkActionType | null>(null);
@@ -118,9 +120,14 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
                     : 'Selecionar todos'}
                 </span>
               </label>
+              {mode && (
+                <span className={`badge ${mode === 'write' ? 'badge-success' : 'badge-ghost'}`}>
+                  {mode === 'write' ? 'Leitura e Escrita' : 'Somente Leitura'}
+                </span>
+              )}
             </div>
 
-            {selectedCount > 0 && (
+            {selectedCount > 0 && hasWritePermission && (
               <div className="flex flex-wrap gap-2">
                 <button
                   onClick={() => handleOpenModal('merge')}
@@ -136,6 +143,15 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
                   <X size={16} />
                   Fechar {selectedCount} PR{selectedCount > 1 ? 's' : ''}
                 </button>
+              </div>
+            )}
+
+            {selectedCount > 0 && !hasWritePermission && (
+              <div className="alert alert-warning py-2 px-4">
+                <AlertCircle size={16} />
+                <span className="text-sm">
+                  Você precisa de permissão de escrita para mergear/fechar PRs
+                </span>
               </div>
             )}
           </div>

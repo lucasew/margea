@@ -5,6 +5,7 @@ export const config = { runtime: 'edge' };
 export default async function handler(req: Request) {
   const { searchParams } = new URL(req.url);
   const code = searchParams.get('code');
+  const state = searchParams.get('state'); // mode: 'read' ou 'write'
 
   if (!code) {
     return new Response('Missing code parameter', { status: 400 });
@@ -34,9 +35,13 @@ export default async function handler(req: Request) {
     );
   }
 
-  // Criar JWT com token
+  // Criar JWT com token e mode
   const secret = new TextEncoder().encode(process.env.SESSION_SECRET);
-  const session = await new SignJWT({ github_token: access_token })
+  const mode = state || 'read'; // Default: read-only
+  const session = await new SignJWT({
+    github_token: access_token,
+    mode: mode
+  })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime('7d')
