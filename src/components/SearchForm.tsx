@@ -14,6 +14,7 @@ function SearchFormContent({ isAuthenticated }: SearchFormProps) {
   const [searchConfig, setSearchConfig] = useState({
     owner: '',
     repo: '',
+    limit: 100,
   });
 
   // Load organizations only if authenticated
@@ -30,12 +31,14 @@ function SearchFormContent({ isAuthenticated }: SearchFormProps) {
   const handleConfigure = (e: React.FormEvent) => {
     e.preventDefault();
 
+    const limitParam = searchConfig.limit !== 100 ? `?limit=${searchConfig.limit}` : '';
+
     if (searchConfig.owner && searchConfig.repo) {
-      navigate(`/${encodeURIComponent(searchConfig.owner)}/${encodeURIComponent(searchConfig.repo)}`);
+      navigate(`/${encodeURIComponent(searchConfig.owner)}/${encodeURIComponent(searchConfig.repo)}${limitParam}`);
     } else if (searchConfig.owner) {
-      navigate(`/org/${encodeURIComponent(searchConfig.owner)}`);
+      navigate(`/org/${encodeURIComponent(searchConfig.owner)}${limitParam}`);
     } else {
-      navigate(`/orgs`);
+      navigate(`/orgs${limitParam}`);
     }
   };
 
@@ -97,6 +100,28 @@ function SearchFormContent({ isAuthenticated }: SearchFormProps) {
         <label className="label">
           <span className="label-text-alt">
             {t('search.optional_specify_repository')}
+          </span>
+        </label>
+      </div>
+
+      <div className="form-control">
+        <label className="label">
+          <span className="label-text font-medium">Limite de PRs por página</span>
+        </label>
+        <input
+          type="number"
+          min="1"
+          max="500"
+          placeholder="100"
+          className="input input-bordered w-full"
+          value={searchConfig.limit}
+          onChange={(e) =>
+            setSearchConfig({ ...searchConfig, limit: parseInt(e.target.value) || 100 })
+          }
+        />
+        <label className="label">
+          <span className="label-text-alt">
+            Número de PRs a serem carregados por vez (padrão: 100)
           </span>
         </label>
       </div>
