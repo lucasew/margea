@@ -46,3 +46,21 @@ export interface FilterOptions {
   repository?: string;
   state?: 'OPEN' | 'CLOSED' | 'MERGED' | 'ALL';
 }
+
+export type BulkActionType = 'merge' | 'close';
+
+export interface BulkActionProgress {
+  prId: string;
+  prNumber: number;
+  prTitle: string;
+  status: 'pending' | 'processing' | 'success' | 'error';
+  error?: string;
+}
+
+export interface BulkActionState {
+  isOpen: boolean;
+  actionType: BulkActionType | null;
+  selectedPRs: PullRequest[];
+  progress: BulkActionProgress[];
+  isExecuting: boolean;
+}

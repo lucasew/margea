@@ -5,6 +5,37 @@ type Query {
   search(query: String!, type: SearchType!, first: Int, after: String): SearchResultItemConnection!
 }
 
+type Mutation {
+  mergePullRequest(input: MergePullRequestInput!): MergePullRequestPayload
+  closePullRequest(input: ClosePullRequestInput!): ClosePullRequestPayload
+}
+
+input MergePullRequestInput {
+  pullRequestId: ID!
+  commitHeadline: String
+  commitBody: String
+  expectedHeadOid: String
+  mergeMethod: PullRequestMergeMethod
+}
+
+enum PullRequestMergeMethod {
+  MERGE
+  SQUASH
+  REBASE
+}
+
+type MergePullRequestPayload {
+  pullRequest: PullRequest
+}
+
+input ClosePullRequestInput {
+  pullRequestId: ID!
+}
+
+type ClosePullRequestPayload {
+  pullRequest: PullRequest
+}
+
 enum SearchType {
   ISSUE
   REPOSITORY
@@ -82,6 +113,8 @@ type PullRequest {
   updatedAt: String!
   mergedAt: String
   closedAt: String
+  merged: Boolean!
+  closed: Boolean!
   url: String!
   baseRefName: String!
   headRefName: String!
