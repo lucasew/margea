@@ -1,7 +1,8 @@
 import { Suspense, useState, Component, ReactNode, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useLazyLoadQuery } from 'react-relay';
+import { useLazyLoadQuery, fetchQuery } from 'react-relay';
 import { RefreshCw, Download, Filter, GitPullRequest, GitMerge, XCircle, CheckCircle, Folder, AlertTriangle } from 'react-feather';
+import { relayEnvironment } from '../relay/environment';
 import { SearchPRsQuery } from '../queries/SearchPRsQuery';
 import { SearchPRsQuery as SearchPRsQueryType } from '../queries/__generated__/SearchPRsQuery.graphql';
 import { groupPullRequests, filterPullRequests, calculateStats } from '../services/prGrouping';
@@ -25,18 +26,23 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
   const filterAuthor = searchParams.get('author') || '';
   const filterOwner = searchParams.get('owner') || '';
 
-  // State for PR limit, synced with URL param
-  const [prLimit, setPrLimit] = useState(() => {
+  // State for PR target/goal, synced with URL param
+  const [prTarget, setPrTarget] = useState(() => {
     const limit = parseInt(searchParams.get('limit') || '100', 10);
-    return limit > 0 && limit <= 100 ? limit : 100;
+    return limit > 0 && limit <= 1000 ? limit : 100;
   });
 
   useEffect(() => {
     const limit = parseInt(searchParams.get('limit') || '100', 10);
-    const validLimit = limit > 0 && limit <= 100 ? limit : 100;
-    setPrLimit(validLimit);
+    const validLimit = limit > 0 && limit <= 1000 ? limit : 100;
+    setPrTarget(validLimit);
   }, [searchParams]);
 
+  // States for pagination
+  const [additionalPRs, setAdditionalPRs] = useState<PullRequest[]>([]);
+  const [endCursor, setEndCursor] = useState<string | null>(null);
+  const [hasNextPage, setHasNextPage] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   // Helper to update filters in URL
   const updateFilter = (key: string, value: string) => {
@@ -59,16 +65,28 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
     setSearchParams(newParams, { replace: true });
   }
 
+  // Always fetch in batches of 100
+  const BATCH_SIZE = 100;
+
   const data = useLazyLoadQuery<SearchPRsQueryType>(
     SearchPRsQuery,
     {
       searchQuery,
-      first: prLimit,
+      first: Math.min(BATCH_SIZE, prTarget),
     }
   );
 
+  // Update pagination info from initial query and trigger auto-fetch
+  useEffect(() => {
+    setHasNextPage(data.search.pageInfo?.hasNextPage ?? false);
+    setEndCursor(data.search.pageInfo?.endCursor ?? null);
+    // Reset additional PRs when query changes
+    setAdditionalPRs([]);
+    setIsLoadingMore(false);
+  }, [data]);
+
   // Transform Relay data to our PullRequest type
-  const prs: PullRequest[] = (data.search.edges || [])
+  const initialPRs: PullRequest[] = (data.search.edges || [])
     .map(edge => edge?.node)
     .filter((node): node is NonNullable<typeof node> =>
       node != null &&
@@ -113,6 +131,9 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
       repository: pr.repository!,
     }));
 
+  // Combine initial PRs with additional PRs from pagination
+  const prs: PullRequest[] = [...initialPRs, ...additionalPRs];
+
   const filteredPrs = filterPullRequests(prs, {
     repository: filterRepo,
     state: filterState,
@@ -146,6 +167,99 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
   const handleBackFromGroup = () => {
     setSearchParams({});
   };
+
+  const fetchMorePRs = async () => {
+    if (!hasNextPage || !endCursor || isLoadingMore) return;
+
+    const currentTotal = initialPRs.length + additionalPRs.length;
+    if (currentTotal >= prTarget) return; // Already reached target
+
+    setIsLoadingMore(true);
+    try {
+      const remainingToFetch = prTarget - currentTotal;
+      const batchSize = Math.min(BATCH_SIZE, remainingToFetch);
+
+      const result = await fetchQuery<SearchPRsQueryType>(
+        relayEnvironment,
+        SearchPRsQuery,
+        {
+          searchQuery,
+          first: batchSize,
+          after: endCursor,
+        }
+      ).toPromise();
+
+      if (result?.search) {
+        // Transform new PRs
+        const newPRs: PullRequest[] = (result.search.edges || [])
+          .map(edge => edge?.node)
+          .filter((node): node is NonNullable<typeof node> =>
+            node != null &&
+            node.id != null &&
+            node.number != null &&
+            node.title != null &&
+            node.state != null &&
+            node.createdAt != null &&
+            node.updatedAt != null &&
+            node.url != null &&
+            node.baseRefName != null &&
+            node.headRefName != null &&
+            node.repository != null
+          )
+          .map(pr => ({
+            id: pr.id!,
+            number: pr.number!,
+            title: pr.title!,
+            body: pr.body ?? null,
+            state: pr.state as 'OPEN' | 'CLOSED' | 'MERGED',
+            createdAt: pr.createdAt!,
+            updatedAt: pr.updatedAt!,
+            mergedAt: pr.mergedAt ?? null,
+            closedAt: pr.closedAt ?? null,
+            url: pr.url!,
+            baseRefName: pr.baseRefName!,
+            headRefName: pr.headRefName!,
+            author: pr.author ? {
+              login: pr.author.login,
+              avatarUrl: pr.author.avatarUrl,
+            } : null,
+            labels: pr.labels ? {
+              nodes: (pr.labels.nodes || [])
+                .filter((node): node is NonNullable<typeof node> => node != null)
+                .map(node => ({
+                  id: node.id,
+                  name: node.name,
+                  color: node.color,
+                  description: node.description ?? null,
+                })),
+            } : null,
+            repository: pr.repository!,
+          }));
+
+        setAdditionalPRs(prev => [...prev, ...newPRs]);
+        setHasNextPage(result.search.pageInfo?.hasNextPage ?? false);
+        setEndCursor(result.search.pageInfo?.endCursor ?? null);
+      }
+    } catch (error) {
+      console.error('Error loading more PRs:', error);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
+
+  // Auto-fetch to reach target
+  useEffect(() => {
+    const currentTotal = initialPRs.length + additionalPRs.length;
+    const shouldFetchMore = hasNextPage && currentTotal < prTarget && !isLoadingMore;
+
+    if (shouldFetchMore) {
+      // Small delay to avoid rapid-fire requests
+      const timer = setTimeout(() => {
+        fetchMorePRs();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [initialPRs.length, additionalPRs.length, hasNextPage, prTarget, isLoadingMore, endCursor]);
 
   // Show group detail if a group is selected via query param
   if (groupKey) {
@@ -281,13 +395,13 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="form-control">
                   <label className="label">
-                    <span className="label-text font-semibold">Limite de PRs</span>
+                    <span className="label-text font-semibold">Meta de PRs</span>
                   </label>
                   <input
                     type="number"
                     min="1"
-                    max="100"
-                    value={prLimit}
+                    max="1000"
+                    value={prTarget}
                     onChange={(e) => handleLimitChange(e.target.value)}
                     className="input input-bordered w-full"
                   />
@@ -323,11 +437,44 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
             <span>Nenhum PR encontrado com os filtros aplicados.</span>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {groups.map((group) => (
-              <PRGroupCard key={group.key} group={group} onExpand={handleSelectGroup} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              {groups.map((group) => (
+                <PRGroupCard key={group.key} group={group} onExpand={handleSelectGroup} />
+              ))}
+            </div>
+
+            {/* Loading progress indicator */}
+            {isLoadingMore && (
+              <div className="mt-8 flex flex-col items-center gap-4">
+                <div className="flex items-center gap-3">
+                  <span className="loading loading-spinner loading-md text-primary"></span>
+                  <span className="text-lg">
+                    Carregando PRs... {prs.length} de {prTarget}
+                  </span>
+                </div>
+                <progress
+                  className="progress progress-primary w-64"
+                  value={prs.length}
+                  max={prTarget}
+                ></progress>
+              </div>
+            )}
+
+            {/* Info when target reached or no more PRs */}
+            {!isLoadingMore && prs.length > 0 && prs.length < prTarget && !hasNextPage && (
+              <div className="mt-8 flex justify-center">
+                <div className="alert alert-info max-w-md">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  <span>
+                    Carregados {prs.length} PRs (meta: {prTarget}). Não há mais PRs disponíveis.
+                  </span>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
