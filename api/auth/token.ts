@@ -25,7 +25,10 @@ export default async function handler(req: Request) {
     const { payload } = await jwtVerify(sessionCookie, secret);
 
     return new Response(
-      JSON.stringify({ token: payload.github_token }),
+      JSON.stringify({
+        token: payload.github_token,
+        mode: payload.mode || 'read' // Default: read-only
+      }),
       {
         headers: {
           'Content-Type': 'application/json',

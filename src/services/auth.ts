@@ -1,5 +1,10 @@
+export interface AuthData {
+  token: string;
+  mode: 'read' | 'write';
+}
+
 export const AuthService = {
-  async getToken(): Promise<string | null> {
+  async getAuthData(): Promise<AuthData | null> {
     try {
       const response = await fetch('/api/auth/token', {
         credentials: 'include', // Importante: envia cookies
@@ -10,11 +15,33 @@ export const AuthService = {
       }
 
       const data = await response.json();
-      return data.token || null;
+      if (!data.token) {
+        return null;
+      }
+
+      return {
+        token: data.token,
+        mode: data.mode || 'read',
+      };
     } catch (error) {
-      console.error('Error fetching token:', error);
+      console.error('Error fetching auth data:', error);
       return null;
     }
+  },
+
+  async getToken(): Promise<string | null> {
+    const authData = await this.getAuthData();
+    return authData?.token || null;
+  },
+
+  async getPermissions(): Promise<'read' | 'write' | null> {
+    const authData = await this.getAuthData();
+    return authData?.mode || null;
+  },
+
+  async hasWritePermission(): Promise<boolean> {
+    const mode = await this.getPermissions();
+    return mode === 'write';
   },
 
   async logout(): Promise<void> {
