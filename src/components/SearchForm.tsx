@@ -106,12 +106,12 @@ function SearchFormContent({ isAuthenticated }: SearchFormProps) {
 
       <div className="form-control">
         <label className="label">
-          <span className="label-text font-medium">Limite de PRs por página</span>
+          <span className="label-text font-medium">Meta de PRs</span>
         </label>
         <input
           type="number"
           min="1"
-          max="500"
+          max="1000"
           placeholder="100"
           className="input input-bordered w-full"
           value={searchConfig.limit}
@@ -121,7 +121,7 @@ function SearchFormContent({ isAuthenticated }: SearchFormProps) {
         />
         <label className="label">
           <span className="label-text-alt">
-            Número de PRs a serem carregados por vez (padrão: 100)
+            Sistema buscará automaticamente até atingir essa meta (padrão: 100)
           </span>
         </label>
       </div>
