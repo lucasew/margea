@@ -1,5 +1,8 @@
-import { ArrowLeft, Package, GitBranch, Tag, ExternalLink, Calendar, User, GitCommit } from 'react-feather';
-import { PRGroup } from '../types';
+import { useState } from 'react';
+import { ArrowLeft, Package, GitBranch, Tag, ExternalLink, Calendar, User, GitCommit, X, Check } from 'react-feather';
+import { PRGroup, BulkActionType, BulkActionProgress } from '../types';
+import { BulkActionsService } from '../services/bulkActions';
+import { BulkActionModal } from './BulkActionModal';
 
 interface PRGroupDetailProps {
   group: PRGroup;
@@ -7,6 +10,12 @@ interface PRGroupDetailProps {
 }
 
 export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
+  const [selectedPRs, setSelectedPRs] = useState<Set<string>>(new Set());
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [actionType, setActionType] = useState<BulkActionType | null>(null);
+  const [progress, setProgress] = useState<BulkActionProgress[]>([]);
+  const [isExecuting, setIsExecuting] = useState(false);
+
   const stateColors = {
     OPEN: 'badge-success',
     MERGED: 'badge-info',
@@ -23,6 +32,64 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
     });
   };
 
+  const handleTogglePR = (prId: string) => {
+    const newSelected = new Set(selectedPRs);
+    if (newSelected.has(prId)) {
+      newSelected.delete(prId);
+    } else {
+      newSelected.add(prId);
+    }
+    setSelectedPRs(newSelected);
+  };
+
+  const handleToggleAll = () => {
+    if (selectedPRs.size === group.prs.length) {
+      setSelectedPRs(new Set());
+    } else {
+      setSelectedPRs(new Set(group.prs.map(pr => pr.id)));
+    }
+  };
+
+  const handleOpenModal = (type: BulkActionType) => {
+    const selected = group.prs.filter(pr => selectedPRs.has(pr.id));
+    setActionType(type);
+    setProgress(
+      selected.map(pr => ({
+        prId: pr.id,
+        prNumber: pr.number,
+        prTitle: pr.title,
+        status: 'pending',
+      }))
+    );
+    setIsModalOpen(true);
+  };
+
+  const handleConfirm = async () => {
+    setIsExecuting(true);
+    const selected = group.prs.filter(pr => selectedPRs.has(pr.id));
+
+    await BulkActionsService.executeBulkAction(
+      selected,
+      actionType!,
+      (newProgress) => {
+        setProgress(newProgress);
+      }
+    );
+
+    setIsExecuting(false);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setActionType(null);
+    setProgress([]);
+    setIsExecuting(false);
+    setSelectedPRs(new Set());
+  };
+
+  const selectedCount = selectedPRs.size;
+  const allSelected = selectedCount === group.prs.length && group.prs.length > 0;
+
   return (
     <div className="w-full">
       <div className="container mx-auto px-4 py-6 max-w-7xl">
@@ -32,6 +99,46 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
             <ArrowLeft size={20} />
             Voltar para grupos
           </button>
+        </div>
+
+        {/* Bulk Actions Bar */}
+        <div className="border border-base-300 rounded-lg p-4 mb-6 bg-base-100">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="checkbox checkbox-primary"
+                  checked={allSelected}
+                  onChange={handleToggleAll}
+                />
+                <span className="font-semibold">
+                  {selectedCount > 0
+                    ? `${selectedCount} PR${selectedCount > 1 ? 's' : ''} selecionado${selectedCount > 1 ? 's' : ''}`
+                    : 'Selecionar todos'}
+                </span>
+              </label>
+            </div>
+
+            {selectedCount > 0 && (
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => handleOpenModal('merge')}
+                  className="btn btn-success gap-2"
+                >
+                  <Check size={16} />
+                  Mergear {selectedCount} PR{selectedCount > 1 ? 's' : ''}
+                </button>
+                <button
+                  onClick={() => handleOpenModal('close')}
+                  className="btn btn-error gap-2"
+                >
+                  <X size={16} />
+                  Fechar {selectedCount} PR{selectedCount > 1 ? 's' : ''}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Group Header */}
@@ -76,16 +183,24 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
         {/* PRs List */}
         <div className="space-y-4">
           {group.prs.map((pr) => (
-            <div key={pr.id} className="border border-base-300 rounded-lg p-6 hover:border-primary/30 transition-all bg-base-100">
+            <div key={pr.id} className={`border rounded-lg p-6 transition-all bg-base-100 ${selectedPRs.has(pr.id) ? 'border-primary border-2' : 'border-base-300 hover:border-primary/30'}`}>
                 {/* PR Header */}
                 <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-3 mb-4">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-lg md:text-xl font-bold break-words">
-                      {pr.title}
-                    </h3>
-                    <div className="flex flex-wrap items-center gap-2 mt-2 text-sm text-base-content/70">
-                      <span className="font-mono">{pr.repository.nameWithOwner}</span>
-                      <span className="badge badge-sm badge-ghost">#{pr.number}</span>
+                  <div className="flex items-start gap-3 flex-1 min-w-0">
+                    <input
+                      type="checkbox"
+                      className="checkbox checkbox-primary mt-1 flex-shrink-0"
+                      checked={selectedPRs.has(pr.id)}
+                      onChange={() => handleTogglePR(pr.id)}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-lg md:text-xl font-bold break-words">
+                        {pr.title}
+                      </h3>
+                      <div className="flex flex-wrap items-center gap-2 mt-2 text-sm text-base-content/70">
+                        <span className="font-mono">{pr.repository.nameWithOwner}</span>
+                        <span className="badge badge-sm badge-ghost">#{pr.number}</span>
+                      </div>
                     </div>
                   </div>
 
@@ -182,6 +297,16 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
           ))}
         </div>
       </div>
+
+      {/* Bulk Action Modal */}
+      <BulkActionModal
+        isOpen={isModalOpen}
+        actionType={actionType}
+        progress={progress}
+        isExecuting={isExecuting}
+        onConfirm={handleConfirm}
+        onCancel={handleCloseModal}
+      />
     </div>
   );
 }
