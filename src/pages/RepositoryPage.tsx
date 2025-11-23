@@ -8,7 +8,9 @@ import { useViewer } from '../hooks/useViewer';
 interface RepositoryPageProps {
   onLogout: () => void;
   onLogin: () => void;
+  onChangePermissions?: () => void;
   isAuthenticated: boolean;
+  currentMode?: 'read' | 'write' | null;
 }
 
 // Helper to build search query from URL params
@@ -41,7 +43,7 @@ function buildSearchQuery(
   return query;
 }
 
-function RepositoryPageContent({ onLogout, onLogin, isAuthenticated }: RepositoryPageProps) {
+function RepositoryPageContent({ onLogout, onLogin, onChangePermissions, isAuthenticated, currentMode }: RepositoryPageProps) {
   const params = useParams<{ owner?: string; repo?: string }>();
 
   // Load organizations only if authenticated and on /orgs route
@@ -71,7 +73,13 @@ function RepositoryPageContent({ onLogout, onLogin, isAuthenticated }: Repositor
 
   return (
     <div className="min-h-screen flex flex-col bg-base-100">
-      <Header onLogout={onLogout} onLogin={onLogin} isAuthenticated={isAuthenticated} />
+      <Header
+        onLogout={onLogout}
+        onLogin={onLogin}
+        onChangePermissions={onChangePermissions}
+        isAuthenticated={isAuthenticated}
+        currentMode={currentMode}
+      />
 
       <main className="flex-1">
         {/* Page Header */}

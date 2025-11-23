@@ -7,15 +7,23 @@ import { SearchForm } from '../components/SearchForm';
 interface HomePageProps {
   onLogout: () => void;
   onLogin: () => void;
+  onChangePermissions?: () => void;
   isAuthenticated: boolean;
+  currentMode?: 'read' | 'write' | null;
 }
 
-export function HomePage({ onLogout, onLogin, isAuthenticated }: HomePageProps) {
+export function HomePage({ onLogout, onLogin, onChangePermissions, isAuthenticated, currentMode }: HomePageProps) {
   const { t } = useTranslation();
 
   return (
     <div className="min-h-screen flex flex-col bg-base-100">
-      <Header onLogout={onLogout} onLogin={onLogin} isAuthenticated={isAuthenticated} />
+      <Header
+        onLogout={onLogout}
+        onLogin={onLogin}
+        onChangePermissions={onChangePermissions}
+        isAuthenticated={isAuthenticated}
+        currentMode={currentMode}
+      />
 
       <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16">
         <div className="max-w-2xl mx-auto">

@@ -12,11 +12,18 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentMode, setCurrentMode] = useState<'read' | 'write' | null>(null);
 
   useEffect(() => {
     // Verificar autenticação no mount
     AuthService.isAuthenticated().then((authenticated) => {
       setIsAuthenticated(authenticated);
+      if (authenticated) {
+        // Se autenticado, buscar o modo atual
+        AuthService.getPermissions().then((mode) => {
+          setCurrentMode(mode);
+        });
+      }
       setIsLoading(false);
     });
   }, []);
@@ -24,10 +31,16 @@ function App() {
   const handleLogout = async () => {
     await AuthService.logout();
     setIsAuthenticated(false);
+    setCurrentMode(null);
+    setShowLogin(true); // Mostrar tela de login após logout
   };
 
   const handleShowLogin = () => {
     setShowLogin(true);
+  };
+
+  const handleChangePermissions = () => {
+    setShowLogin(true); // Mostrar tela de login para escolher novo modo
   };
 
   // Mostrar loading enquanto verifica autenticação
@@ -39,10 +52,13 @@ function App() {
     );
   }
 
-  if (showLogin && !isAuthenticated) {
+  if (showLogin) {
     return (
       <ErrorBoundary>
-        <LoginPage onSkip={() => setShowLogin(false)} />
+        <LoginPage
+          onSkip={isAuthenticated ? undefined : () => setShowLogin(false)}
+          currentMode={currentMode}
+        />
       </ErrorBoundary>
     );
   }
@@ -50,7 +66,9 @@ function App() {
   const commonProps = {
     onLogout: handleLogout,
     onLogin: handleShowLogin,
+    onChangePermissions: handleChangePermissions,
     isAuthenticated,
+    currentMode,
   };
 
   return (
