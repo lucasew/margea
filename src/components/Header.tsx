@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Eye, Edit } from 'react-feather';
+import { Eye, Edit, GitHub } from 'react-feather';
 import { ThemeToggle } from './ThemeToggle';
 import { Logo } from './Logo';
 
@@ -25,6 +25,15 @@ export function Header({ onLogout, onLogin, onChangePermissions, isAuthenticated
           </Link>
           <div className="flex items-center gap-3">
             <ThemeToggle />
+            <a
+              href="https://github.com/lucasew/margea"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-ghost btn-sm"
+              title="Ver repositório no GitHub"
+            >
+              <GitHub size={20} />
+            </a>
             {isAuthenticated ? (
               <>
                 {currentMode && (
