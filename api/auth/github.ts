@@ -22,6 +22,7 @@ export default function handler(req: Request) {
   url.searchParams.set('redirect_uri', callbackUrl);
   url.searchParams.set('scope', scopes);
   url.searchParams.set('state', mode); // Passar mode via state
+  url.searchParams.set('allow_signup', 'true');
 
   return Response.redirect(url.toString(), 302);
 }

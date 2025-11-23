@@ -27,6 +27,7 @@ export default async function handler(req: Request) {
 
   const data = await tokenRes.json();
   const access_token = data.access_token;
+  const scope = data.scope; // Scopes concedidos pelo GitHub
 
   if (!access_token) {
     return new Response(
@@ -35,9 +36,22 @@ export default async function handler(req: Request) {
     );
   }
 
+  // Log dos scopes concedidos para debug
+  console.log('GitHub OAuth - Mode solicitado:', state);
+  console.log('GitHub OAuth - Scopes concedidos:', scope);
+  console.log('GitHub OAuth - Token recebido:', access_token ? 'sim' : 'não');
+
+  // Validar que recebemos os scopes necessários
+  const mode = state || 'read'; // Default: read-only
+  const scopesArray = scope ? scope.split(',').map((s: string) => s.trim()) : [];
+
+  if (mode === 'write' && !scopesArray.includes('repo')) {
+    console.error('ERRO: Modo write solicitado mas scope "repo" não foi concedido!');
+    console.error('Scopes recebidos:', scopesArray);
+  }
+
   // Criar JWT com token e mode
   const secret = new TextEncoder().encode(process.env.SESSION_SECRET);
-  const mode = state || 'read'; // Default: read-only
   const session = await new SignJWT({
     github_token: access_token,
     mode: mode
