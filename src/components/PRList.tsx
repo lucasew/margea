@@ -253,11 +253,7 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
     const shouldFetchMore = hasNextPage && currentTotal < prTarget && !isLoadingMore;
 
     if (shouldFetchMore) {
-      // Small delay to avoid rapid-fire requests
-      const timer = setTimeout(() => {
-        fetchMorePRs();
-      }, 100);
-      return () => clearTimeout(timer);
+      fetchMorePRs();
     }
   }, [initialPRs.length, additionalPRs.length, hasNextPage, prTarget, isLoadingMore, endCursor]);
 
