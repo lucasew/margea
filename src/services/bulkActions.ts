@@ -82,32 +82,64 @@ export const BulkActionsService = {
 
     onProgress(Array.from(progressMap.values()));
 
-    // Executar ações sequencialmente
+    // Executar ações sequencialmente com retry e exponential backoff
     for (const pr of prs) {
-      // Atualizar status para processing
-      progressMap.set(pr.id, {
-        ...progressMap.get(pr.id)!,
-        status: 'processing',
-      });
-      onProgress(Array.from(progressMap.values()));
+      let retryCount = 0;
+      const maxRetries = 5;
+      let success = false;
 
-      // Executar ação
-      const result =
-        actionType === 'merge'
-          ? await this.mergePullRequest(pr.id)
-          : await this.closePullRequest(pr.id);
+      while (!success && retryCount <= maxRetries) {
+        // Atualizar status para processing
+        progressMap.set(pr.id, {
+          ...progressMap.get(pr.id)!,
+          status: 'processing',
+        });
+        onProgress(Array.from(progressMap.values()));
 
-      // Atualizar com resultado
-      progressMap.set(pr.id, {
-        ...progressMap.get(pr.id)!,
-        status: result.success ? 'success' : 'error',
-        error: result.error,
-      });
-      onProgress(Array.from(progressMap.values()));
+        // Executar ação
+        const result =
+          actionType === 'merge'
+            ? await this.mergePullRequest(pr.id)
+            : await this.closePullRequest(pr.id);
 
-      // Pequeno delay entre ações para evitar rate limiting
-      if (prs.indexOf(pr) < prs.length - 1) {
-        await new Promise((resolve) => setTimeout(resolve, 500));
+        // Verificar se é erro de rate limit
+        const isRateLimitError = result.error && (
+          result.error.toLowerCase().includes('rate limit') ||
+          result.error.toLowerCase().includes('ratelimit') ||
+          result.error.toLowerCase().includes('too many requests') ||
+          result.error.includes('429')
+        );
+
+        if (result.success) {
+          success = true;
+          progressMap.set(pr.id, {
+            ...progressMap.get(pr.id)!,
+            status: 'success',
+          });
+        } else if (isRateLimitError && retryCount < maxRetries) {
+          // Exponential backoff: 2s, 4s, 8s, 16s, 32s
+          const delayMs = Math.pow(2, retryCount + 1) * 1000;
+          retryCount++;
+
+          progressMap.set(pr.id, {
+            ...progressMap.get(pr.id)!,
+            status: 'processing',
+            error: `Rate limit - tentativa ${retryCount}/${maxRetries} (aguardando ${delayMs / 1000}s)`,
+          });
+          onProgress(Array.from(progressMap.values()));
+
+          await new Promise((resolve) => setTimeout(resolve, delayMs));
+        } else {
+          // Erro não relacionado a rate limit ou excedeu tentativas
+          success = true; // Para sair do loop
+          progressMap.set(pr.id, {
+            ...progressMap.get(pr.id)!,
+            status: 'error',
+            error: result.error,
+          });
+        }
+
+        onProgress(Array.from(progressMap.values()));
       }
     }
   },
