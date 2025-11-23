@@ -4,12 +4,26 @@ import { Footer } from './Footer';
 
 interface LoginPageProps {
   onSkip?: () => void;
+  currentMode?: 'read' | 'write' | null;
 }
 
-export function LoginPage({ onSkip }: LoginPageProps) {
-  const handleGitHubLogin = (mode: 'read' | 'write') => {
+export function LoginPage({ onSkip, currentMode }: LoginPageProps) {
+  const handleGitHubLogin = async (mode: 'read' | 'write') => {
+    // Se já está autenticado, fazer logout primeiro para limpar o cookie antigo
+    if (currentMode) {
+      try {
+        await fetch('/api/auth/logout', {
+          method: 'POST',
+          credentials: 'include',
+        });
+      } catch (error) {
+        console.error('Error logging out before re-auth:', error);
+      }
+    }
     window.location.href = `/api/auth/github?mode=${mode}`;
   };
+
+  const isReauthorizing = !!currentMode;
 
   return (
     <div className="min-h-screen flex flex-col bg-base-100">
@@ -23,8 +37,21 @@ export function LoginPage({ onSkip }: LoginPageProps) {
             </p>
           </div>
 
+          {isReauthorizing && (
+            <div className="alert alert-info mb-6">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <span className="text-sm">
+                Você está mudando de <strong>{currentMode === 'read' ? 'Leitura' : 'Escrita'}</strong> para um novo nível de acesso.
+              </span>
+            </div>
+          )}
+
           <div className="mb-6">
-            <h2 className="font-semibold text-lg mb-3 text-center">Escolha o nível de acesso:</h2>
+            <h2 className="font-semibold text-lg mb-3 text-center">
+              {isReauthorizing ? 'Escolha o novo nível de acesso:' : 'Escolha o nível de acesso:'}
+            </h2>
             <div className="flex flex-col gap-3">
               <button
                 onClick={() => handleGitHubLogin('read')}

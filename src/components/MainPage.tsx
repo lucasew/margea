@@ -10,7 +10,9 @@ import { useViewer } from '../hooks/useViewer';
 interface MainPageProps {
   onLogout: () => void;
   onLogin: () => void;
+  onChangePermissions?: () => void;
   isAuthenticated: boolean;
+  currentMode?: 'read' | 'write' | null;
 }
 
 // Helper to convert pathname to search query
@@ -54,7 +56,7 @@ function pathnameToSearchQuery(pathname: string, author?: string, organizations?
   return null;
 }
 
-function MainPageContent({ onLogout, onLogin, isAuthenticated }: MainPageProps) {
+function MainPageContent({ onLogout, onLogin, onChangePermissions, isAuthenticated, currentMode }: MainPageProps) {
   const location = useLocation();
 
   // Extract author from search params
@@ -77,7 +79,13 @@ function MainPageContent({ onLogout, onLogin, isAuthenticated }: MainPageProps) 
 
   return (
     <div className="min-h-screen flex flex-col bg-base-100">
-      <Header onLogout={onLogout} onLogin={onLogin} isAuthenticated={isAuthenticated} />
+      <Header
+        onLogout={onLogout}
+        onLogin={onLogin}
+        onChangePermissions={onChangePermissions}
+        isAuthenticated={isAuthenticated}
+        currentMode={currentMode}
+      />
 
       <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="mb-16">
