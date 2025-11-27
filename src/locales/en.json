@@ -11,7 +11,9 @@
     "repository": "Repository",
     "optional_specify_repository": "Optional: specify a single repository",
     "search_pull_requests": "Search Pull Requests",
-    "login_required": "Login required to search"
+    "login_required": "Login required to search",
+    "prsGoal": "PRs Goal",
+    "prsGoalDescription": "The system will automatically search until it reaches this goal (default: 100)"
   },
   "header": {
     "login": "Login",
@@ -36,5 +38,74 @@
     "intelligent_grouping_description": "PRs are automatically grouped by dependency and update type.",
     "easy_export": "Easy Export",
     "easy_export_description": "Export PR groups in JSON format for further analysis."
+  },
+  "repositoryPage": {
+    "allPRs": "All PRs",
+    "pullRequests": "Pull Requests",
+    "loginRequired": "Login required",
+    "loginRequiredMessage": "You need to be authenticated to search for pull requests. The GitHub API does not allow proper searching without authentication.",
+    "login": "Login"
+  },
+  "mainPage": {
+    "search": "Search",
+    "performSearch": "Perform a search",
+    "useFormToSearch": "Use the form on the side to find Pull Requests."
+  },
+  "prGroupCard": {
+    "base": "Base:",
+    "prStatus": "PRs Status",
+    "repos": "repos",
+    "open": "Open",
+    "merged": "Merged",
+    "closed": "Closed"
+  },
+  "bulkActionModal": {
+    "pending": "Pending",
+    "processing": "Processing..."
+  },
+  "errorBoundary": {
+    "title": "Something went wrong",
+    "message": "An unexpected error occurred in the application.",
+    "errorDetails": "Error details:",
+    "tryAgain": "Try again",
+    "reloadPage": "Reload page"
+  },
+  "loginPage": {
+    "subtitle": "GitHub Pull Request Analyzer",
+    "reauthorizingMessage": "You are changing from <strong>{{currentMode}}</strong> to a new access level.",
+    "chooseNewAccessLevel": "Choose the new access level:",
+    "chooseAccessLevel": "Choose the access level:",
+    "readOnly": "Read-Only",
+    "readOnlyDescription": "View PRs • No permission to merge/close",
+    "readWrite": "Read and Write",
+    "readWriteDescription": "View PRs • Merge and close PRs in bulk",
+    "continueWithoutAuth": "Continue without authentication",
+    "noAuthWarning": "Without authentication: limit of 60 requests/hour",
+    "howItWorks": "How it works?",
+    "step1": "• Choose the desired access level",
+    "step2": "• Log in with your GitHub account",
+    "step3": "• Authorize the app according to the chosen level",
+    "step4": "• Search, filter, and manage PRs easily"
+  },
+  "prGroupDetail": {
+    "backToGroups": "Back to groups",
+    "selectedPRs": "{{count}} PR selected",
+    "selectedPRs_plural": "{{count}} PRs selected",
+    "selectAll": "Select all",
+    "readWrite": "Read and Write",
+    "readOnly": "Read-Only",
+    "merge": "Merge {{count}} PR",
+    "merge_plural": "Merge {{count}} PRs",
+    "close": "Close {{count}} PR",
+    "close_plural": "Close {{count}} PRs",
+    "writePermissionRequired": "You need write permission to merge/close PRs",
+    "branch": "Branch:",
+    "total": "Total:",
+    "labels": "Labels:",
+    "createdAt": "Created:",
+    "updatedAt": "Updated:",
+    "mergedAt": "Merged:",
+    "closedAt": "Closed:",
+    "openInGitHub": "Open in GitHub"
   }
 }

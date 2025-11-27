@@ -106,7 +106,7 @@ function SearchFormContent({ isAuthenticated }: SearchFormProps) {
 
       <div className="form-control">
         <label className="label">
-          <span className="label-text font-medium">Meta de PRs</span>
+          <span className="label-text font-medium">{t('search.prsGoal')}</span>
         </label>
         <input
           type="number"
@@ -121,7 +121,7 @@ function SearchFormContent({ isAuthenticated }: SearchFormProps) {
         />
         <label className="label">
           <span className="label-text-alt">
-            Sistema buscará automaticamente até atingir essa meta (padrão: 100)
+            {t('search.prsGoalDescription')}
           </span>
         </label>
       </div>

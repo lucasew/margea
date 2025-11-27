@@ -1,5 +1,6 @@
 import { useLocation } from 'react-router-dom';
 import { Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Search } from 'react-feather';
 import { Header } from './Header';
 import { Footer } from './Footer';
@@ -57,6 +58,7 @@ function pathnameToSearchQuery(pathname: string, author?: string, organizations?
 }
 
 function MainPageContent({ onLogout, onLogin, onChangePermissions, isAuthenticated, currentMode }: MainPageProps) {
+  const { t } = useTranslation();
   const location = useLocation();
 
   // Extract author from search params
@@ -91,14 +93,14 @@ function MainPageContent({ onLogout, onLogin, onChangePermissions, isAuthenticat
         <div className="mb-16">
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6">Margea</h1>
           <p className="text-xl md:text-2xl text-base-content/70 max-w-3xl leading-relaxed">
-            Encontre e agrupe Pull Requests de forma inteligente.
+            {t('homepage.subtitle')}
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
           <div className="lg:col-span-4">
             <div className="space-y-6">
-              <h2 className="text-2xl font-bold border-b border-base-300 pb-3">Busca</h2>
+              <h2 className="text-2xl font-bold border-b border-base-300 pb-3">{t('mainPage.search')}</h2>
               <SearchForm isAuthenticated={isAuthenticated} />
             </div>
           </div>
@@ -111,9 +113,9 @@ function MainPageContent({ onLogout, onLogin, onChangePermissions, isAuthenticat
                 <div className="text-primary/50 mb-6">
                   <Search size={64} />
                 </div>
-                <h2 className="text-3xl font-bold mb-3">Realize uma busca</h2>
+                <h2 className="text-3xl font-bold mb-3">{t('mainPage.performSearch')}</h2>
                 <p className="text-lg text-base-content/60 max-w-md">
-                  Utilize o formulário ao lado para encontrar os Pull Requests.
+                  {t('mainPage.useFormToSearch')}
                 </p>
               </div>
             )}

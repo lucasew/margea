@@ -1,5 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 import { PRList } from '../components/PRList';
@@ -44,6 +45,7 @@ function buildSearchQuery(
 }
 
 function RepositoryPageContent({ onLogout, onLogin, onChangePermissions, isAuthenticated, currentMode }: RepositoryPageProps) {
+  const { t } = useTranslation();
   const params = useParams<{ owner?: string; repo?: string }>();
 
   // Load organizations only if authenticated and on /orgs route
@@ -62,14 +64,14 @@ function RepositoryPageContent({ onLogout, onLogin, onChangePermissions, isAuthe
   const searchQuery = buildSearchQuery(params, organizations, userLogin);
 
   // Build page title
-  let pageTitle = 'Todos os PRs';
+  let pageTitle = t('repositoryPage.allPRs');
   if (params.owner && params.repo) {
     pageTitle = `${params.owner}/${params.repo}`;
   } else if (params.owner) {
     pageTitle = params.owner;
   }
 
-  const subtitle = 'Pull Requests';
+  const subtitle = t('repositoryPage.pullRequests');
 
   return (
     <div className="min-h-screen flex flex-col bg-base-100">
@@ -100,14 +102,13 @@ function RepositoryPageContent({ onLogout, onLogin, onChangePermissions, isAuthe
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
               <div>
-                <h3 className="font-bold">Login necessário</h3>
+                <h3 className="font-bold">{t('repositoryPage.loginRequired')}</h3>
                 <div className="text-sm">
-                  Você precisa estar autenticado para buscar pull requests.
-                  A API do GitHub não permite buscas adequadas sem autenticação.
+                  {t('repositoryPage.loginRequiredMessage')}
                 </div>
               </div>
               <button onClick={onLogin} className="btn btn-sm btn-primary">
-                Fazer Login
+                {t('repositoryPage.login')}
               </button>
             </div>
           </div>
