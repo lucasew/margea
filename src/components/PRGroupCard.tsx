@@ -1,4 +1,5 @@
 import { Package, GitBranch, Tag, User } from 'react-feather';
+import { useTranslation } from 'react-i18next';
 import { PRGroup } from '../types';
 
 interface PRGroupCardProps {
@@ -7,6 +8,7 @@ interface PRGroupCardProps {
 }
 
 export function PRGroupCard({ group, onExpand }: PRGroupCardProps) {
+  const { t } = useTranslation();
   const states = group.prs.reduce((acc, pr) => {
     acc[pr.state] = (acc[pr.state] || 0) + 1;
     return acc;
@@ -49,7 +51,7 @@ export function PRGroupCard({ group, onExpand }: PRGroupCardProps) {
           <div className="flex items-center gap-2 text-base-content/70">
             <GitBranch size={16} className="flex-shrink-0" />
             <span className="truncate">
-              <span className="font-semibold">Base:</span> <span className="font-mono">{group.baseRef}</span>
+              <span className="font-semibold">{t('prGroupCard.base')}</span> <span className="font-mono">{group.baseRef}</span>
             </span>
           </div>
 
@@ -72,9 +74,9 @@ export function PRGroupCard({ group, onExpand }: PRGroupCardProps) {
         {/* Progress Bar com cores por estado */}
         <div className="space-y-2">
           <div className="flex justify-between text-xs text-base-content/70 font-medium">
-            <span>Status dos PRs</span>
+            <span>{t('prGroupCard.prStatus')}</span>
             {repoCount > 1 && (
-              <span className="text-base-content/50">{repoCount} repos</span>
+              <span className="text-base-content/50">{repoCount} {t('prGroupCard.repos')}</span>
             )}
           </div>
 
@@ -83,7 +85,7 @@ export function PRGroupCard({ group, onExpand }: PRGroupCardProps) {
               <div
                 className="bg-success flex items-center justify-center text-[10px] font-bold text-success-content"
                 style={{ width: `${(states.OPEN / group.count) * 100}%` }}
-                title={`Abertos: ${states.OPEN}`}
+                title={`${t('prGroupCard.open')}: ${states.OPEN}`}
               >
                 {states.OPEN > 0 && <span className="px-1">{states.OPEN}</span>}
               </div>
@@ -92,7 +94,7 @@ export function PRGroupCard({ group, onExpand }: PRGroupCardProps) {
               <div
                 className="bg-info flex items-center justify-center text-[10px] font-bold text-info-content"
                 style={{ width: `${(states.MERGED / group.count) * 100}%` }}
-                title={`Merged: ${states.MERGED}`}
+                title={`${t('prGroupCard.merged')}: ${states.MERGED}`}
               >
                 {states.MERGED > 0 && <span className="px-1">{states.MERGED}</span>}
               </div>
@@ -101,7 +103,7 @@ export function PRGroupCard({ group, onExpand }: PRGroupCardProps) {
               <div
                 className="bg-error flex items-center justify-center text-[10px] font-bold text-error-content"
                 style={{ width: `${(states.CLOSED / group.count) * 100}%` }}
-                title={`Fechados: ${states.CLOSED}`}
+                title={`${t('prGroupCard.closed')}: ${states.CLOSED}`}
               >
                 {states.CLOSED > 0 && <span className="px-1">{states.CLOSED}</span>}
               </div>
@@ -112,19 +114,19 @@ export function PRGroupCard({ group, onExpand }: PRGroupCardProps) {
             {states.OPEN && (
               <div className="flex items-center gap-1">
                 <div className="w-2 h-2 rounded-full bg-success"></div>
-                <span className="text-base-content/60">Abertos: {states.OPEN}</span>
+                <span className="text-base-content/60">{t('prGroupCard.open')}: {states.OPEN}</span>
               </div>
             )}
             {states.MERGED && (
               <div className="flex items-center gap-1">
                 <div className="w-2 h-2 rounded-full bg-info"></div>
-                <span className="text-base-content/60">Merged: {states.MERGED}</span>
+                <span className="text-base-content/60">{t('prGroupCard.merged')}: {states.MERGED}</span>
               </div>
             )}
             {states.CLOSED && (
               <div className="flex items-center gap-1">
                 <div className="w-2 h-2 rounded-full bg-error"></div>
-                <span className="text-base-content/60">Fechados: {states.CLOSED}</span>
+                <span className="text-base-content/60">{t('prGroupCard.closed')}: {states.CLOSED}</span>
               </div>
             )}
           </div>

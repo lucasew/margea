@@ -1,4 +1,5 @@
 import { X, CheckCircle, AlertCircle, Loader } from 'react-feather';
+import { useTranslation } from 'react-i18next';
 import type { BulkActionType, BulkActionProgress } from '../types';
 
 interface BulkActionModalProps {
@@ -18,6 +19,7 @@ export function BulkActionModal({
   onConfirm,
   onCancel,
 }: BulkActionModalProps) {
+  const { t } = useTranslation();
   if (!isOpen || !actionType) return null;
 
   const actionLabel = actionType === 'merge' ? 'Mergear' : 'Fechar';
@@ -87,12 +89,12 @@ export function BulkActionModal({
                   </div>
                   <div className="ml-4 flex-shrink-0">
                     {item.status === 'pending' && (
-                      <div className="badge badge-ghost">Pendente</div>
+                      <div className="badge badge-ghost">{t('bulkActionModal.pending')}</div>
                     )}
                     {item.status === 'processing' && (
                       <div className="flex items-center gap-2">
                         <Loader size={16} className="animate-spin" />
-                        <span className="text-sm">Processando...</span>
+                        <span className="text-sm">{t('bulkActionModal.processing')}</span>
                       </div>
                     )}
                     {item.status === 'success' && (

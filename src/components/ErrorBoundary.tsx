@@ -1,7 +1,8 @@
 import { Component, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw } from 'react-feather';
+import { withTranslation, WithTranslation } from 'react-i18next';
 
-interface Props {
+interface Props extends WithTranslation {
   children: ReactNode;
   fallback?: ReactNode;
 }
@@ -11,7 +12,7 @@ interface State {
   error: Error | null;
 }
 
-export class ErrorBoundary extends Component<Props, State> {
+class ErrorBoundaryComponent extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = { hasError: false, error: null };
@@ -30,6 +31,8 @@ export class ErrorBoundary extends Component<Props, State> {
   };
 
   render() {
+    const { t } = this.props;
+
     if (this.state.hasError) {
       if (this.props.fallback) {
         return this.props.fallback;
@@ -40,15 +43,15 @@ export class ErrorBoundary extends Component<Props, State> {
           <div className="card w-full max-w-2xl bg-base-100 shadow-xl">
             <div className="card-body items-center text-center">
               <AlertTriangle size={64} className="text-error mb-4" />
-              <h2 className="card-title text-2xl mb-2">Algo deu errado</h2>
+              <h2 className="card-title text-2xl mb-2">{t('errorBoundary.title')}</h2>
               <p className="text-base-content/70 mb-4">
-                Ocorreu um erro inesperado na aplicação.
+                {t('errorBoundary.message')}
               </p>
 
               {this.state.error && (
                 <div className="alert alert-error w-full mb-4">
                   <div className="flex flex-col items-start gap-2 w-full">
-                    <span className="font-semibold">Detalhes do erro:</span>
+                    <span className="font-semibold">{t('errorBoundary.errorDetails')}</span>
                     <code className="text-sm bg-base-200 p-2 rounded w-full text-left overflow-x-auto">
                       {this.state.error.message}
                     </code>
@@ -62,13 +65,13 @@ export class ErrorBoundary extends Component<Props, State> {
                   className="btn btn-primary gap-2"
                 >
                   <RefreshCw size={18} />
-                  Tentar novamente
+                  {t('errorBoundary.tryAgain')}
                 </button>
                 <button
                   onClick={() => window.location.reload()}
                   className="btn btn-ghost gap-2"
                 >
-                  Recarregar página
+                  {t('errorBoundary.reloadPage')}
                 </button>
               </div>
             </div>
@@ -80,3 +83,5 @@ export class ErrorBoundary extends Component<Props, State> {
     return this.props.children;
   }
 }
+
+export const ErrorBoundary = withTranslation()(ErrorBoundaryComponent);

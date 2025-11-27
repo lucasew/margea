@@ -1,4 +1,5 @@
 import { Eye, Edit } from 'react-feather';
+import { useTranslation } from 'react-i18next';
 import { Logo } from './Logo';
 import { Footer } from './Footer';
 
@@ -8,6 +9,7 @@ interface LoginPageProps {
 }
 
 export function LoginPage({ onSkip, currentMode }: LoginPageProps) {
+  const { t } = useTranslation();
   const handleGitHubLogin = async (mode: 'read' | 'write') => {
     // Se já está autenticado, fazer logout primeiro para limpar o cookie antigo
     if (currentMode) {
@@ -33,7 +35,7 @@ export function LoginPage({ onSkip, currentMode }: LoginPageProps) {
             <Logo size={64} className="text-primary mb-3" />
             <h1 className="text-3xl font-bold mb-2">Margea</h1>
             <p className="text-base-content/70 text-center">
-              Analisador de Pull Requests do GitHub
+              {t('loginPage.subtitle')}
             </p>
           </div>
 
@@ -43,14 +45,14 @@ export function LoginPage({ onSkip, currentMode }: LoginPageProps) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
               <span className="text-sm">
-                Você está mudando de <strong>{currentMode === 'read' ? 'Leitura' : 'Escrita'}</strong> para um novo nível de acesso.
+                {t('loginPage.reauthorizingMessage', { currentMode: currentMode === 'read' ? t('loginPage.readOnly') : t('loginPage.readWrite') })}
               </span>
             </div>
           )}
 
           <div className="mb-6">
             <h2 className="font-semibold text-lg mb-3 text-center">
-              {isReauthorizing ? 'Escolha o novo nível de acesso:' : 'Escolha o nível de acesso:'}
+              {isReauthorizing ? t('loginPage.chooseNewAccessLevel') : t('loginPage.chooseAccessLevel')}
             </h2>
             <div className="flex flex-col gap-3">
               <button
@@ -59,10 +61,10 @@ export function LoginPage({ onSkip, currentMode }: LoginPageProps) {
               >
                 <div className="flex items-center gap-2">
                   <Eye size={24} />
-                  <span className="font-bold">Somente Leitura</span>
+                  <span className="font-bold">{t('loginPage.readOnly')}</span>
                 </div>
                 <span className="text-xs opacity-70 normal-case font-normal">
-                  Visualizar PRs • Sem permissão para mergear/fechar
+                  {t('loginPage.readOnlyDescription')}
                 </span>
               </button>
 
@@ -72,10 +74,10 @@ export function LoginPage({ onSkip, currentMode }: LoginPageProps) {
               >
                 <div className="flex items-center gap-2">
                   <Edit size={24} />
-                  <span className="font-bold">Leitura e Escrita</span>
+                  <span className="font-bold">{t('loginPage.readWrite')}</span>
                 </div>
                 <span className="text-xs opacity-90 normal-case font-normal">
-                  Visualizar PRs • Mergear e fechar PRs em lote
+                  {t('loginPage.readWriteDescription')}
                 </span>
               </button>
             </div>
@@ -87,7 +89,7 @@ export function LoginPage({ onSkip, currentMode }: LoginPageProps) {
                 onClick={onSkip}
                 className="btn btn-ghost"
               >
-                Continuar sem autenticação
+                {t('loginPage.continueWithoutAuth')}
               </button>
             )}
           </div>
@@ -97,17 +99,17 @@ export function LoginPage({ onSkip, currentMode }: LoginPageProps) {
               <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
-              <span className="text-sm">Sem autenticação: limite de 60 requisições/hora</span>
+              <span className="text-sm">{t('loginPage.noAuthWarning')}</span>
             </div>
           )}
 
-          <div className="divider mt-8">Como funciona?</div>
+          <div className="divider mt-8">{t('loginPage.howItWorks')}</div>
 
           <div className="text-sm text-base-content/70 space-y-2">
-            <p>• Escolha o nível de acesso desejado</p>
-            <p>• Faça login com sua conta GitHub</p>
-            <p>• Autorize o app conforme o nível escolhido</p>
-            <p>• Busque, filtre e gerencie PRs facilmente</p>
+            <p>{t('loginPage.step1')}</p>
+            <p>{t('loginPage.step2')}</p>
+            <p>{t('loginPage.step3')}</p>
+            <p>{t('loginPage.step4')}</p>
           </div>
         </div>
       </main>

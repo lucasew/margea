@@ -11,7 +11,9 @@
     "repository": "Repositorio",
     "optional_specify_repository": "Opcional: especifique un único repositorio",
     "search_pull_requests": "Buscar Pull Requests",
-    "login_required": "Se requiere iniciar sesión para buscar"
+    "login_required": "Se requiere iniciar sesión para buscar",
+    "prsGoal": "Meta de PRs",
+    "prsGoalDescription": "El sistema buscará automáticamente hasta alcanzar esta meta (por defecto: 100)"
   },
   "header": {
     "login": "Iniciar sesión",
@@ -36,5 +38,74 @@
     "intelligent_grouping_description": "Los PR se agrupan automáticamente por dependencia y tipo de actualización.",
     "easy_export": "Exportación Fácil",
     "easy_export_description": "Exporte grupos de PR en formato JSON para un análisis posterior."
+  },
+  "repositoryPage": {
+    "allPRs": "Todos los PRs",
+    "pullRequests": "Pull Requests",
+    "loginRequired": "Se requiere iniciar sesión",
+    "loginRequiredMessage": "Necesita estar autenticado para buscar pull requests. La API de GitHub no permite búsquedas adecuadas sin autenticación.",
+    "login": "Iniciar sesión"
+  },
+  "mainPage": {
+    "search": "Buscar",
+    "performSearch": "Realice una búsqueda",
+    "useFormToSearch": "Utilice el formulario del lado para encontrar los Pull Requests."
+  },
+  "prGroupCard": {
+    "base": "Base:",
+    "prStatus": "Estado de los PRs",
+    "repos": "repos",
+    "open": "Abiertos",
+    "merged": "Fusionados",
+    "closed": "Cerrados"
+  },
+  "bulkActionModal": {
+    "pending": "Pendiente",
+    "processing": "Procesando..."
+  },
+  "errorBoundary": {
+    "title": "Algo salió mal",
+    "message": "Ocurrió un error inesperado en la aplicación.",
+    "errorDetails": "Detalles del error:",
+    "tryAgain": "Intentar de nuevo",
+    "reloadPage": "Recargar página"
+  },
+  "loginPage": {
+    "subtitle": "Analizador de Pull Requests de GitHub",
+    "reauthorizingMessage": "Está cambiando de <strong>{{currentMode}}</strong> a un nuevo nivel de acceso.",
+    "chooseNewAccessLevel": "Elija el nuevo nivel de acceso:",
+    "chooseAccessLevel": "Elija el nivel de acceso:",
+    "readOnly": "Solo Lectura",
+    "readOnlyDescription": "Ver PRs • Sin permiso para fusionar/cerrar",
+    "readWrite": "Lectura y Escritura",
+    "readWriteDescription": "Ver PRs • Fusionar y cerrar PRs en lote",
+    "continueWithoutAuth": "Continuar sin autenticación",
+    "noAuthWarning": "Sin autenticación: límite de 60 solicitudes/hora",
+    "howItWorks": "¿Cómo funciona?",
+    "step1": "• Elija el nivel de acceso deseado",
+    "step2": "• Inicie sesión con su cuenta de GitHub",
+    "step3": "• Autorice la aplicación según el nivel elegido",
+    "step4": "• Busque, filtre y gestione PRs fácilmente"
+  },
+  "prGroupDetail": {
+    "backToGroups": "Volver a grupos",
+    "selectedPRs": "{{count}} PR seleccionado",
+    "selectedPRs_plural": "{{count}} PRs seleccionados",
+    "selectAll": "Seleccionar todos",
+    "readWrite": "Lectura y Escritura",
+    "readOnly": "Solo Lectura",
+    "merge": "Fusionar {{count}} PR",
+    "merge_plural": "Fusionar {{count}} PRs",
+    "close": "Cerrar {{count}} PR",
+    "close_plural": "Cerrar {{count}} PRs",
+    "writePermissionRequired": "Necesita permiso de escritura para fusionar/cerrar PRs",
+    "branch": "Rama:",
+    "total": "Total:",
+    "labels": "Etiquetas:",
+    "createdAt": "Creado:",
+    "updatedAt": "Actualizado:",
+    "mergedAt": "Fusionado:",
+    "closedAt": "Cerrado:",
+    "openInGitHub": "Abrir en GitHub"
   }
 }

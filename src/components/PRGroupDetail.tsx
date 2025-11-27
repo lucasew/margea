@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Package, GitBranch, Tag, ExternalLink, Calendar, User, GitCommit, X, Check, AlertCircle } from 'react-feather';
 import { PRGroup, BulkActionType, BulkActionProgress } from '../types';
 import { BulkActionsService } from '../services/bulkActions';
@@ -11,6 +12,7 @@ interface PRGroupDetailProps {
 }
 
 export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
+  const { t } = useTranslation();
   const { hasWritePermission, mode } = useAuth();
   const [selectedPRs, setSelectedPRs] = useState<Set<string>>(new Set());
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -99,7 +101,7 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
         <div className="mb-6">
           <button onClick={onBack} className="btn btn-ghost gap-2">
             <ArrowLeft size={20} />
-            Voltar para grupos
+            {t('prGroupDetail.backToGroups')}
           </button>
         </div>
 
@@ -116,13 +118,13 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
                 />
                 <span className="font-semibold">
                   {selectedCount > 0
-                    ? `${selectedCount} PR${selectedCount > 1 ? 's' : ''} selecionado${selectedCount > 1 ? 's' : ''}`
-                    : 'Selecionar todos'}
+                    ? t('prGroupDetail.selectedPRs', { count: selectedCount })
+                    : t('prGroupDetail.selectAll')}
                 </span>
               </label>
               {mode && (
                 <span className={`badge ${mode === 'write' ? 'badge-success' : 'badge-ghost'}`}>
-                  {mode === 'write' ? 'Leitura e Escrita' : 'Somente Leitura'}
+                  {mode === 'write' ? t('prGroupDetail.readWrite') : t('prGroupDetail.readOnly')}
                 </span>
               )}
             </div>
@@ -134,14 +136,14 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
                   className="btn btn-success gap-2"
                 >
                   <Check size={16} />
-                  Mergear {selectedCount} PR{selectedCount > 1 ? 's' : ''}
+                  {t('prGroupDetail.merge', { count: selectedCount })}
                 </button>
                 <button
                   onClick={() => handleOpenModal('close')}
                   className="btn btn-error gap-2"
                 >
                   <X size={16} />
-                  Fechar {selectedCount} PR{selectedCount > 1 ? 's' : ''}
+                  {t('prGroupDetail.close', { count: selectedCount })}
                 </button>
               </div>
             )}
@@ -150,7 +152,7 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
               <div className="alert alert-warning py-2 px-4">
                 <AlertCircle size={16} />
                 <span className="text-sm">
-                  Você precisa de permissão de escrita para mergear/fechar PRs
+                  {t('prGroupDetail.writePermissionRequired')}
                 </span>
               </div>
             )}
@@ -169,13 +171,13 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex items-center gap-2 text-base-content/80">
                 <GitBranch size={18} className="text-primary" />
-                <span className="font-semibold">Branch:</span>
+                <span className="font-semibold">{t('prGroupDetail.branch')}</span>
                 <span className="font-mono badge badge-outline">{group.baseRef}</span>
               </div>
 
               <div className="flex items-center gap-2 text-base-content/80">
                 <GitCommit size={18} className="text-primary" />
-                <span className="font-semibold">Total:</span>
+                <span className="font-semibold">{t('prGroupDetail.total')}</span>
                 <span className="badge badge-neutral">{group.count} PRs</span>
               </div>
             </div>
@@ -185,7 +187,7 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
                 <div className="divider my-2"></div>
                 <div className="flex flex-wrap gap-2 items-center">
                   <Tag size={18} className="text-base-content/60" />
-                  <span className="font-semibold text-sm">Labels:</span>
+                  <span className="font-semibold text-sm">{t('prGroupDetail.labels')}</span>
                   {group.labels.map((label) => (
                     <div key={label} className="badge badge-outline">
                       {label}
@@ -232,14 +234,14 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
                   <div className="flex items-center gap-2 text-base-content/70">
                     <Calendar size={14} className="flex-shrink-0" />
                     <span className="truncate">
-                      <span className="font-semibold">Criado:</span> {formatDate(pr.createdAt)}
+                      <span className="font-semibold">{t('prGroupDetail.createdAt')}</span> {formatDate(pr.createdAt)}
                     </span>
                   </div>
 
                   <div className="flex items-center gap-2 text-base-content/70">
                     <Calendar size={14} className="flex-shrink-0" />
                     <span className="truncate">
-                      <span className="font-semibold">Atualizado:</span> {formatDate(pr.updatedAt)}
+                      <span className="font-semibold">{t('prGroupDetail.updatedAt')}</span> {formatDate(pr.updatedAt)}
                     </span>
                   </div>
 
@@ -247,7 +249,7 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
                     <div className="flex items-center gap-2 text-info">
                       <Calendar size={14} className="flex-shrink-0" />
                       <span className="truncate">
-                        <span className="font-semibold">Merged:</span> {formatDate(pr.mergedAt)}
+                        <span className="font-semibold">{t('prGroupDetail.mergedAt')}</span> {formatDate(pr.mergedAt)}
                       </span>
                     </div>
                   )}
@@ -256,7 +258,7 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
                     <div className="flex items-center gap-2 text-error">
                       <Calendar size={14} className="flex-shrink-0" />
                       <span className="truncate">
-                        <span className="font-semibold">Fechado:</span> {formatDate(pr.closedAt)}
+                        <span className="font-semibold">{t('prGroupDetail.closedAt')}</span> {formatDate(pr.closedAt)}
                       </span>
                     </div>
                   )}
@@ -306,7 +308,7 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
                     className="btn btn-primary btn-sm gap-2"
                   >
                     <ExternalLink size={16} />
-                    Abrir no GitHub
+                    {t('prGroupDetail.openInGitHub')}
                   </a>
                 </div>
             </div>
