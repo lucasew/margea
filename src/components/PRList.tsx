@@ -1,7 +1,8 @@
-import { Suspense, useState, Component, ReactNode, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useLazyLoadQuery, fetchQuery } from 'react-relay';
 import { RefreshCw, Download, Filter, GitPullRequest, GitMerge, XCircle, CheckCircle, Folder, AlertTriangle } from 'react-feather';
+import { ErrorBoundary as ReactErrorBoundary, FallbackProps } from 'react-error-boundary';
 import { relayEnvironment } from '../relay/environment';
 import { SearchPRsQuery } from '../queries/SearchPRsQuery';
 import { SearchPRsQuery as SearchPRsQueryType } from '../queries/__generated__/SearchPRsQuery.graphql';
@@ -481,31 +482,8 @@ interface PRListProps {
   searchQuery: string;
 }
 
-interface ErrorBoundaryState {
-  hasError: boolean;
-  error: Error | null;
-}
-
-class PRListErrorBoundary extends Component<
-  { children: ReactNode; onRetry: () => void },
-  ErrorBoundaryState
-> {
-  constructor(props: { children: ReactNode; onRetry: () => void }) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
-
-  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('PR List error:', error, errorInfo);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
+function PRListErrorFallback({ error, resetErrorBoundary, onRetry }: FallbackProps & { onRetry: () => void }) {
+    return (
         <div className="flex flex-col items-center justify-center min-h-screen gap-4 p-4">
           <div className="card w-full max-w-2xl bg-base-100 shadow-xl">
             <div className="card-body items-center text-center">
@@ -515,12 +493,12 @@ class PRListErrorBoundary extends Component<
                 Não foi possível carregar os Pull Requests do GitHub.
               </p>
 
-              {this.state.error && (
+              {error && (
                 <div className="alert alert-error w-full mb-4">
                   <div className="flex flex-col items-start gap-2 w-full">
                     <span className="font-semibold">Detalhes:</span>
                     <code className="text-sm bg-base-200 p-2 rounded w-full text-left overflow-x-auto">
-                      {this.state.error.message}
+                      {error.message}
                     </code>
                   </div>
                 </div>
@@ -541,8 +519,8 @@ class PRListErrorBoundary extends Component<
               <div className="card-actions">
                 <button
                   onClick={() => {
-                    this.setState({ hasError: false, error: null });
-                    this.props.onRetry();
+                    resetErrorBoundary();
+                    onRetry();
                   }}
                   className="btn btn-primary"
                 >
@@ -554,10 +532,6 @@ class PRListErrorBoundary extends Component<
           </div>
         </div>
       );
-    }
-
-    return this.props.children;
-  }
 }
 
 export function PRList({ searchQuery }: PRListProps) {
@@ -567,8 +541,18 @@ export function PRList({ searchQuery }: PRListProps) {
     setKey(prev => prev + 1);
   };
 
+  const logError = (error: Error, info: { componentStack?: string | null }) => {
+    console.error('PR List error:', error, info);
+  };
+
   return (
-    <PRListErrorBoundary onRetry={handleRefresh}>
+    <ReactErrorBoundary
+        FallbackComponent={(props) => <PRListErrorFallback {...props} onRetry={handleRefresh} />}
+        onError={logError}
+        onReset={() => {
+            // Optional: any cleanup or state reset needed when boundary resets
+        }}
+    >
       <Suspense
         fallback={
           <div className="flex flex-col items-center justify-center min-h-screen gap-4">
@@ -579,6 +563,6 @@ export function PRList({ searchQuery }: PRListProps) {
       >
         <PRListContent key={key} searchQuery={searchQuery} onRefresh={handleRefresh} />
       </Suspense>
-    </PRListErrorBoundary>
+    </ReactErrorBoundary>
   );
 }

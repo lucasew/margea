@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { translations } from './utils/translations';
 
 test.describe('Unauthenticated Search Flow', () => {
-  constেন = translations.en.search;
+  const en = translations.en.search;
 
   test.beforeEach(async ({ page, context }) => {
     // Clear localStorage to ensure unauthenticated state
