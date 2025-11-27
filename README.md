@@ -1,7 +1,8 @@
 # Margea
 
+
 <a href="https://hosted.weblate.org/engage/margea/">
-<img src="https://hosted.weblate.org/widget/margea/margea/svg-badge.svg" alt="Status da tradução" />
+<img src="https://hosted.weblate.org/widget/margea/multi-auto.svg" alt="Status da tradução" />
 </a>
 
 Analisador de Pull Requests do GitHub com foco em PRs automatizados do Renovate Bot.
