@@ -1,1 +1,54 @@
-{}
+{
+    "search": {
+        "title": "Buscar Pull Requests",
+        "description": "Insira uma URL de repositório GitHub para começar.",
+        "placeholder": "Digite a URL do repositório",
+        "button": "Pesquisar",
+        "owner_organization": "Proprietário/Organização",
+        "all_organizations": "Todas as organizações",
+        "leave_blank_all_orgs": "Deixe em branco para procurar em todas as suas organizações",
+        "leave_blank_all_public_orgs": "Deixe em branco para pesquisar em todas as organizações públicas",
+        "repository": "Repositório",
+        "optional_specify_repository": "Opcional: especifique um único repositório",
+        "search_pull_requests": "Buscar Pull Requests",
+        "login_required": "Login necessário para pesquisar",
+        "prsGoal": "Objetivo de PRs",
+        "prsGoalDescription": "O sistema procurará automaticamente até atingir este objetivo (padrão: 100)"
+    },
+    "header": {
+        "login": "Entrar",
+        "logout": "Sair"
+    },
+    "footer": {
+        "text": "Margea é um projeto experimental para explorar novas formas de agrupar pull requests.",
+        "description": "Uma ferramenta para analisar e agrupar pull requests no GitHub, com foco nas atualizações do Renovate Bot.",
+        "resources": "Recursos",
+        "how_to_generate_token": "Como gerar um token GitHub",
+        "about_renovate": "Sobre o Renovate Bot",
+        "technologies": "Tecnologias",
+        "made_with": "Feito com",
+        "using": "usando React e GitHub API",
+        "rights_reserved": "Todos os direitos reservados."
+    },
+    "homepage": {
+        "title": "Margea",
+        "subtitle": "Encontre e agrupe Pull Requests de forma inteligente.",
+        "login_prompt": "Faça login para uma melhor experiência e evite ratelimits da API.",
+        "intelligent_grouping": "Agrupamento inteligente",
+        "intelligent_grouping_description": "PRs são automaticamente agrupados por tipo de dependência e atualização.",
+        "easy_export": "Exportação fácil",
+        "easy_export_description": "Exportar grupos de PRs em formato JSON para análise posterior."
+    },
+    "repositoryPage": {
+        "allPRs": "Todos os PRs",
+        "pullRequests": "Pull Requests",
+        "loginRequired": "Login necessário",
+        "loginRequiredMessage": "Você precisa ser autenticado para procurar pedidos de pull. A API do GitHub não permite pesquisa adequada sem autenticação.",
+        "login": "Entrar"
+    },
+    "mainPage": {
+        "search": "Pesquisar",
+        "performSearch": "Faça uma busca",
+        "useFormToSearch": "Use o formulário do lado para encontrar Pull Requests."
+    }
+}
