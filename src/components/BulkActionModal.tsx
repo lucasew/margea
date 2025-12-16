@@ -37,15 +37,13 @@ export function BulkActionModal({
           <h3 className="text-lg font-bold">
             {hasStarted ? `${actionLabel} PRs - Progresso` : `Confirmar ${actionLabel} PRs`}
           </h3>
-          {!isExecuting && (
-            <button
-              onClick={onCancel}
-              className="btn btn-sm btn-circle btn-ghost"
-              aria-label="Fechar"
-            >
-              <X size={20} />
-            </button>
-          )}
+          <button
+            onClick={onCancel}
+            className="btn btn-sm btn-circle btn-ghost"
+            aria-label="Fechar"
+          >
+            <X size={20} />
+          </button>
         </div>
 
         {!hasStarted && (
@@ -128,6 +126,11 @@ export function BulkActionModal({
                 {actionLabel} {progress.length} PR{progress.length > 1 ? 's' : ''}
               </button>
             </>
+          )}
+          {hasStarted && !isComplete && (
+            <button onClick={onCancel} className="btn btn-ghost">
+              Minimizar
+            </button>
           )}
           {isComplete && (
             <button onClick={onCancel} className="btn btn-primary">
