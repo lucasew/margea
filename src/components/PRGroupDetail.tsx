@@ -171,13 +171,13 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex items-center gap-2 text-base-content/80">
                 <GitBranch size={18} className="text-primary" />
-                <span className="font-semibold">{t('prGroupDetail.branch')}</span>
+                <span className="font-semibold">{t('prGroupDetail.branch')}:</span>
                 <span className="font-mono badge badge-outline">{group.baseRef}</span>
               </div>
 
               <div className="flex items-center gap-2 text-base-content/80">
                 <GitCommit size={18} className="text-primary" />
-                <span className="font-semibold">{t('prGroupDetail.total')}</span>
+                <span className="font-semibold">{t('prGroupDetail.total')}:</span>
                 <span className="badge badge-neutral">{group.count} PRs</span>
               </div>
             </div>
@@ -187,7 +187,7 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
                 <div className="divider my-2"></div>
                 <div className="flex flex-wrap gap-2 items-center">
                   <Tag size={18} className="text-base-content/60" />
-                  <span className="font-semibold text-sm">{t('prGroupDetail.labels')}</span>
+                  <span className="font-semibold text-sm">{t('prGroupDetail.labels')}:</span>
                   {group.labels.map((label) => (
                     <div key={label} className="badge badge-outline">
                       {label}
@@ -234,14 +234,14 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
                   <div className="flex items-center gap-2 text-base-content/70">
                     <Calendar size={14} className="flex-shrink-0" />
                     <span className="truncate">
-                      <span className="font-semibold">{t('prGroupDetail.createdAt')}</span> {formatDate(pr.createdAt)}
+                      <span className="font-semibold">{t('prGroupDetail.createdAt')}:</span> {formatDate(pr.createdAt)}
                     </span>
                   </div>
 
                   <div className="flex items-center gap-2 text-base-content/70">
                     <Calendar size={14} className="flex-shrink-0" />
                     <span className="truncate">
-                      <span className="font-semibold">{t('prGroupDetail.updatedAt')}</span> {formatDate(pr.updatedAt)}
+                      <span className="font-semibold">{t('prGroupDetail.updatedAt')}:</span> {formatDate(pr.updatedAt)}
                     </span>
                   </div>
 
@@ -249,7 +249,7 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
                     <div className="flex items-center gap-2 text-info">
                       <Calendar size={14} className="flex-shrink-0" />
                       <span className="truncate">
-                        <span className="font-semibold">{t('prGroupDetail.mergedAt')}</span> {formatDate(pr.mergedAt)}
+                        <span className="font-semibold">{t('prGroupDetail.mergedAt')}:</span> {formatDate(pr.mergedAt)}
                       </span>
                     </div>
                   )}
@@ -258,7 +258,7 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
                     <div className="flex items-center gap-2 text-error">
                       <Calendar size={14} className="flex-shrink-0" />
                       <span className="truncate">
-                        <span className="font-semibold">{t('prGroupDetail.closedAt')}</span> {formatDate(pr.closedAt)}
+                        <span className="font-semibold">{t('prGroupDetail.closedAt')}:</span> {formatDate(pr.closedAt)}
                       </span>
                     </div>
                   )}
