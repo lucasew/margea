@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Package, GitBranch, Tag, ExternalLink, Calendar, User, GitCommit, X, Check, AlertCircle } from 'react-feather';
 import { PRGroup, BulkActionType, BulkActionProgress } from '../types';
-import { BulkActionsService } from '../services/bulkActions';
 import { BulkActionModal } from './BulkActionModal';
 import { useAuth } from '../hooks/useAuth';
+import { useBulkAction } from '../context/BulkActionContext';
 
 interface PRGroupDetailProps {
   group: PRGroup;
@@ -14,11 +14,11 @@ interface PRGroupDetailProps {
 export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
   const { t } = useTranslation();
   const { hasWritePermission, mode } = useAuth();
+  const { startBulkAction } = useBulkAction();
   const [selectedPRs, setSelectedPRs] = useState<Set<string>>(new Set());
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [actionType, setActionType] = useState<BulkActionType | null>(null);
   const [progress, setProgress] = useState<BulkActionProgress[]>([]);
-  const [isExecuting, setIsExecuting] = useState(false);
 
   const stateColors = {
     OPEN: 'badge-success',
@@ -69,25 +69,17 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
   };
 
   const handleConfirm = async () => {
-    setIsExecuting(true);
     const selected = group.prs.filter(pr => selectedPRs.has(pr.id));
-
-    await BulkActionsService.executeBulkAction(
-      selected,
-      actionType!,
-      (newProgress) => {
-        setProgress(newProgress);
-      }
-    );
-
-    setIsExecuting(false);
+    if (actionType) {
+        startBulkAction(selected, actionType);
+    }
+    handleCloseModal();
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setActionType(null);
     setProgress([]);
-    setIsExecuting(false);
     setSelectedPRs(new Set());
   };
 
@@ -321,7 +313,7 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
         isOpen={isModalOpen}
         actionType={actionType}
         progress={progress}
-        isExecuting={isExecuting}
+        isExecuting={false}
         onConfirm={handleConfirm}
         onCancel={handleCloseModal}
       />

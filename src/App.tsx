@@ -7,6 +7,9 @@ import { LoginPage } from './components/LoginPage';
 import { HomePage } from './pages/HomePage';
 import { RepositoryPage } from './pages/RepositoryPage';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { BulkActionProvider } from './context/BulkActionContext';
+import { BulkActionToast } from './components/BulkActionToast';
+import { GlobalBulkActionModal } from './components/GlobalBulkActionModal';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -74,14 +77,18 @@ function App() {
   return (
     <ErrorBoundary>
       <RelayEnvironmentProvider environment={relayEnvironment}>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<HomePage {...commonProps} />} />
-            <Route path="/orgs" element={<RepositoryPage {...commonProps} />} />
-            <Route path="/org/:owner" element={<RepositoryPage {...commonProps} />} />
-            <Route path="/:owner/:repo" element={<RepositoryPage {...commonProps} />} />
-          </Routes>
-        </BrowserRouter>
+        <BulkActionProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<HomePage {...commonProps} />} />
+              <Route path="/orgs" element={<RepositoryPage {...commonProps} />} />
+              <Route path="/org/:owner" element={<RepositoryPage {...commonProps} />} />
+              <Route path="/:owner/:repo" element={<RepositoryPage {...commonProps} />} />
+            </Routes>
+            <BulkActionToast />
+            <GlobalBulkActionModal />
+          </BrowserRouter>
+        </BulkActionProvider>
       </RelayEnvironmentProvider>
     </ErrorBoundary>
   );
