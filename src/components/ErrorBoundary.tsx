@@ -24,7 +24,7 @@ function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
           {error && (
             <div className="alert alert-error w-full mb-4">
               <div className="flex flex-col items-start gap-2 w-full">
-                <span className="font-semibold">{t('errorBoundary.errorDetails')}</span>
+                <span className="font-semibold">{t('errorBoundary.errorDetails')}:</span>
                 <code className="text-sm bg-base-200 p-2 rounded w-full text-left overflow-x-auto">
                   {error.message}
                 </code>

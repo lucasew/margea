@@ -52,7 +52,7 @@
     "useFormToSearch": "Utilice el formulario del lado para encontrar los Pull Requests."
   },
   "prGroupCard": {
-    "base": "Base:",
+    "base": "Base",
     "prStatus": "Estado de los PRs",
     "repos": "repos",
     "open": "Abiertos",
@@ -66,7 +66,7 @@
   "errorBoundary": {
     "title": "Algo salió mal",
     "message": "Ocurrió un error inesperado en la aplicación.",
-    "errorDetails": "Detalles del error:",
+    "errorDetails": "Detalles del error",
     "tryAgain": "Intentar de nuevo",
     "reloadPage": "Recargar página"
   },
@@ -99,13 +99,13 @@
     "close": "Cerrar {{count}} PR",
     "close_plural": "Cerrar {{count}} PRs",
     "writePermissionRequired": "Necesita permiso de escritura para fusionar/cerrar PRs",
-    "branch": "Rama:",
-    "total": "Total:",
-    "labels": "Etiquetas:",
-    "createdAt": "Creado:",
-    "updatedAt": "Actualizado:",
-    "mergedAt": "Fusionado:",
-    "closedAt": "Cerrado:",
+    "branch": "Rama",
+    "total": "Total",
+    "labels": "Etiquetas",
+    "createdAt": "Creado",
+    "updatedAt": "Actualizado",
+    "mergedAt": "Fusionado",
+    "closedAt": "Cerrado",
     "openInGitHub": "Abrir en GitHub"
   }
 }

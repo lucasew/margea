@@ -51,7 +51,7 @@ export function PRGroupCard({ group, onExpand }: PRGroupCardProps) {
           <div className="flex items-center gap-2 text-base-content/70">
             <GitBranch size={16} className="flex-shrink-0" />
             <span className="truncate">
-              <span className="font-semibold">{t('prGroupCard.base')}</span> <span className="font-mono">{group.baseRef}</span>
+              <span className="font-semibold">{t('prGroupCard.base')}:</span> <span className="font-mono">{group.baseRef}</span>
             </span>
           </div>
 
