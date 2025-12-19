@@ -5,6 +5,8 @@
 <img src="https://hosted.weblate.org/widget/margea/multi-auto.svg" alt="Status da tradução" />
 </a>
 
+[[English](README_en.md)] [[Español](README_es.md)] [[Português](README.md)]
+
 Analisador de Pull Requests do GitHub com foco em PRs automatizados do Renovate Bot.
 
 ## 📋 Visão Geral
