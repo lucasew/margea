@@ -1,4 +1,4 @@
-import { Package, GitBranch, Tag, User } from 'react-feather';
+import { Package, GitBranch, Tag, User, CheckCircle, XCircle, Clock } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import { PRGroup } from '../types';
 
@@ -17,9 +17,39 @@ export function PRGroupCard({ group, onExpand }: PRGroupCardProps) {
   const repoCount = new Set(group.prs.map(pr => pr.repository.nameWithOwner)).size;
   const author = group.prs[0]?.author;
 
+  // Calculate Group CI Status
+  const ciStatus = (() => {
+    const statuses = group.prs
+      .map(pr => pr.ciStatus)
+      .filter((status): status is 'SUCCESS' | 'FAILURE' | 'PENDING' => status !== null);
+
+    if (statuses.length === 0) return null;
+    if (statuses.some(s => s === 'FAILURE')) return 'FAILURE';
+    if (statuses.some(s => s === 'PENDING')) return 'PENDING';
+    if (statuses.every(s => s === 'SUCCESS')) return 'SUCCESS';
+    return null;
+  })();
+
+  const getStatusIcon = () => {
+    switch (ciStatus) {
+      case 'SUCCESS':
+        return <CheckCircle size={16} className="text-success" />;
+      case 'FAILURE':
+        return <XCircle size={16} className="text-error" />;
+      case 'PENDING':
+        return <Clock size={16} className="text-warning" />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <div
-      className="border border-base-300 rounded-lg p-6 hover:border-primary/50 transition-all cursor-pointer bg-base-100"
+      className={`border rounded-lg p-6 hover:border-primary/50 transition-all cursor-pointer bg-base-100 ${
+        ciStatus === 'FAILURE' ? 'border-error/30' :
+        ciStatus === 'SUCCESS' ? 'border-success/30' :
+        'border-base-300'
+      }`}
       onClick={() => onExpand(group)}
     >
         <div className="flex justify-between items-start mb-4">
@@ -27,7 +57,14 @@ export function PRGroupCard({ group, onExpand }: PRGroupCardProps) {
             <Package size={20} className="text-primary flex-shrink-0" />
             <h3 className="font-mono text-base lg:text-lg font-bold break-all">{group.package}</h3>
           </div>
-          <div className="badge badge-neutral badge-lg flex-shrink-0">{group.count}</div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {ciStatus && (
+              <div className="tooltip tooltip-left" data-tip={`CI Status: ${ciStatus}`}>
+                {getStatusIcon()}
+              </div>
+            )}
+            <div className="badge badge-neutral badge-lg">{group.count}</div>
+          </div>
         </div>
 
         {author && (

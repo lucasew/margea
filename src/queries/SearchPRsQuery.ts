@@ -16,6 +16,15 @@ export const SearchPRsQuery = graphql`
             title
             body
             state
+            commits(last: 1) {
+              nodes {
+                commit {
+                  statusCheckRollup {
+                    state
+                  }
+                }
+              }
+            }
             createdAt
             updatedAt
             mergedAt

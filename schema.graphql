@@ -121,6 +121,7 @@ type PullRequest {
   author: Actor
   labels(first: Int): LabelConnection
   repository: Repository!
+  commits(last: Int): PullRequestCommitConnection!
 }
 
 enum PullRequestState {
@@ -164,4 +165,28 @@ type Label {
   name: String!
   color: String!
   description: String
+}
+
+type PullRequestCommitConnection {
+  nodes: [PullRequestCommit]
+}
+
+type PullRequestCommit {
+  commit: Commit!
+}
+
+type Commit {
+  statusCheckRollup: StatusCheckRollup
+}
+
+type StatusCheckRollup {
+  state: StatusState!
+}
+
+enum StatusState {
+  EXPECTED
+  ERROR
+  FAILURE
+  PENDING
+  SUCCESS
 }

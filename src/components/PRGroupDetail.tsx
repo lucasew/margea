@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Package, GitBranch, Tag, ExternalLink, Calendar, User, GitCommit, X, Check, AlertCircle } from 'react-feather';
+import { ArrowLeft, Package, GitBranch, Tag, ExternalLink, Calendar, User, GitCommit, X, Check, AlertCircle, CheckCircle, XCircle, Clock } from 'react-feather';
 import { PRGroup, BulkActionType, BulkActionProgress } from '../types';
 import { BulkActionModal } from './BulkActionModal';
 import { useAuth } from '../hooks/useAuth';
@@ -214,8 +214,17 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
                     </div>
                   </div>
 
-                  <div className={`badge ${stateColors[pr.state]} badge-lg flex-shrink-0`}>
-                    {pr.state}
+                  <div className="flex flex-col items-end gap-2 flex-shrink-0">
+                    <div className={`badge ${stateColors[pr.state]} badge-lg`}>
+                      {pr.state}
+                    </div>
+                    {pr.ciStatus && (
+                      <div className="tooltip tooltip-left" data-tip={`CI: ${pr.ciStatus}`}>
+                        {pr.ciStatus === 'SUCCESS' && <div className="badge badge-success gap-1"><CheckCircle size={12}/> CI Passed</div>}
+                        {pr.ciStatus === 'FAILURE' && <div className="badge badge-error gap-1 text-white"><XCircle size={12}/> CI Failed</div>}
+                        {pr.ciStatus === 'PENDING' && <div className="badge badge-warning gap-1"><Clock size={12}/> CI Pending</div>}
+                      </div>
+                    )}
                   </div>
                 </div>
 
