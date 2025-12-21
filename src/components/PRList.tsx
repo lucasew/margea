@@ -1,5 +1,5 @@
 import { Suspense, useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useLocation } from 'react-router-dom';
 import { useLazyLoadQuery, fetchQuery } from 'react-relay';
 import { RefreshCw, Download, Filter, GitPullRequest, GitMerge, XCircle, CheckCircle, Folder, AlertTriangle } from 'react-feather';
 import { ErrorBoundary as ReactErrorBoundary, FallbackProps } from 'react-error-boundary';
@@ -18,6 +18,7 @@ interface PRListContentProps {
 
 function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
   const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
 
   const groupKey = searchParams.get('group');
 
@@ -32,6 +33,44 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
     const limit = parseInt(searchParams.get('limit') || '100', 10);
     return limit > 0 && limit <= 1000 ? limit : 100;
   });
+
+  // Persist filters in sessionStorage
+  const [isRestored, setIsRestored] = useState(false);
+
+  useEffect(() => {
+    // Only restore on mount (when isRestored is false)
+    if (isRestored) return;
+
+    const storageKey = `margea_filters_${location.pathname}`;
+    const stored = sessionStorage.getItem(storageKey);
+
+    if (stored) {
+      const storedParams = new URLSearchParams(stored);
+      const newParams = new URLSearchParams(searchParams);
+      let hasChanges = false;
+
+      storedParams.forEach((value, key) => {
+        // If current params don't have this key, restore it
+        if (!newParams.has(key)) {
+          newParams.set(key, value);
+          hasChanges = true;
+        }
+      });
+
+      if (hasChanges) {
+        setSearchParams(newParams, { replace: true });
+      }
+    }
+
+    setIsRestored(true);
+  }, [location.pathname, isRestored, searchParams, setSearchParams]);
+
+  useEffect(() => {
+    if (!isRestored) return;
+
+    const storageKey = `margea_filters_${location.pathname}`;
+    sessionStorage.setItem(storageKey, searchParams.toString());
+  }, [searchParams, location.pathname, isRestored]);
 
   useEffect(() => {
     const limit = parseInt(searchParams.get('limit') || '100', 10);
