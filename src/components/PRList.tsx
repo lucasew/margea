@@ -147,6 +147,13 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
       title: pr.title!,
       body: pr.body ?? null,
       state: pr.state as 'OPEN' | 'CLOSED' | 'MERGED',
+      ciStatus: (() => {
+        const state = pr.commits?.nodes?.[0]?.commit?.statusCheckRollup?.state;
+        if (state === 'SUCCESS') return 'SUCCESS';
+        if (state === 'FAILURE' || state === 'ERROR') return 'FAILURE';
+        if (state === 'PENDING' || state === 'EXPECTED') return 'PENDING';
+        return null;
+      })(),
       createdAt: pr.createdAt!,
       updatedAt: pr.updatedAt!,
       mergedAt: pr.mergedAt ?? null,
@@ -252,6 +259,13 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
             title: pr.title!,
             body: pr.body ?? null,
             state: pr.state as 'OPEN' | 'CLOSED' | 'MERGED',
+            ciStatus: (() => {
+              const state = pr.commits?.nodes?.[0]?.commit?.statusCheckRollup?.state;
+              if (state === 'SUCCESS') return 'SUCCESS';
+              if (state === 'FAILURE' || state === 'ERROR') return 'FAILURE';
+              if (state === 'PENDING' || state === 'EXPECTED') return 'PENDING';
+              return null;
+            })(),
             createdAt: pr.createdAt!,
             updatedAt: pr.updatedAt!,
             mergedAt: pr.mergedAt ?? null,
