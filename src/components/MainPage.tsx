@@ -107,7 +107,7 @@ function MainPageContent({ onLogout, onLogin, onChangePermissions, isAuthenticat
 
           <div className="lg:col-span-8">
             {searchQuery ? (
-              <PRList searchQuery={searchQuery} />
+              <PRList key={location.pathname} searchQuery={searchQuery} />
             ) : (
               <div className="flex flex-col items-center justify-center min-h-[400px] p-12 text-center">
                 <div className="text-primary/50 mb-6">
