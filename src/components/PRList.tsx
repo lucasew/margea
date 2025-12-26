@@ -1,5 +1,5 @@
 import { Suspense, useState, useEffect } from 'react';
-import { useSearchParams, useLocation } from 'react-router-dom';
+import { useSearchParams, useLocation, useNavigate } from 'react-router-dom';
 import { useLazyLoadQuery, fetchQuery } from 'react-relay';
 import { RefreshCw, Download, Filter, GitPullRequest, GitMerge, XCircle, CheckCircle, Folder, AlertTriangle } from 'react-feather';
 import { ErrorBoundary as ReactErrorBoundary, FallbackProps } from 'react-error-boundary';
@@ -17,6 +17,7 @@ interface PRListContentProps {
 }
 
 function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
 
@@ -212,7 +213,7 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
   };
 
   const handleBackFromGroup = () => {
-    setSearchParams({});
+    navigate(-1);
   };
 
   const fetchMorePRs = async () => {
