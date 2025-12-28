@@ -1,4 +1,5 @@
 import { PullRequest, PRGroup } from '../types';
+import { PRState } from '../constants';
 
 /**
  * Normalize base ref to group main and master together
@@ -58,7 +59,7 @@ export function filterPullRequests(
   prs: PullRequest[],
   filters: {
     repository?: string;
-    state?: 'OPEN' | 'CLOSED' | 'MERGED' | 'ALL';
+    state?: PRState;
     author?: string;
     owner?: string;
   }

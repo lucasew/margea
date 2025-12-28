@@ -11,6 +11,7 @@ import { transformPR } from '../services/prTransformer';
 import { PRGroupCard } from './PRGroupCard';
 import { PRGroupDetail } from './PRGroupDetail';
 import { PRGroup, PullRequest } from '../types';
+import { PR_STATES, PRState, PR_STATE_LABELS } from '../constants';
 
 interface PRListContentProps {
   searchQuery: string;
@@ -26,7 +27,7 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
 
   // Read filters from URL
   const filterRepo = searchParams.get('repo') || '';
-  const filterState = (searchParams.get('state') || 'ALL') as 'ALL' | 'OPEN' | 'CLOSED' | 'MERGED';
+  const filterState = (searchParams.get('state') || 'ALL') as PRState;
   const filterAuthor = searchParams.get('author') || '';
   const filterOwner = searchParams.get('owner') || '';
 
@@ -339,10 +340,11 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
                     value={filterState}
                     onChange={(e) => updateFilter('state', e.target.value)}
                   >
-                    <option value="ALL">Todos</option>
-                    <option value="OPEN">Abertos</option>
-                    <option value="MERGED">Merged</option>
-                    <option value="CLOSED">Fechados</option>
+                    {PR_STATES.map((state) => (
+                      <option key={state} value={state}>
+                        {PR_STATE_LABELS[state]}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
