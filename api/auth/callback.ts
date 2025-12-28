@@ -2,16 +2,41 @@ import { SignJWT } from 'jose';
 
 export const config = { runtime: 'edge' };
 
+// Helper to parse cookies from the request headers
+function getCookie(req: Request, name: string): string | undefined {
+  const cookieHeader = req.headers.get('Cookie');
+  if (!cookieHeader) return undefined;
+  const cookies = cookieHeader.split(';');
+  for (const cookie of cookies) {
+    const [cookieName, ...cookieValue] = cookie.trim().split('=');
+    if (cookieName === name) {
+      return cookieValue.join('=');
+    }
+  }
+  return undefined;
+}
+
 export default async function handler(req: Request) {
   const { searchParams } = new URL(req.url);
   const code = searchParams.get('code');
-  const state = searchParams.get('state'); // mode: 'read' ou 'write'
+  const stateFromParam = searchParams.get('state');
 
-  if (!code) {
-    return new Response('Missing code parameter', { status: 400 });
+  // 🛡️ SENTINEL: Verify the CSRF token (state) to prevent attacks.
+  const oauthStateCookie = getCookie(req, 'oauth_state');
+
+  if (!code || !stateFromParam || !oauthStateCookie) {
+    return new Response('Invalid request: missing parameters.', { status: 400 });
   }
 
-  // Trocar code por access_token
+  // Decode the cookie and compare the state values
+  const oauthState = JSON.parse(atob(oauthStateCookie));
+  const { state: stateFromCookie, mode } = oauthState;
+
+  if (stateFromParam !== stateFromCookie) {
+    return new Response('Invalid CSRF token (state mismatch).', { status: 403 });
+  }
+
+  // Exchange the authorization code for an access token
   const tokenRes = await fetch('https://github.com/login/oauth/access_token', {
     method: 'POST',
     headers: {
@@ -35,26 +60,34 @@ export default async function handler(req: Request) {
     );
   }
 
-  // Criar JWT com token e mode
+  // Create a secure session JWT
   const secret = new TextEncoder().encode(process.env.SESSION_SECRET);
-  const mode = state || 'read'; // Default: read-only
   const session = await new SignJWT({
     github_token: access_token,
-    mode: mode
+    mode: mode,
   })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime('7d')
     .sign(secret);
 
-  // Redirecionar com cookie
   const baseUrl = new URL(req.url).origin;
+
+  // Set the session cookie and clear the state cookie
+  const sessionCookie = `session=${session}; HttpOnly; Secure; SameSite=Strict; Max-Age=${
+    60 * 60 * 24 * 7
+  }; Path=/`;
+  const clearStateCookie = `oauth_state=; HttpOnly; Path=/; Max-Age=0`;
+
+  // 🛡️ SENTINEL: To set multiple cookies, we must use multiple `Set-Cookie` headers.
+  // Using a single header with a comma-separated list is not compliant with RFC 6265.
+  const headers = new Headers();
+  headers.append('Location', baseUrl);
+  headers.append('Set-Cookie', sessionCookie);
+  headers.append('Set-Cookie', clearStateCookie);
 
   return new Response(null, {
     status: 302,
-    headers: {
-      'Location': baseUrl,
-      'Set-Cookie': `session=${session}; HttpOnly; Secure; SameSite=Strict; Max-Age=${60 * 60 * 24 * 7}; Path=/`
-    }
+    headers: headers,
   });
 }
