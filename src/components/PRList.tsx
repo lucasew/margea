@@ -7,6 +7,7 @@ import { relayEnvironment } from '../relay/environment';
 import { SearchPRsQuery } from '../queries/SearchPRsQuery';
 import { SearchPRsQuery as SearchPRsQueryType } from '../queries/__generated__/SearchPRsQuery.graphql';
 import { groupPullRequests, filterPullRequests, calculateStats } from '../services/prGrouping';
+import { transformPR } from '../services/prTransformer';
 import { PRGroupCard } from './PRGroupCard';
 import { PRGroupDetail } from './PRGroupDetail';
 import { PRGroup, PullRequest } from '../types';
@@ -128,56 +129,8 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
 
   // Transform Relay data to our PullRequest type
   const initialPRs: PullRequest[] = (data.search.edges || [])
-    .map(edge => edge?.node)
-    .filter((node): node is NonNullable<typeof node> =>
-      node != null &&
-      node.id != null &&
-      node.number != null &&
-      node.title != null &&
-      node.state != null &&
-      node.createdAt != null &&
-      node.updatedAt != null &&
-      node.url != null &&
-      node.baseRefName != null &&
-      node.headRefName != null &&
-      node.repository != null
-    )
-    .map(pr => ({
-      id: pr.id!,
-      number: pr.number!,
-      title: pr.title!,
-      body: pr.body ?? null,
-      state: pr.state as 'OPEN' | 'CLOSED' | 'MERGED',
-      ciStatus: (() => {
-        const state = pr.commits?.nodes?.[0]?.commit?.statusCheckRollup?.state;
-        if (state === 'SUCCESS') return 'SUCCESS';
-        if (state === 'FAILURE' || state === 'ERROR') return 'FAILURE';
-        if (state === 'PENDING' || state === 'EXPECTED') return 'PENDING';
-        return null;
-      })(),
-      createdAt: pr.createdAt!,
-      updatedAt: pr.updatedAt!,
-      mergedAt: pr.mergedAt ?? null,
-      closedAt: pr.closedAt ?? null,
-      url: pr.url!,
-      baseRefName: pr.baseRefName!,
-      headRefName: pr.headRefName!,
-      author: pr.author ? {
-        login: pr.author.login,
-        avatarUrl: pr.author.avatarUrl,
-      } : null,
-      labels: pr.labels ? {
-        nodes: (pr.labels.nodes || [])
-          .filter((node): node is NonNullable<typeof node> => node != null)
-          .map(node => ({
-            id: node.id,
-            name: node.name,
-            color: node.color,
-            description: node.description ?? null,
-          })),
-      } : null,
-      repository: pr.repository!,
-    }));
+    .map(edge => transformPR(edge?.node))
+    .filter((pr): pr is PullRequest => pr !== null);
 
   // Combine initial PRs with additional PRs from pagination
   const prs: PullRequest[] = [...initialPRs, ...additionalPRs];
@@ -240,56 +193,8 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
       if (result?.search) {
         // Transform new PRs
         const newPRs: PullRequest[] = (result.search.edges || [])
-          .map(edge => edge?.node)
-          .filter((node): node is NonNullable<typeof node> =>
-            node != null &&
-            node.id != null &&
-            node.number != null &&
-            node.title != null &&
-            node.state != null &&
-            node.createdAt != null &&
-            node.updatedAt != null &&
-            node.url != null &&
-            node.baseRefName != null &&
-            node.headRefName != null &&
-            node.repository != null
-          )
-          .map(pr => ({
-            id: pr.id!,
-            number: pr.number!,
-            title: pr.title!,
-            body: pr.body ?? null,
-            state: pr.state as 'OPEN' | 'CLOSED' | 'MERGED',
-            ciStatus: (() => {
-              const state = pr.commits?.nodes?.[0]?.commit?.statusCheckRollup?.state;
-              if (state === 'SUCCESS') return 'SUCCESS';
-              if (state === 'FAILURE' || state === 'ERROR') return 'FAILURE';
-              if (state === 'PENDING' || state === 'EXPECTED') return 'PENDING';
-              return null;
-            })(),
-            createdAt: pr.createdAt!,
-            updatedAt: pr.updatedAt!,
-            mergedAt: pr.mergedAt ?? null,
-            closedAt: pr.closedAt ?? null,
-            url: pr.url!,
-            baseRefName: pr.baseRefName!,
-            headRefName: pr.headRefName!,
-            author: pr.author ? {
-              login: pr.author.login,
-              avatarUrl: pr.author.avatarUrl,
-            } : null,
-            labels: pr.labels ? {
-              nodes: (pr.labels.nodes || [])
-                .filter((node): node is NonNullable<typeof node> => node != null)
-                .map(node => ({
-                  id: node.id,
-                  name: node.name,
-                  color: node.color,
-                  description: node.description ?? null,
-                })),
-            } : null,
-            repository: pr.repository!,
-          }));
+          .map(edge => transformPR(edge?.node))
+          .filter((pr): pr is PullRequest => pr !== null);
 
         setAdditionalPRs(prev => [...prev, ...newPRs]);
         setHasNextPage(result.search.pageInfo?.hasNextPage ?? false);
