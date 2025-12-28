@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
+import { sanitize } from '../services/sanitizer';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 import { PRList } from '../components/PRList';
@@ -66,9 +67,9 @@ function RepositoryPageContent({ onLogout, onLogin, onChangePermissions, isAuthe
   // Build page title
   let pageTitle = t('repositoryPage.allPRs');
   if (params.owner && params.repo) {
-    pageTitle = `${params.owner}/${params.repo}`;
+    pageTitle = `${sanitize(params.owner)}/${sanitize(params.repo)}`;
   } else if (params.owner) {
-    pageTitle = params.owner;
+    pageTitle = sanitize(params.owner);
   }
 
   const subtitle = t('repositoryPage.pullRequests');
