@@ -12,7 +12,8 @@ import { PRGroupCard } from './PRGroupCard';
 import { PRGroupDetail } from './PRGroupDetail';
 import { InfoIcon } from './InfoIcon';
 import { PRGroup, PullRequest } from '../types';
-import { PR_STATES, PRState, PR_STATE_LABELS } from '../constants';
+import { PR_STATES, PRState, PR_STATE_LABELS, DEFAULT_PR_TARGET, MAX_PR_TARGET, BATCH_SIZE } from '../constants';
+import { InfoIcon } from './InfoIcon';
 
 interface PRListContentProps {
   searchQuery: string;
@@ -34,8 +35,8 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
 
   // State for PR target/goal, synced with URL param
   const [prTarget, setPrTarget] = useState(() => {
-    const limit = parseInt(searchParams.get('limit') || '100', 10);
-    return limit > 0 && limit <= 1000 ? limit : 100;
+    const limit = parseInt(searchParams.get('limit') || DEFAULT_PR_TARGET.toString(), 10);
+    return limit > 0 && limit <= MAX_PR_TARGET ? limit : DEFAULT_PR_TARGET;
   });
 
   // Persist filters in sessionStorage
@@ -77,8 +78,8 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
   }, [searchParams, location.pathname, isRestored]);
 
   useEffect(() => {
-    const limit = parseInt(searchParams.get('limit') || '100', 10);
-    const validLimit = limit > 0 && limit <= 1000 ? limit : 100;
+    const limit = parseInt(searchParams.get('limit') || DEFAULT_PR_TARGET.toString(), 10);
+    const validLimit = limit > 0 && limit <= MAX_PR_TARGET ? limit : DEFAULT_PR_TARGET;
     setPrTarget(validLimit);
   }, [searchParams]);
 
@@ -108,9 +109,6 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
     newParams.set('limit', value);
     setSearchParams(newParams, { replace: true });
   }
-
-  // Always fetch in batches of 100
-  const BATCH_SIZE = 100;
 
   const data = useLazyLoadQuery<SearchPRsQueryType>(
     SearchPRsQuery,
@@ -359,7 +357,7 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
                   <input
                     type="number"
                     min="1"
-                    max="1000"
+                    max={MAX_PR_TARGET}
                     value={prTarget}
                     onChange={(e) => handleLimitChange(e.target.value)}
                     className="input input-bordered w-full"
