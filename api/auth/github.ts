@@ -1,10 +1,13 @@
+import { SignJWT } from 'jose';
+
 export const config = { runtime: 'edge' };
 
-export default function handler(req: Request) {
+export default async function handler(req: Request) {
   const clientId = process.env.GITHUB_CLIENT_ID;
   const callbackUrl = process.env.GITHUB_CALLBACK_URL;
+  const sessionSecret = process.env.SESSION_SECRET;
 
-  if (!clientId || !callbackUrl) {
+  if (!clientId || !callbackUrl || !sessionSecret) {
     return new Response('Missing environment variables', { status: 500 });
   }
 
@@ -26,12 +29,20 @@ export default function handler(req: Request) {
   url.searchParams.set('scope', scopes);
   url.searchParams.set('state', state); // Use state for CSRF protection
 
-  // Store the state and mode in a secure, HttpOnly cookie to verify on callback.
-  const cookiePayload = JSON.stringify({ state, mode });
-  const isSecure = requestUrl.protocol === 'https:';
-  const encodedPayload = btoa(cookiePayload);
+  // 🛡️ SENTINEL: Secure the state and mode in a signed JWT.
+  // This prevents tampering with the permissions (mode) during the OAuth flow.
+  const secret = new TextEncoder().encode(sessionSecret);
+  const stateToken = await new SignJWT({ state, mode })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime('5m') // Short-lived token
+    .sign(secret);
 
-  const cookie = `oauth_state=${encodedPayload}; HttpOnly; ${
+
+  // Store the state and mode in a secure, HttpOnly cookie to verify on callback.
+  const isSecure = requestUrl.protocol === 'https:';
+
+  const cookie = `oauth_state=${stateToken}; HttpOnly; ${
     isSecure ? 'Secure;' : ''
   } Path=/; SameSite=Lax; Max-Age=300`; // 5 minutes expiry
 
