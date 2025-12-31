@@ -1,20 +1,7 @@
 import { SignJWT } from 'jose';
+import { parse } from 'cookie';
 
 export const config = { runtime: 'edge' };
-
-// Helper to parse cookies from the request headers
-function getCookie(req: Request, name: string): string | undefined {
-  const cookieHeader = req.headers.get('Cookie');
-  if (!cookieHeader) return undefined;
-  const cookies = cookieHeader.split(';');
-  for (const cookie of cookies) {
-    const [cookieName, ...cookieValue] = cookie.trim().split('=');
-    if (cookieName === name) {
-      return cookieValue.join('=');
-    }
-  }
-  return undefined;
-}
 
 export default async function handler(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -22,7 +9,9 @@ export default async function handler(req: Request) {
   const stateFromParam = searchParams.get('state');
 
   // 🛡️ SENTINEL: Verify the CSRF token (state) to prevent attacks.
-  const oauthStateCookie = getCookie(req, 'oauth_state');
+  const cookieHeader = req.headers.get('Cookie') || '';
+  const cookies = parse(cookieHeader);
+  const oauthStateCookie = cookies.oauth_state;
 
   if (!code || !stateFromParam || !oauthStateCookie) {
     return new Response('Invalid request: missing parameters.', { status: 400 });
