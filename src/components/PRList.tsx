@@ -10,6 +10,7 @@ import { groupPullRequests, filterPullRequests, calculateStats } from '../servic
 import { transformPR } from '../services/prTransformer';
 import { PRGroupCard } from './PRGroupCard';
 import { PRGroupDetail } from './PRGroupDetail';
+import { InfoIcon } from './InfoIcon';
 import { PRGroup, PullRequest } from '../types';
 import { PR_STATES, PRState, PR_STATE_LABELS } from '../constants';
 
@@ -389,9 +390,7 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
 
         {groups.length === 0 ? (
           <div role="alert" className="alert alert-info shadow-lg">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
+            <InfoIcon />
             <span>Nenhum PR encontrado com os filtros aplicados.</span>
           </div>
         ) : (
@@ -423,9 +422,7 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
             {!isLoadingMore && prs.length > 0 && prs.length < prTarget && !hasNextPage && (
               <div className="mt-8 flex justify-center">
                 <div className="alert alert-info max-w-md">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                  </svg>
+                  <InfoIcon />
                   <span>
                     Carregados {prs.length} PRs (meta: {prTarget}). Não há mais PRs disponíveis.
                   </span>
