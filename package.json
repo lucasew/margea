@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@vercel/node": "^5.5.6",
+    "cookie": "^1.1.1",
     "i18next": "^25.6.2",
     "i18next-browser-languagedetector": "^8.2.0",
     "jose": "^6.1.1",
@@ -27,6 +28,7 @@
     "@playwright/test": "^1.56.1",
     "@tailwindcss/postcss": "^4.1.17",
     "@tailwindcss/typography": "^0.5.19",
+    "@types/cookie": "^0.6.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@types/react-relay": "^18.2.1",
