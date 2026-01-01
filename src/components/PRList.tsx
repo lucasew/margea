@@ -13,7 +13,6 @@ import { PRGroupDetail } from './PRGroupDetail';
 import { InfoIcon } from './InfoIcon';
 import { PRGroup, PullRequest } from '../types';
 import { PR_STATES, PRState, PR_STATE_LABELS, DEFAULT_PR_TARGET, MAX_PR_TARGET, BATCH_SIZE } from '../constants';
-import { InfoIcon } from './InfoIcon';
 
 interface PRListContentProps {
   searchQuery: string;
