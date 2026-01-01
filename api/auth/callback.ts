@@ -1,20 +1,7 @@
 import { SignJWT, jwtVerify } from 'jose';
+import { getCookie } from '../lib/cookies';
 
 export const config = { runtime: 'edge' };
-
-// Helper to parse cookies from the request headers
-function getCookie(req: Request, name: string): string | undefined {
-  const cookieHeader = req.headers.get('Cookie');
-  if (!cookieHeader) return undefined;
-  const cookies = cookieHeader.split(';');
-  for (const cookie of cookies) {
-    const [cookieName, ...cookieValue] = cookie.trim().split('=');
-    if (cookieName === name) {
-      return cookieValue.join('=');
-    }
-  }
-  return undefined;
-}
 
 export default async function handler(req: Request) {
   const { searchParams } = new URL(req.url);
