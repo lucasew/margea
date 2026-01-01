@@ -1,14 +1,10 @@
 import { jwtVerify } from 'jose';
+import { getCookie } from '../lib/cookies';
 
 export const config = { runtime: 'edge' };
 
 export default async function handler(req: Request) {
-  // Parse cookies from header
-  const cookieHeader = req.headers.get('cookie') || '';
-  const cookies = Object.fromEntries(
-    cookieHeader.split('; ').map(c => c.split('='))
-  );
-  const sessionCookie = cookies.session;
+  const sessionCookie = getCookie(req, 'session');
 
   if (!sessionCookie) {
     return new Response(

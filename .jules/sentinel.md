@@ -1,0 +1,6 @@
+## 2024-08-07 - Centralize Security-Critical Functions
+**Vulnerability:** Inconsistent and insecure cookie parsing logic was implemented across multiple API endpoints (`api/auth/callback.ts` and `api/auth/token.ts`). The parsing logic in `token.ts` was particularly naive and vulnerable to malformed cookie values, which could lead to an authentication bypass or denial of service.
+
+**Learning:** A previous security effort (related to PR #94) correctly identified and hardened the cookie parsing logic in `callback.ts` but missed the vulnerable implementation in `token.ts`. This demonstrates that duplicated, security-critical code is a significant risk, as developers may fix an issue in one place while leaving other instances of the same vulnerability exposed.
+
+**Prevention:** All security-critical operations, such as cookie parsing, input validation, or cryptographic functions, must be abstracted into a single, shared utility. By enforcing the use of a centralized function, we ensure that security patches are applied globally and consistently, eliminating the risk of partial fixes. All developers should be trained to identify and refactor duplicated security logic into a shared module.
