@@ -5,6 +5,7 @@ import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 import { PRList } from '../components/PRList';
 import { useViewer } from '../hooks/useViewer';
+import { sanitize } from '../services/sanitizer';
 
 interface RepositoryPageProps {
   onLogout: () => void;
@@ -46,7 +47,13 @@ function buildSearchQuery(
 
 function RepositoryPageContent({ onLogout, onLogin, onChangePermissions, isAuthenticated, currentMode }: RepositoryPageProps) {
   const { t } = useTranslation();
-  const params = useParams<{ owner?: string; repo?: string }>();
+  const rawParams = useParams<{ owner?: string; repo?: string }>();
+
+  // 🛡️ SENTINEL: Sanitize URL parameters to prevent injection attacks.
+  const params = {
+    owner: sanitize(rawParams.owner),
+    repo: sanitize(rawParams.repo),
+  };
 
   // Load organizations only if authenticated and on /orgs route
   let organizations: Array<{ login: string }> = [];
