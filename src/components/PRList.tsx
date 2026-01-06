@@ -448,16 +448,11 @@ function PRListErrorFallback({ error, resetErrorBoundary, onRetry }: FallbackPro
                 Não foi possível carregar os Pull Requests do GitHub.
               </p>
 
-              {error && (
-                <div className="alert alert-error w-full mb-4">
-                  <div className="flex flex-col items-start gap-2 w-full">
-                    <span className="font-semibold">Detalhes:</span>
-                    <code className="text-sm bg-base-200 p-2 rounded w-full text-left overflow-x-auto">
-                      {error.message}
-                    </code>
-                  </div>
-                </div>
-              )}
+              {/*
+                🛡️ Sentinel: Raw error messages are not displayed in the UI to prevent leaking
+                sensitive information. The console still logs the full error via the
+                error boundary.
+              */}
 
               <div className="alert alert-info w-full mb-4">
                 <div className="flex flex-col items-start gap-2 w-full text-left">
