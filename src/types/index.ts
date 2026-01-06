@@ -43,9 +43,11 @@ export interface PRGroup {
   count: number;
 }
 
+export type PRState = 'OPEN' | 'CLOSED' | 'MERGED' | 'ALL';
+
 export interface FilterOptions {
   repository?: string;
-  state?: 'OPEN' | 'CLOSED' | 'MERGED' | 'ALL';
+  state?: PRState;
 }
 
 export type BulkActionType = 'merge' | 'close';
