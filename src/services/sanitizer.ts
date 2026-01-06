@@ -8,5 +8,9 @@ export function sanitize(input: string | undefined): string | undefined {
   if (!input) {
     return input;
   }
-  return input.replace(/[<>]/g, '');
+  // 🛡️ SENTINEL: Strip characters that could be used for XSS.
+  // This is a defense-in-depth measure, as React's JSX escaping
+  // should prevent most attacks. However, it's crucial to sanitize
+  // any user-controlled input that is reflected in the UI.
+  return input.replace(/[<>'"']/g, '');
 }
