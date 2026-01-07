@@ -61,8 +61,9 @@ function RepositoryPageContent({ onLogout, onLogin, onChangePermissions, isAuthe
   if (isAuthenticated && !params.owner && !params.repo) {
     try {
       const { organizations: orgs, viewer } = useViewer();
-      organizations = orgs;
-      userLogin = viewer.login;
+      // 🛡️ SENTINEL: Sanitize API data as a defense-in-depth measure.
+      organizations = orgs.map(org => ({ ...org, login: sanitize(org.login) ?? '' }));
+      userLogin = sanitize(viewer.login);
     } catch {
       // If query fails, just use empty list
     }
