@@ -1,7 +1,15 @@
 import { Suspense, useState, useEffect } from 'react';
 import { useSearchParams, useLocation, useNavigate } from 'react-router-dom';
 import { useLazyLoadQuery, fetchQuery } from 'react-relay';
-import { RefreshCw, Download, Filter, GitPullRequest, GitMerge, XCircle, CheckCircle, Folder, AlertTriangle } from 'react-feather';
+import { AlertTriangleIcon } from './icons/AlertTriangleIcon';
+import { CheckCircleIcon } from './icons/CheckCircleIcon';
+import { DownloadIcon } from './icons/DownloadIcon';
+import { FilterIcon } from './icons/FilterIcon';
+import { FolderIcon } from './icons/FolderIcon';
+import { GitMergeIcon } from './icons/GitMergeIcon';
+import { GitPullRequestIcon } from './icons/GitPullRequestIcon';
+import { RefreshCwIcon } from './icons/RefreshCwIcon';
+import { XCircleIcon } from './icons/XCircleIcon';
 import { ErrorBoundary as ReactErrorBoundary, FallbackProps } from 'react-error-boundary';
 import { relayEnvironment } from '../relay/environment';
 import { SearchPRsQuery } from '../queries/SearchPRsQuery';
@@ -231,7 +239,7 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
         <div className="stats stats-vertical lg:stats-horizontal shadow-lg w-full mb-6 bg-base-100">
           <div className="stat place-items-center">
             <div className="stat-figure text-primary">
-              <GitPullRequest size={40} />
+              <GitPullRequestIcon size={40} />
             </div>
             <div className="stat-title">Total PRs</div>
             <div className="stat-value text-primary">{stats.total}</div>
@@ -239,7 +247,7 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
 
           <div className="stat place-items-center">
             <div className="stat-figure text-success">
-              <CheckCircle size={40} />
+              <CheckCircleIcon size={40} />
             </div>
             <div className="stat-title">Abertos</div>
             <div className="stat-value text-success">{stats.open}</div>
@@ -247,7 +255,7 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
 
           <div className="stat place-items-center">
             <div className="stat-figure text-info">
-              <GitMerge size={40} />
+              <GitMergeIcon size={40} />
             </div>
             <div className="stat-title">Merged</div>
             <div className="stat-value text-info">{stats.merged}</div>
@@ -255,7 +263,7 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
 
           <div className="stat place-items-center">
             <div className="stat-figure text-error">
-              <XCircle size={40} />
+              <XCircleIcon size={40} />
             </div>
             <div className="stat-title">Fechados</div>
             <div className="stat-value text-error">{stats.closed}</div>
@@ -263,7 +271,7 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
 
           <div className="stat place-items-center">
             <div className="stat-figure text-base-content">
-              <Folder size={40} />
+              <FolderIcon size={40} />
             </div>
             <div className="stat-title">Repositórios</div>
             <div className="stat-value">{stats.repositories}</div>
@@ -274,7 +282,7 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
         <div className="card bg-base-100 shadow-lg mb-6">
           <div className="card-body">
             <h3 className="card-title mb-4">
-              <Filter size={20} />
+              <FilterIcon size={20} />
               Filtros e Ações
             </h3>
 
@@ -364,12 +372,12 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
                 </div>
 
                 <button onClick={onRefresh} className="btn btn-primary w-full self-end">
-                  <RefreshCw size={18} />
+                  <RefreshCwIcon size={18} />
                   Atualizar
                 </button>
 
                 <button onClick={handleExportJSON} className="btn btn-secondary w-full self-end">
-                  <Download size={18} />
+                  <DownloadIcon size={18} />
                   Exportar JSON
                 </button>
               </div>
@@ -442,7 +450,7 @@ function PRListErrorFallback({ error, resetErrorBoundary, onRetry }: FallbackPro
         <div className="flex flex-col items-center justify-center min-h-screen gap-4 p-4">
           <div className="card w-full max-w-2xl bg-base-100 shadow-xl">
             <div className="card-body items-center text-center">
-              <AlertTriangle size={64} className="text-error mb-4" />
+              <AlertTriangleIcon size={64} className="text-error mb-4" />
               <h2 className="card-title text-2xl mb-2">Erro ao carregar PRs</h2>
               <p className="text-base-content/70 mb-4">
                 Não foi possível carregar os Pull Requests do GitHub.
@@ -479,7 +487,7 @@ function PRListErrorFallback({ error, resetErrorBoundary, onRetry }: FallbackPro
                   }}
                   className="btn btn-primary"
                 >
-                  <RefreshCw size={18} />
+                  <RefreshCwIcon size={18} />
                   Tentar novamente
                 </button>
               </div>
