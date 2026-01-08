@@ -17,11 +17,25 @@ export default async function handler(req: Request) {
     return new Response('Invalid request: missing parameters.', { status: 400 });
   }
 
-  // Decode the cookie and compare the state values
-  const oauthState = JSON.parse(atob(oauthStateCookie));
-  const { state: stateFromCookie, mode } = oauthState;
+  // 🛡️ SENTINEL: Verify the signed JWT from the cookie.
+  // This prevents tampering with the state and permissions (mode).
+  const secret = new TextEncoder().encode(process.env.SESSION_SECRET);
+  let stateFromToken: string;
+  let mode: string;
 
-  if (stateFromParam !== stateFromCookie) {
+  try {
+    const { payload } = await jwtVerify(oauthStateCookie, secret);
+    if (typeof payload.state !== 'string' || typeof payload.mode !== 'string') {
+      throw new Error('Invalid JWT payload');
+    }
+    stateFromToken = payload.state;
+    mode = payload.mode;
+  } catch (error) {
+    return new Response('Invalid or expired OAuth state token.', { status: 403 });
+  }
+
+  // Compare the state from the parameter with the one from the signed JWT
+  if (stateFromParam !== stateFromToken) {
     return new Response('Invalid CSRF token (state mismatch).', { status: 403 });
   }
 
@@ -50,7 +64,6 @@ export default async function handler(req: Request) {
   }
 
   // Create a secure session JWT
-  const secret = new TextEncoder().encode(process.env.SESSION_SECRET);
   const session = await new SignJWT({
     github_token: access_token,
     mode: mode,

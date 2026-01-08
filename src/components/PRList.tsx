@@ -10,8 +10,9 @@ import { groupPullRequests, filterPullRequests, calculateStats } from '../servic
 import { transformPR } from '../services/prTransformer';
 import { PRGroupCard } from './PRGroupCard';
 import { PRGroupDetail } from './PRGroupDetail';
+import { InfoIcon } from './InfoIcon';
 import { PRGroup, PullRequest } from '../types';
-import { PR_STATES, PRState, PR_STATE_LABELS } from '../constants';
+import { PR_STATES, PRState, PR_STATE_LABELS, DEFAULT_PR_TARGET, MAX_PR_TARGET, BATCH_SIZE, URL_SEARCH_PARAMS } from '../constants';
 
 interface PRListContentProps {
   searchQuery: string;
@@ -23,18 +24,18 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
 
-  const groupKey = searchParams.get('group');
+  const groupKey = searchParams.get(URL_SEARCH_PARAMS.GROUP);
 
   // Read filters from URL
-  const filterRepo = searchParams.get('repo') || '';
-  const filterState = (searchParams.get('state') || 'ALL') as PRState;
-  const filterAuthor = searchParams.get('author') || '';
-  const filterOwner = searchParams.get('owner') || '';
+  const filterRepo = searchParams.get(URL_SEARCH_PARAMS.REPO) || '';
+  const filterState = (searchParams.get(URL_SEARCH_PARAMS.STATE) || 'ALL') as PRState;
+  const filterAuthor = searchParams.get(URL_SEARCH_PARAMS.AUTHOR) || '';
+  const filterOwner = searchParams.get(URL_SEARCH_PARAMS.OWNER) || '';
 
   // State for PR target/goal, synced with URL param
   const [prTarget, setPrTarget] = useState(() => {
-    const limit = parseInt(searchParams.get('limit') || '100', 10);
-    return limit > 0 && limit <= 1000 ? limit : 100;
+    const limit = parseInt(searchParams.get(URL_SEARCH_PARAMS.LIMIT) || DEFAULT_PR_TARGET.toString(), 10);
+    return limit > 0 && limit <= MAX_PR_TARGET ? limit : DEFAULT_PR_TARGET;
   });
 
   // Persist filters in sessionStorage
@@ -76,8 +77,8 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
   }, [searchParams, location.pathname, isRestored]);
 
   useEffect(() => {
-    const limit = parseInt(searchParams.get('limit') || '100', 10);
-    const validLimit = limit > 0 && limit <= 1000 ? limit : 100;
+    const limit = parseInt(searchParams.get(URL_SEARCH_PARAMS.LIMIT) || DEFAULT_PR_TARGET.toString(), 10);
+    const validLimit = limit > 0 && limit <= MAX_PR_TARGET ? limit : DEFAULT_PR_TARGET;
     setPrTarget(validLimit);
   }, [searchParams]);
 
@@ -97,19 +98,16 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
     }
     // Preserve group param if it exists
     if (groupKey) {
-      newParams.set('group', groupKey);
+      newParams.set(URL_SEARCH_PARAMS.GROUP, groupKey);
     }
     setSearchParams(newParams);
   };
 
   const handleLimitChange = (value: string) => {
     const newParams = new URLSearchParams(searchParams);
-    newParams.set('limit', value);
+    newParams.set(URL_SEARCH_PARAMS.LIMIT, value);
     setSearchParams(newParams, { replace: true });
   }
-
-  // Always fetch in batches of 100
-  const BATCH_SIZE = 100;
 
   const data = useLazyLoadQuery<SearchPRsQueryType>(
     SearchPRsQuery,
@@ -163,7 +161,7 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
   };
 
   const handleSelectGroup = (group: PRGroup) => {
-    setSearchParams({ group: group.key });
+    setSearchParams({ [URL_SEARCH_PARAMS.GROUP]: group.key });
   };
 
   const handleBackFromGroup = () => {
@@ -290,7 +288,7 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
                   <select
                     className="select select-bordered w-full"
                     value={filterRepo}
-                    onChange={(e) => updateFilter('repo', e.target.value)}
+                    onChange={(e) => updateFilter(URL_SEARCH_PARAMS.REPO, e.target.value)}
                   >
                     <option value="">Todos</option>
                     {uniqueRepos.map(repo => (
@@ -306,7 +304,7 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
                   <select
                     className="select select-bordered w-full"
                     value={filterOwner}
-                    onChange={(e) => updateFilter('owner', e.target.value)}
+                    onChange={(e) => updateFilter(URL_SEARCH_PARAMS.OWNER, e.target.value)}
                   >
                     <option value="">Todos</option>
                     {uniqueOwners.map(owner => (
@@ -322,7 +320,7 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
                   <select
                     className="select select-bordered w-full"
                     value={filterAuthor}
-                    onChange={(e) => updateFilter('author', e.target.value)}
+                    onChange={(e) => updateFilter(URL_SEARCH_PARAMS.AUTHOR, e.target.value)}
                   >
                     <option value="">Todos</option>
                     {uniqueAuthors.map(author => (
@@ -338,7 +336,7 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
                   <select
                     className="select select-bordered w-full"
                     value={filterState}
-                    onChange={(e) => updateFilter('state', e.target.value)}
+                    onChange={(e) => updateFilter(URL_SEARCH_PARAMS.STATE, e.target.value)}
                   >
                     {PR_STATES.map((state) => (
                       <option key={state} value={state}>
@@ -358,7 +356,7 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
                   <input
                     type="number"
                     min="1"
-                    max="1000"
+                    max={MAX_PR_TARGET}
                     value={prTarget}
                     onChange={(e) => handleLimitChange(e.target.value)}
                     className="input input-bordered w-full"
@@ -389,9 +387,7 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
 
         {groups.length === 0 ? (
           <div role="alert" className="alert alert-info shadow-lg">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
+            <InfoIcon />
             <span>Nenhum PR encontrado com os filtros aplicados.</span>
           </div>
         ) : (
@@ -423,9 +419,7 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
             {!isLoadingMore && prs.length > 0 && prs.length < prTarget && !hasNextPage && (
               <div className="mt-8 flex justify-center">
                 <div className="alert alert-info max-w-md">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                  </svg>
+                  <InfoIcon />
                   <span>
                     Carregados {prs.length} PRs (meta: {prTarget}). Não há mais PRs disponíveis.
                   </span>

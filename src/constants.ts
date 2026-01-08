@@ -7,3 +7,17 @@ export const PR_STATE_LABELS: { [key in PRState]: string } = {
   MERGED: 'Merged',
   CLOSED: 'Fechados',
 };
+
+// PRList constants
+export const DEFAULT_PR_TARGET = 100;
+export const MAX_PR_TARGET = 1000;
+export const BATCH_SIZE = 100;
+
+export const URL_SEARCH_PARAMS = {
+  GROUP: 'group',
+  REPO: 'repo',
+  STATE: 'state',
+  AUTHOR: 'author',
+  OWNER: 'owner',
+  LIMIT: 'limit',
+} as const;
