@@ -9,23 +9,34 @@ function normalizeBaseRef(baseRef: string): string {
 }
 
 /**
- * Group PRs by title, author, base branch (main=master), and labels
+ * Group PRs by title and author (creator) only.
+ * Deduplicates PRs by permalink (url).
  */
 export function groupPullRequests(prs: PullRequest[]): PRGroup[] {
   const groups = new Map<string, PRGroup>();
 
+  // Deduplicate PRs by URL
+  const uniquePrs = new Map<string, PullRequest>();
   for (const pr of prs) {
+    if (!uniquePrs.has(pr.url)) {
+      uniquePrs.set(pr.url, pr);
+    }
+  }
+
+  for (const pr of uniquePrs.values()) {
     let title = pr.title;
     if (title.startsWith('Update dependency')) {
       title = title.replace('Update dependency', 'chore(deps): update dependency');
     }
 
     const author = pr.author?.login || 'unknown';
+    // Base ref and labels are no longer part of the grouping key,
+    // but we still capture them for display (taking from the first PR in the group).
     const baseRef = normalizeBaseRef(pr.baseRefName);
     const labels = pr.labels?.nodes?.map(l => l.name).sort() || [];
-    const labelsKey = labels.join(',');
 
-    const key = `${title}|${author}|${baseRef}|${labelsKey}`;
+    // Grouping only by Title + Author (Creator)
+    const key = `${title}|${author}`;
 
     if (!groups.has(key)) {
       groups.set(key, {
