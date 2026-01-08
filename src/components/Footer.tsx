@@ -1,6 +1,6 @@
-import { Heart } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import { Logo } from './Logo';
+import { HeartIcon } from './icons/HeartIcon';
 
 export function Footer() {
   const { t } = useTranslation();
@@ -66,7 +66,7 @@ export function Footer() {
         <div className="divider my-6"></div>
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-base-content/60">
           <p className="flex items-center gap-1">
-            {t('footer.made_with')} <span className="w-[14px] h-[14px] text-error"><Heart size={14} className="text-error fill-error" /></span> {t('footer.using')}
+            {t('footer.made_with')} <span className="w-[14px] h-[14px] text-error"><HeartIcon width={14} height={14} className="text-error fill-error" /></span> {t('footer.using')}
           </p>
           <p>&copy; {currentYear} Margea. {t('footer.rights_reserved')}</p>
         </div>
