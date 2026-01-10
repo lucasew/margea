@@ -6,14 +6,7 @@ import { Footer } from '../components/Footer';
 import { PRList } from '../components/PRList';
 import { useViewer } from '../hooks/useViewer';
 import { sanitize } from '../services/sanitizer';
-
-interface RepositoryPageProps {
-  onLogout: () => void;
-  onLogin: () => void;
-  onChangePermissions?: () => void;
-  isAuthenticated: boolean;
-  currentMode?: 'read' | 'write' | null;
-}
+import { useMainLayoutContext } from '../components/MainLayout';
 
 // Helper to build search query from URL params
 function buildSearchQuery(
@@ -45,7 +38,8 @@ function buildSearchQuery(
   return query;
 }
 
-function RepositoryPageContent({ onLogout, onLogin, onChangePermissions, isAuthenticated, currentMode }: RepositoryPageProps) {
+function RepositoryPageContent() {
+  const { onLogout, onLogin, onChangePermissions, isAuthenticated, currentMode } = useMainLayoutContext();
   const { t } = useTranslation();
   const rawParams = useParams<{ owner?: string; repo?: string }>();
 
@@ -131,7 +125,7 @@ function RepositoryPageContent({ onLogout, onLogin, onChangePermissions, isAuthe
   );
 }
 
-export function RepositoryPage(props: RepositoryPageProps) {
+export function RepositoryPage() {
   return (
     <Suspense
       fallback={
@@ -140,7 +134,7 @@ export function RepositoryPage(props: RepositoryPageProps) {
         </div>
       }
     >
-      <RepositoryPageContent {...props} />
+      <RepositoryPageContent />
     </Suspense>
   );
 }
