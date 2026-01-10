@@ -1,4 +1,4 @@
-import { SignJWT } from 'jose';
+import { SignJWT, jwtVerify } from 'jose';
 import { parse } from 'cookie';
 
 export const config = { runtime: 'edge' };
