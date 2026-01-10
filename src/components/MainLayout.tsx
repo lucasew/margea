@@ -13,6 +13,6 @@ export function useMainLayoutContext() {
   return useOutletContext<ContextType>();
 }
 
-export const MainLayout: React.FC<ContextType> = (props) => {
+export const MainLayout = (props: ContextType) => {
   return <Outlet context={props} />;
 };
