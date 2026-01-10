@@ -11,6 +11,7 @@ import { transformPR } from '../services/prTransformer';
 import { PRGroupCard } from './PRGroupCard';
 import { PRGroupDetail } from './PRGroupDetail';
 import { InfoIcon } from './InfoIcon';
+import { FilterDropdown } from './FilterDropdown';
 import { PRGroup, PullRequest } from '../types';
 import { PR_STATES, PRState, PR_STATE_LABELS, DEFAULT_PR_TARGET, MAX_PR_TARGET, BATCH_SIZE, URL_SEARCH_PARAMS } from '../constants';
 
@@ -281,53 +282,26 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
             <div className="space-y-4">
               {/* Filtros - Linha 1 */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text font-semibold">Repositório</span>
-                  </label>
-                  <select
-                    className="select select-bordered w-full"
-                    value={filterRepo}
-                    onChange={(e) => updateFilter(URL_SEARCH_PARAMS.REPO, e.target.value)}
-                  >
-                    <option value="">Todos</option>
-                    {uniqueRepos.map(repo => (
-                      <option key={repo} value={repo}>{repo}</option>
-                    ))}
-                  </select>
-                </div>
+                <FilterDropdown
+                  label="Repositório"
+                  value={filterRepo}
+                  onChange={(value) => updateFilter(URL_SEARCH_PARAMS.REPO, value)}
+                  options={uniqueRepos}
+                />
 
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text font-semibold">Owner/Org</span>
-                  </label>
-                  <select
-                    className="select select-bordered w-full"
-                    value={filterOwner}
-                    onChange={(e) => updateFilter(URL_SEARCH_PARAMS.OWNER, e.target.value)}
-                  >
-                    <option value="">Todos</option>
-                    {uniqueOwners.map(owner => (
-                      <option key={owner} value={owner}>{owner}</option>
-                    ))}
-                  </select>
-                </div>
+                <FilterDropdown
+                  label="Owner/Org"
+                  value={filterOwner}
+                  onChange={(value) => updateFilter(URL_SEARCH_PARAMS.OWNER, value)}
+                  options={uniqueOwners}
+                />
 
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text font-semibold">Autor</span>
-                  </label>
-                  <select
-                    className="select select-bordered w-full"
-                    value={filterAuthor}
-                    onChange={(e) => updateFilter(URL_SEARCH_PARAMS.AUTHOR, e.target.value)}
-                  >
-                    <option value="">Todos</option>
-                    {uniqueAuthors.map(author => (
-                      <option key={author} value={author}>{author}</option>
-                    ))}
-                  </select>
-                </div>
+                <FilterDropdown
+                  label="Autor"
+                  value={filterAuthor}
+                  onChange={(value) => updateFilter(URL_SEARCH_PARAMS.AUTHOR, value)}
+                  options={uniqueAuthors}
+                />
 
                 <div className="form-control">
                   <label className="label">
