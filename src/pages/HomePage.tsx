@@ -3,16 +3,10 @@ import { useTranslation } from 'react-i18next';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 import { SearchForm } from '../components/SearchForm';
+import { useMainLayoutContext } from '../components/MainLayout';
 
-interface HomePageProps {
-  onLogout: () => void;
-  onLogin: () => void;
-  onChangePermissions?: () => void;
-  isAuthenticated: boolean;
-  currentMode?: 'read' | 'write' | null;
-}
-
-export function HomePage({ onLogout, onLogin, onChangePermissions, isAuthenticated, currentMode }: HomePageProps) {
+export function HomePage() {
+  const { onLogout, onLogin, onChangePermissions, isAuthenticated, currentMode } = useMainLayoutContext();
   const { t } = useTranslation();
 
   return (

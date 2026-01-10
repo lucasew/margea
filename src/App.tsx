@@ -10,6 +10,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { BulkActionProvider } from './context/BulkActionContext';
 import { BulkActionToast } from './components/BulkActionToast';
 import { GlobalBulkActionModal } from './components/GlobalBulkActionModal';
+import { MainLayout } from './components/MainLayout';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -66,7 +67,7 @@ function App() {
     );
   }
 
-  const commonProps = {
+  const mainLayoutProps = {
     onLogout: handleLogout,
     onLogin: handleShowLogin,
     onChangePermissions: handleChangePermissions,
@@ -80,10 +81,12 @@ function App() {
         <BulkActionProvider>
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<HomePage {...commonProps} />} />
-              <Route path="/orgs" element={<RepositoryPage {...commonProps} />} />
-              <Route path="/org/:owner" element={<RepositoryPage {...commonProps} />} />
-              <Route path="/:owner/:repo" element={<RepositoryPage {...commonProps} />} />
+              <Route path="/" element={<MainLayout {...mainLayoutProps} />}>
+                <Route index element={<HomePage />} />
+                <Route path="/orgs" element={<RepositoryPage />} />
+                <Route path="/org/:owner" element={<RepositoryPage />} />
+                <Route path="/:owner/:repo" element={<RepositoryPage />} />
+              </Route>
             </Routes>
             <BulkActionToast />
             <GlobalBulkActionModal />
