@@ -1,6 +1,7 @@
 import { Suspense, useState, useEffect } from 'react';
 import { useSearchParams, useLocation, useNavigate } from 'react-router-dom';
 import { useLazyLoadQuery, fetchQuery } from 'react-relay';
+import { useTranslation } from 'react-i18next';
 import { RefreshCw, Download, Filter, GitPullRequest, GitMerge, XCircle, CheckCircle, Folder, AlertTriangle } from 'react-feather';
 import { ErrorBoundary as ReactErrorBoundary, FallbackProps } from 'react-error-boundary';
 import { relayEnvironment } from '../relay/environment';
@@ -412,6 +413,7 @@ interface PRListProps {
 }
 
 function PRListErrorFallback({ error, resetErrorBoundary, onRetry }: FallbackProps & { onRetry: () => void }) {
+  const { t } = useTranslation();
     return (
         <div className="flex flex-col items-center justify-center min-h-screen gap-4 p-4">
           <div className="card w-full max-w-2xl bg-base-100 shadow-xl">
@@ -425,7 +427,7 @@ function PRListErrorFallback({ error, resetErrorBoundary, onRetry }: FallbackPro
               {error && (
                 <div className="alert alert-error w-full mb-4">
                   <div className="flex flex-col items-start gap-2 w-full">
-                    <span className="font-semibold">Detalhes:</span>
+                    <span className="font-semibold">{t('prList.errorDetailsPrefix')}</span>
                     <code className="text-sm bg-base-200 p-2 rounded w-full text-left overflow-x-auto">
                       {error.message}
                     </code>

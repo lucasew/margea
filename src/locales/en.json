@@ -107,5 +107,8 @@
     "mergedAt": "Merged",
     "closedAt": "Closed",
     "openInGitHub": "Open in GitHub"
+  },
+  "prList": {
+    "errorDetailsPrefix": "Details:"
   }
 }
