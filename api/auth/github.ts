@@ -14,10 +14,12 @@ export default async function handler(req: Request) {
   const requestUrl = new URL(req.url);
   const mode = requestUrl.searchParams.get('mode') || 'read';
 
-  // 🛡️ SENTINEL: Generate a random state for CSRF protection.
-  // The state is passed to GitHub and then returned in the callback.
-  // We can then verify it to prevent Cross-Site Request Forgery attacks.
-  const state = crypto.randomUUID();
+  // 🛡️ SENTINEL: Generate a cryptographically secure random state for CSRF protection.
+  // The state is passed to GitHub and then returned in the callback, where we
+  // can verify it to prevent Cross-Site Request Forgery attacks.
+  const randomBytes = new Uint8Array(32);
+  crypto.getRandomValues(randomBytes);
+  const state = Array.from(randomBytes).map(b => b.toString(16).padStart(2, '0')).join('');
 
   const scopes = mode === 'write'
     ? 'read:user read:org repo' // Write: full access
@@ -37,7 +39,6 @@ export default async function handler(req: Request) {
     .setIssuedAt()
     .setExpirationTime('5m') // Short-lived token
     .sign(secret);
-
 
   // Store the state and mode in a secure, HttpOnly cookie to verify on callback.
   const isSecure = requestUrl.protocol === 'https:';
