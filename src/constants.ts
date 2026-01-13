@@ -21,3 +21,11 @@ export const URL_SEARCH_PARAMS = {
   OWNER: 'owner',
   LIMIT: 'limit',
 } as const;
+
+export const THEME_LIGHT = 'light';
+export const THEME_DARK = 'dark';
+
+export const THEMES = {
+  LIGHT: THEME_LIGHT,
+  DARK: THEME_DARK,
+} as const;
