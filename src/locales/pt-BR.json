@@ -50,5 +50,8 @@
         "search": "Pesquisar",
         "performSearch": "Faça uma busca",
         "useFormToSearch": "Use o formulário do lado para encontrar Pull Requests."
+    },
+    "prList": {
+        "errorDetailsPrefix": "Detalhes:"
     }
 }
