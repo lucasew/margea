@@ -61,7 +61,7 @@ cp .env.example .env.local
 # GITHUB_CLIENT_ID=...
 # GITHUB_CLIENT_SECRET=...
 # GITHUB_CALLBACK_URL=http://localhost:5173/api/auth/callback
-# SESSION_SECRET=$(openssl rand -base64 32)
+# SESSION_SECRET=$(openssl rand -hex 32)
 ```
 
 ### 3. Compilar Schema GraphQL (Opcional)
