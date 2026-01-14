@@ -122,6 +122,8 @@ type PullRequest {
   labels(first: Int): LabelConnection
   repository: Repository!
   commits(last: Int): PullRequestCommitConnection!
+  additions: Int!
+  deletions: Int!
 }
 
 enum PullRequestState {

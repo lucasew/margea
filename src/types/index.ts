@@ -4,6 +4,8 @@ export interface PullRequest {
   title: string;
   body: string | null;
   state: 'OPEN' | 'CLOSED' | 'MERGED';
+  additions: number;
+  deletions: number;
   ciStatus: 'SUCCESS' | 'FAILURE' | 'PENDING' | null;
   createdAt: string;
   updatedAt: string;
