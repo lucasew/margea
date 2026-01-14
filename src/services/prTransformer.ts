@@ -33,6 +33,8 @@ export function transformPR(pr: PRNodeType): PullRequest | null {
     title: pr.title,
     body: pr.body ?? null,
     state: pr.state as 'OPEN' | 'CLOSED' | 'MERGED',
+    additions: pr.additions,
+    deletions: pr.deletions,
     ciStatus: (() => {
       const state = pr.commits?.nodes?.[0]?.commit?.statusCheckRollup?.state;
       if (state === 'SUCCESS') return 'SUCCESS';

@@ -16,6 +16,8 @@ export const SearchPRsQuery = graphql`
             title
             body
             state
+            additions
+            deletions
             commits(last: 1) {
               nodes {
                 commit {

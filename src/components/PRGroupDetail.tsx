@@ -214,17 +214,23 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-end gap-2 flex-shrink-0">
-                    <div className={`badge ${stateColors[pr.state]} badge-lg`}>
-                      {pr.state}
+                  <div className="flex flex-wrap items-center justify-end gap-x-4 gap-y-2 flex-shrink-0">
+                    <div className="flex items-center gap-1 font-mono text-sm" title={`${pr.additions} additions, ${pr.deletions} deletions`}>
+                      <span className="text-success">+{pr.additions}</span>
+                      <span className="text-error">-{pr.deletions}</span>
                     </div>
+
                     {pr.ciStatus && (
-                      <div className="tooltip tooltip-left" data-tip={`CI: ${pr.ciStatus}`}>
-                        {pr.ciStatus === 'SUCCESS' && <div className="badge badge-success gap-1"><CheckCircle size={12}/> CI Passed</div>}
-                        {pr.ciStatus === 'FAILURE' && <div className="badge badge-error gap-1 text-white"><XCircle size={12}/> CI Failed</div>}
-                        {pr.ciStatus === 'PENDING' && <div className="badge badge-warning gap-1"><Clock size={12}/> CI Pending</div>}
+                      <div className="tooltip" data-tip={`CI Status: ${pr.ciStatus}`}>
+                        {pr.ciStatus === 'SUCCESS' && <CheckCircle size={18} className="text-success" />}
+                        {pr.ciStatus === 'FAILURE' && <XCircle size={18} className="text-error" />}
+                        {pr.ciStatus === 'PENDING' && <Clock size={18} className="text-warning" />}
                       </div>
                     )}
+
+                    <div className={`badge ${stateColors[pr.state]}`}>
+                      {pr.state}
+                    </div>
                   </div>
                 </div>
 
