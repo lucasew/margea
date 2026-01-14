@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Package, GitBranch, Tag, ExternalLink, Calendar, User, GitCommit, X, Check, AlertCircle, CheckCircle, XCircle, Clock } from 'react-feather';
+import { ArrowLeft, Package, GitBranch, Tag, ExternalLink, Calendar, User, GitCommit, X, Check, AlertCircle } from 'react-feather';
 import { PRGroup, BulkActionType, BulkActionProgress } from '../types';
 import { BulkActionModal } from './BulkActionModal';
 import { useAuth } from '../hooks/useAuth';
 import { useBulkAction } from '../context/BulkActionContext';
+import { CiStatusChart } from './CiStatusChart';
 
 interface PRGroupDetailProps {
   group: PRGroup;
@@ -85,6 +86,27 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
 
   const selectedCount = selectedPRs.size;
   const allSelected = selectedCount === group.prs.length && group.prs.length > 0;
+
+  // Calculate Group CI Status Counts
+  const ciStatusCounts = group.prs.reduce(
+    (acc, pr) => {
+      if (pr.ciStatus === 'SUCCESS') acc.success++;
+      if (pr.ciStatus === 'FAILURE') acc.failure++;
+      if (pr.ciStatus === 'PENDING') acc.pending++;
+      return acc;
+    },
+    { success: 0, failure: 0, pending: 0 }
+  );
+
+  const totalCiStatus = ciStatusCounts.success + ciStatusCounts.failure + ciStatusCounts.pending;
+
+  const getTooltipContent = () => {
+    const parts = [];
+    if (ciStatusCounts.success > 0) parts.push(`${ciStatusCounts.success} Success`);
+    if (ciStatusCounts.failure > 0) parts.push(`${ciStatusCounts.failure} Failure`);
+    if (ciStatusCounts.pending > 0) parts.push(`${ciStatusCounts.pending} Pending`);
+    return `CI Status: ${parts.join(', ')}`;
+  }
 
   return (
     <div className="w-full">
@@ -170,6 +192,17 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
               <div className="flex items-center gap-2 text-base-content/80">
                 <GitCommit size={18} className="text-primary" />
                 <span className="font-semibold">{t('prGroupDetail.total')}:</span>
+                {totalCiStatus > 0 && (
+                  <div className="tooltip" data-tip={getTooltipContent()}>
+                    <CiStatusChart
+                      success={ciStatusCounts.success}
+                      failure={ciStatusCounts.failure}
+                      pending={ciStatusCounts.pending}
+                      size={20}
+                      strokeWidth={2.5}
+                    />
+                  </div>
+                )}
                 <span className="badge badge-neutral">{group.count} PRs</span>
               </div>
             </div>
@@ -222,9 +255,13 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
 
                     {pr.ciStatus && (
                       <div className="tooltip" data-tip={`CI Status: ${pr.ciStatus}`}>
-                        {pr.ciStatus === 'SUCCESS' && <CheckCircle size={18} className="text-success" />}
-                        {pr.ciStatus === 'FAILURE' && <XCircle size={18} className="text-error" />}
-                        {pr.ciStatus === 'PENDING' && <Clock size={18} className="text-warning" />}
+                        <CiStatusChart
+                            success={pr.ciStatus === 'SUCCESS' ? 1 : 0}
+                            failure={pr.ciStatus === 'FAILURE' ? 1 : 0}
+                            pending={pr.ciStatus === 'PENDING' ? 1 : 0}
+                            size={20}
+                            strokeWidth={2.5}
+                        />
                       </div>
                     )}
 
