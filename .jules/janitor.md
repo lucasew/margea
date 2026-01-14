@@ -5,3 +5,9 @@
 **Root Cause:** The application lacked a centralized layout component to manage the common structure and props for each page. This led to prop drilling and a less organized routing setup.
 **Solution:** I created a new `MainLayout` component that uses `react-router-dom`'s `Outlet` and context API to provide the common props to all child routes. This simplified the routing logic in `App.tsx` by wrapping all the routes in the `MainLayout` component and removing the need to pass props to each one individually.
 **Pattern:** When multiple pages share a common structure or set of props, create a reusable layout component that provides a centralized and consistent structure. This improves code maintainability, reduces repetition, and makes it easier to manage the overall application layout.
+
+## 2024-08-02 - Refactor PRList Component
+**Issue:** The `PRList` component was a large, monolithic component responsible for fetching, filtering, and displaying pull requests, as well as rendering the stats and filter UI. This made the component difficult to read, understand, and maintain.
+**Root Cause:** The component was trying to do too much, mixing the concerns of data fetching and state management with the presentation of the stats and filters.
+**Solution:** I refactored the `PRList` component by extracting the stats and filters into their own separate components: `PRListStats` and `PRListFilters`. This separation of concerns makes the `PRList` component smaller and more focused on its primary responsibility of managing the pull request data.
+**Pattern:** When a component becomes too large and complex, identify distinct responsibilities and extract them into smaller, more focused components. This improves readability, maintainability, and reusability.
