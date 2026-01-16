@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import { useViewer } from '../hooks/useViewer';
+import { sanitize } from '../services/sanitizer';
 
 interface SearchFormProps {
   isAuthenticated: boolean;
@@ -22,7 +23,13 @@ function SearchFormContent({ isAuthenticated }: SearchFormProps) {
   if (isAuthenticated) {
     try {
       const { organizations: orgs } = useViewer();
-      organizations = orgs;
+      // 🛡️ SENTINEL: Sanitize organization data from the API as a defense-in-depth measure.
+      // Even though React escapes JSX, we should never trust external data.
+      organizations = orgs.map(org => ({
+        ...org,
+        login: sanitize(org.login) ?? '',
+        name: sanitize(org.name),
+      }));
     } catch {
       // If query fails, just use empty list
     }
