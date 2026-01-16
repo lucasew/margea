@@ -17,7 +17,9 @@ export default async function handler(req: Request) {
   // 🛡️ SENTINEL: Generate a random state for CSRF protection.
   // The state is passed to GitHub and then returned in the callback.
   // We can then verify it to prevent Cross-Site Request Forgery attacks.
-  const state = crypto.randomUUID();
+  const randomBytes = new Uint8Array(32);
+  crypto.getRandomValues(randomBytes);
+  const state = Array.from(randomBytes).map(b => b.toString(16).padStart(2, '0')).join('');
 
   const scopes = mode === 'write'
     ? 'read:user read:org repo' // Write: full access
