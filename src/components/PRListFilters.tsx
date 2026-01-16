@@ -1,7 +1,6 @@
 import { Filter, RefreshCw, Download } from 'react-feather';
 import { FilterDropdown } from './FilterDropdown';
-import { PR_STATES, PR_STATE_LABELS, MAX_PR_TARGET, URL_SEARCH_PARAMS } from '../constants';
-import { PRState } from '../types';
+import { PR_STATES, PR_STATE_LABELS, MAX_PR_TARGET, URL_SEARCH_PARAMS, PRState } from '../constants';
 
 interface PRListFiltersProps {
   filterRepo: string;
