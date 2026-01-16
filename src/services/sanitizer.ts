@@ -1,3 +1,5 @@
+const SANITIZE_REGEX = /[<>'"']/g;
+
 /**
  * Sanitizes a string to prevent injection attacks.
  * Removes '<' and '>' characters.
@@ -12,5 +14,5 @@ export function sanitize(input: string | undefined): string | undefined {
   // This is a defense-in-depth measure, as React's JSX escaping
   // should prevent most attacks. However, it's crucial to sanitize
   // any user-controlled input that is reflected in the UI.
-  return input.replace(/[<>'"']/g, '');
+  return input.replace(SANITIZE_REGEX, '');
 }

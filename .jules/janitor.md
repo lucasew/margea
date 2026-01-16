@@ -11,3 +11,9 @@
 **Root Cause:** The component was trying to do too much, mixing the concerns of data fetching and state management with the presentation of the stats and filters.
 **Solution:** I refactored the `PRList` component by extracting the stats and filters into their own separate components: `PRListStats` and `PRListFilters`. This separation of concerns makes the `PRList` component smaller and more focused on its primary responsibility of managing the pull request data.
 **Pattern:** When a component becomes too large and complex, identify distinct responsibilities and extract them into smaller, more focused components. This improves readability, maintainability, and reusability.
+
+## 2026-01-16 - Optimize Sanitizer Regex Compilation
+**Issue:** The `sanitize` function in `src/services/sanitizer.ts` recompiled a regular expression on every invocation.
+**Root Cause:** The regex was defined inside the function body, causing it to be recreated with each call, which is an inefficient use of resources for a constant pattern.
+**Solution:** I moved the regex to a `const` at the module level. This ensures the regex is compiled only once when the module is first loaded, and the same instance is reused for all subsequent calls to the `sanitize` function.
+**Pattern:** For frequently called functions, define constant regular expressions outside the function scope to prevent unnecessary recompilation and improve performance. This is a common and effective micro-optimization.
