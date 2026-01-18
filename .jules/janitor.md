@@ -17,3 +17,9 @@
 **Root Cause:** The regex was defined inside the function body, causing it to be recreated with each call, which is an inefficient use of resources for a constant pattern.
 **Solution:** I moved the regex to a `const` at the module level. This ensures the regex is compiled only once when the module is first loaded, and the same instance is reused for all subsequent calls to the `sanitize` function.
 **Pattern:** For frequently called functions, define constant regular expressions outside the function scope to prevent unnecessary recompilation and improve performance. This is a common and effective micro-optimization.
+
+## 2026-01-18 - Deduplicate Bulk Action Mutations
+**Issue:** The `BulkActionsService` contained two nearly identical methods, `mergePullRequest` and `closePullRequest`, each implementing the full Relay mutation boilerplate (commit, variables, success/error handling). This violated the DRY principle and increased the risk of inconsistent behavior if one method was updated but not the other.
+**Root Cause:** The mutation logic was copy-pasted for each action type rather than being abstracted into a reusable function, likely due to initial rapid development or overlooking the structural similarity.
+**Solution:** I extracted the common mutation execution logic into a private helper function `performMutation`. This function handles the `commitMutation` call, variable structure, and promise resolution/rejection, allowing the public methods to be simple one-liners that just pass the specific mutation and PR ID.
+**Pattern:** When multiple service methods perform the same underlying operation (like a GraphQL mutation) with only minor differences (like the mutation document itself), abstract the common execution logic into a generic helper function. This reduces code volume and ensures consistent error handling and behavior across operations.
