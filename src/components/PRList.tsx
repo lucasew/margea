@@ -10,7 +10,7 @@ import { groupPullRequests, filterPullRequests, calculateStats } from '../servic
 import { transformPR } from '../services/prTransformer';
 import { PRGroupCard } from './PRGroupCard';
 import { PRGroupDetail } from './PRGroupDetail';
-import { InfoIcon } from './InfoIcon';
+import { InfoIcon } from './icons/InfoIcon';
 import { PRGroup, PullRequest } from '../types';
 import { PRState, DEFAULT_PR_TARGET, MAX_PR_TARGET, BATCH_SIZE, URL_SEARCH_PARAMS } from '../constants';
 import { PRListStats } from './PRListStats';

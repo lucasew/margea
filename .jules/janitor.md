@@ -17,3 +17,9 @@
 **Root Cause:** The regex was defined inside the function body, causing it to be recreated with each call, which is an inefficient use of resources for a constant pattern.
 **Solution:** I moved the regex to a `const` at the module level. This ensures the regex is compiled only once when the module is first loaded, and the same instance is reused for all subsequent calls to the `sanitize` function.
 **Pattern:** For frequently called functions, define constant regular expressions outside the function scope to prevent unnecessary recompilation and improve performance. This is a common and effective micro-optimization.
+
+## 2026-01-18 - Standardize Local Icon Component
+**Issue:** `InfoIcon` was located in `src/components` instead of `src/components/icons` and did not accept standard SVG props, limiting reusability.
+**Root Cause:** The component was likely created quickly with hardcoded classes for a specific use case, violating the project's icon component standards.
+**Solution:** Moved the component to `src/components/icons`, updated it to accept `SVGProps<SVGSVGElement>`, and preserved default styling while allowing overrides via props.
+**Pattern:** Local icon components should always reside in `src/components/icons` and must accept standard SVG props to ensure consistency, flexibility, and proper type safety.
