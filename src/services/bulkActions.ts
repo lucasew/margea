@@ -1,4 +1,5 @@
 import { commitMutation } from 'react-relay';
+import type { GraphQLTaggedNode, Variables } from 'relay-runtime';
 import { relayEnvironment } from '../relay/environment';
 import { MergePullRequestMutation } from '../queries/MergePullRequestMutation';
 import { ClosePullRequestMutation } from '../queries/ClosePullRequestMutation';
@@ -10,57 +11,55 @@ export interface BulkActionResult {
   error?: string;
 }
 
+function performMutation(
+  mutation: GraphQLTaggedNode,
+  variables: Variables,
+  prId: string
+): Promise<BulkActionResult> {
+  return new Promise((resolve) => {
+    commitMutation(relayEnvironment, {
+      mutation,
+      variables,
+      onCompleted: () => {
+        resolve({
+          success: true,
+          prId,
+        });
+      },
+      onError: (error: Error) => {
+        resolve({
+          success: false,
+          prId,
+          error: error.message,
+        });
+      },
+    });
+  });
+}
+
 export const BulkActionsService = {
   async mergePullRequest(prId: string): Promise<BulkActionResult> {
-    return new Promise((resolve) => {
-      commitMutation(relayEnvironment, {
-        mutation: MergePullRequestMutation,
-        variables: {
-          input: {
-            pullRequestId: prId,
-          },
+    return performMutation(
+      MergePullRequestMutation,
+      {
+        input: {
+          pullRequestId: prId,
         },
-        onCompleted: () => {
-          resolve({
-            success: true,
-            prId,
-          });
-        },
-        onError: (error: Error) => {
-          resolve({
-            success: false,
-            prId,
-            error: error.message,
-          });
-        },
-      });
-    });
+      },
+      prId
+    );
   },
 
   async closePullRequest(prId: string): Promise<BulkActionResult> {
-    return new Promise((resolve) => {
-      commitMutation(relayEnvironment, {
-        mutation: ClosePullRequestMutation,
-        variables: {
-          input: {
-            pullRequestId: prId,
-          },
+    return performMutation(
+      ClosePullRequestMutation,
+      {
+        input: {
+          pullRequestId: prId,
         },
-        onCompleted: () => {
-          resolve({
-            success: true,
-            prId,
-          });
-        },
-        onError: (error: Error) => {
-          resolve({
-            success: false,
-            prId,
-            error: error.message,
-          });
-        },
-      });
-    });
+      },
+      prId
+    );
   },
 
   async executeBulkAction(

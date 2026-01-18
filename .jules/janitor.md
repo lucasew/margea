@@ -17,3 +17,9 @@
 **Root Cause:** The regex was defined inside the function body, causing it to be recreated with each call, which is an inefficient use of resources for a constant pattern.
 **Solution:** I moved the regex to a `const` at the module level. This ensures the regex is compiled only once when the module is first loaded, and the same instance is reused for all subsequent calls to the `sanitize` function.
 **Pattern:** For frequently called functions, define constant regular expressions outside the function scope to prevent unnecessary recompilation and improve performance. This is a common and effective micro-optimization.
+
+## 2026-01-18 - Deduplicate Relay Mutation Logic
+**Issue:** The `BulkActionsService` contained duplicate boilerplate code for wrapping Relay's `commitMutation` in a Promise for both `mergePullRequest` and `closePullRequest` methods.
+**Root Cause:** The mutation execution pattern was copied/pasted for each action type without abstraction.
+**Solution:** I extracted the common mutation logic into a private `performMutation` helper function that accepts the mutation node and variables, handling the Promise wrapping and error states centrally.
+**Pattern:** Extract repetitive asynchronous wrapper logic (like Promise-wrapping callbacks) into generic helper functions to reduce code duplication and ensure consistent error handling.
