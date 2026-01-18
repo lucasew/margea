@@ -22,7 +22,9 @@ export function transformPR(pr: PRNodeType): PullRequest | null {
     !pr.url ||
     !pr.baseRefName ||
     !pr.headRefName ||
-    !pr.repository
+    !pr.repository ||
+    !pr.repository.owner ||
+    !pr.repository.owner.login
   ) {
     return null;
   }
