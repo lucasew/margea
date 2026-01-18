@@ -1,10 +1,13 @@
-export function InfoIcon() {
+import { SVGProps } from 'react';
+
+export function InfoIcon({ className = '', ...props }: SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
-      className="stroke-current shrink-0 w-6 h-6"
+      className={`stroke-current shrink-0 w-6 h-6 ${className}`.trim()}
+      {...props}
     >
       <path
         strokeLinecap="round"
