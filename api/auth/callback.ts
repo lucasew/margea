@@ -1,4 +1,4 @@
-import { SignJWT, jwtVerify } from 'jose';
+import { jwtVerify, EncryptJWT } from 'jose';
 import { parse } from 'cookie';
 
 export const config = { runtime: 'edge' };
@@ -63,15 +63,20 @@ export default async function handler(req: Request) {
     );
   }
 
-  // Create a secure session JWT
-  const session = await new SignJWT({
+  // 🛡️ SENTINEL: Derive a 32-byte key for AES-GCM encryption
+  const secretKey = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(process.env.SESSION_SECRET));
+  const encryptionKey = new Uint8Array(secretKey);
+
+  // 🛡️ SENTINEL: Create a secure encrypted session JWT (JWE)
+  // Encrypting the token prevents leaking the access token even if the cookie is accessed.
+  const session = await new EncryptJWT({
     github_token: access_token,
     mode: mode,
   })
-    .setProtectedHeader({ alg: 'HS256' })
+    .setProtectedHeader({ alg: 'dir', enc: 'A256GCM' })
     .setIssuedAt()
     .setExpirationTime('7d')
-    .sign(secret);
+    .encrypt(encryptionKey);
 
   const baseUrl = new URL(req.url).origin;
 
