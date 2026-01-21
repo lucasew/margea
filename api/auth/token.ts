@@ -1,4 +1,4 @@
-import { jwtVerify } from 'jose';
+import { jwtDecrypt } from 'jose';
 import { parse } from 'cookie';
 
 export const config = { runtime: 'edge' };
@@ -21,7 +21,9 @@ export default async function handler(req: Request) {
 
   try {
     const secret = new TextEncoder().encode(process.env.SESSION_SECRET);
-    const { payload } = await jwtVerify(sessionCookie, secret);
+    // 🛡️ SENTINEL: Decrypt the session token (JWE).
+    const secretKey = await crypto.subtle.digest('SHA-256', secret);
+    const { payload } = await jwtDecrypt(sessionCookie, new Uint8Array(secretKey));
 
     return new Response(
       JSON.stringify({
