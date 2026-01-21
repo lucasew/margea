@@ -23,3 +23,9 @@
 **Root Cause:** The component was likely created quickly with hardcoded classes for a specific use case, violating the project's icon component standards.
 **Solution:** Moved the component to `src/components/icons`, updated it to accept `SVGProps<SVGSVGElement>`, and preserved default styling while allowing overrides via props.
 **Pattern:** Local icon components should always reside in `src/components/icons` and must accept standard SVG props to ensure consistency, flexibility, and proper type safety.
+
+## 2026-01-21 - Deduplicate Relay Mutation Logic
+**Issue:** The `BulkActionsService` contained duplicated logic for executing Relay mutations (`mergePullRequest` and `closePullRequest`), repeating the same `commitMutation` boilerplate and Promise wrapping.
+**Root Cause:** The code evolved by copying the first mutation function to create the second one without refactoring the common logic into a shared helper.
+**Solution:** I extracted a private `performMutation` helper function that encapsulates the `commitMutation` call, Promise handling, and error management. Both service methods now use this helper, significantly reducing code duplication and improving readability.
+**Pattern:** When multiple service methods execute similar Relay mutations, extract the common `commitMutation` setup and Promise handling into a reusable helper function to enforce consistency and reduce boilerplate.
