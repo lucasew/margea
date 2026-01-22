@@ -7,24 +7,15 @@ import {
 } from 'relay-runtime';
 import { AuthService } from '../services/auth';
 
-const GITHUB_GRAPHQL_URL = 'https://api.github.com/graphql';
+const GRAPHQL_PROXY_URL = '/api/graphql';
 
 const fetchQuery: FetchFunction = async (operation, variables) => {
-  // Buscar token da API (agora é async)
-  const token = await AuthService.getToken();
-
   // Allow unauthenticated requests but warn about rate limits
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };
 
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  } else {
-    console.warn('Making unauthenticated request to GitHub API. Rate limits will be more restrictive (60 requests/hour vs 5000 with token).');
-  }
-
-  const response = await fetch(GITHUB_GRAPHQL_URL, {
+  const response = await fetch(GRAPHQL_PROXY_URL, {
     method: 'POST',
     headers,
     body: JSON.stringify({
