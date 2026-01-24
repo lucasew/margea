@@ -23,3 +23,9 @@
 **Root Cause:** The component was likely created quickly with hardcoded classes for a specific use case, violating the project's icon component standards.
 **Solution:** Moved the component to `src/components/icons`, updated it to accept `SVGProps<SVGSVGElement>`, and preserved default styling while allowing overrides via props.
 **Pattern:** Local icon components should always reside in `src/components/icons` and must accept standard SVG props to ensure consistency, flexibility, and proper type safety.
+
+## 2026-01-24 - Deduplicate Bulk Actions Mutation Logic
+**Issue:** `BulkActionsService` contained duplicate logic for executing `MergePullRequestMutation` and `ClosePullRequestMutation`, including identical error handling and promise wrapping.
+**Root Cause:** The mutation execution pattern was copied for each action type instead of being shared.
+**Solution:** I extracted the common mutation execution logic into a private helper function `performMutation` that accepts the mutation node and PR ID.
+**Pattern:** When multiple API or mutation calls share the same execution structure (variables, error handling, return type), extract a generic helper function to reduce code duplication and ensure consistent behavior.
