@@ -4,13 +4,10 @@ import type { SearchPRsQuery as SearchPRsQueryType } from '../queries/__generate
 // This is the type for a single Pull Request node from the GraphQL query
 type PRNodeType = NonNullable<NonNullable<SearchPRsQueryType['response']['search']['edges']>[number]>['node'];
 
-
 /**
- * Transforms a GraphQL Pull Request node into our internal PullRequest type.
- * @param pr - The pull request node from the GraphQL query.
- * @returns A PullRequest object or null if the input is invalid.
+ * Checks if the PR node has all required fields.
  */
-export function transformPR(pr: PRNodeType): PullRequest | null {
+function isValidPR(pr: PRNodeType): boolean {
   if (
     !pr ||
     !pr.id ||
@@ -26,37 +23,55 @@ export function transformPR(pr: PRNodeType): PullRequest | null {
     !pr.repository.owner ||
     !pr.repository.owner.login
   ) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Extracts the CI status from the PR node.
+ */
+function getCIStatus(pr: NonNullable<PRNodeType>): PullRequest['ciStatus'] {
+  const state = pr.commits?.nodes?.[0]?.commit?.statusCheckRollup?.state;
+  if (state === 'SUCCESS') return 'SUCCESS';
+  if (state === 'FAILURE' || state === 'ERROR') return 'FAILURE';
+  if (state === 'PENDING' || state === 'EXPECTED') return 'PENDING';
+  return null;
+}
+
+/**
+ * Transforms a GraphQL Pull Request node into our internal PullRequest type.
+ * @param pr - The pull request node from the GraphQL query.
+ * @returns A PullRequest object or null if the input is invalid.
+ */
+export function transformPR(pr: PRNodeType): PullRequest | null {
+  if (!isValidPR(pr)) {
     return null;
   }
 
+  // We use non-null assertion (!) because isValidPR ensures these fields exist.
   return {
-    id: pr.id,
-    number: pr.number,
-    title: pr.title,
-    body: pr.body ?? null,
-    state: pr.state as 'OPEN' | 'CLOSED' | 'MERGED',
-    additions: pr.additions ?? 0,
-    deletions: pr.deletions ?? 0,
-    ciStatus: (() => {
-      const state = pr.commits?.nodes?.[0]?.commit?.statusCheckRollup?.state;
-      if (state === 'SUCCESS') return 'SUCCESS';
-      if (state === 'FAILURE' || state === 'ERROR') return 'FAILURE';
-      if (state === 'PENDING' || state === 'EXPECTED') return 'PENDING';
-      return null;
-    })(),
-    createdAt: pr.createdAt,
-    updatedAt: pr.updatedAt,
-    mergedAt: pr.mergedAt ?? null,
-    closedAt: pr.closedAt ?? null,
-    url: pr.url,
-    baseRefName: pr.baseRefName,
-    headRefName: pr.headRefName,
-    author: pr.author ? {
-      login: pr.author.login,
-      avatarUrl: pr.author.avatarUrl,
+    id: pr!.id!,
+    number: pr!.number!,
+    title: pr!.title!,
+    body: pr!.body ?? null,
+    state: pr!.state as 'OPEN' | 'CLOSED' | 'MERGED',
+    additions: pr!.additions ?? 0,
+    deletions: pr!.deletions ?? 0,
+    ciStatus: getCIStatus(pr!),
+    createdAt: pr!.createdAt!,
+    updatedAt: pr!.updatedAt!,
+    mergedAt: pr!.mergedAt ?? null,
+    closedAt: pr!.closedAt ?? null,
+    url: pr!.url!,
+    baseRefName: pr!.baseRefName!,
+    headRefName: pr!.headRefName!,
+    author: pr!.author ? {
+      login: pr!.author.login,
+      avatarUrl: pr!.author.avatarUrl,
     } : null,
-    labels: pr.labels ? {
-      nodes: (pr.labels.nodes || [])
+    labels: pr!.labels ? {
+      nodes: (pr!.labels.nodes || [])
         .filter((node): node is NonNullable<typeof node> => node != null)
         .map(node => ({
           id: node.id,
@@ -65,6 +80,6 @@ export function transformPR(pr: PRNodeType): PullRequest | null {
           description: node.description ?? null,
         })),
     } : null,
-    repository: pr.repository,
+    repository: pr!.repository!,
   };
 }

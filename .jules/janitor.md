@@ -23,3 +23,9 @@
 **Root Cause:** The component was likely created quickly with hardcoded classes for a specific use case, violating the project's icon component standards.
 **Solution:** Moved the component to `src/components/icons`, updated it to accept `SVGProps<SVGSVGElement>`, and preserved default styling while allowing overrides via props.
 **Pattern:** Local icon components should always reside in `src/components/icons` and must accept standard SVG props to ensure consistency, flexibility, and proper type safety.
+
+## 2026-01-24 - Refactor prTransformer to Reduce Complexity
+**Issue:** The `transformPR` function in `src/services/prTransformer.ts` contained a long validation block and an IIFE for CI status logic, making it hard to read and maintain.
+**Root Cause:** Validation and logic were inline, mixing different levels of abstraction in a single function.
+**Solution:** Extracted `isValidPR` for validation and `getCIStatus` for CI status logic into helper functions.
+**Pattern:** Extract complex inline logic and validation checks into small, named helper functions to improve readability and separation of concerns.
