@@ -3,6 +3,7 @@ import { relayEnvironment } from '../relay/environment';
 import { MergePullRequestMutation } from '../queries/MergePullRequestMutation';
 import { ClosePullRequestMutation } from '../queries/ClosePullRequestMutation';
 import type { PullRequest, BulkActionProgress } from '../types';
+import type { GraphQLTaggedNode } from 'relay-runtime';
 
 export interface BulkActionResult {
   success: boolean;
@@ -10,57 +11,42 @@ export interface BulkActionResult {
   error?: string;
 }
 
+const performMutation = (
+  mutation: GraphQLTaggedNode,
+  prId: string
+): Promise<BulkActionResult> => {
+  return new Promise((resolve) => {
+    commitMutation(relayEnvironment, {
+      mutation,
+      variables: {
+        input: {
+          pullRequestId: prId,
+        },
+      },
+      onCompleted: () => {
+        resolve({
+          success: true,
+          prId,
+        });
+      },
+      onError: (error: Error) => {
+        resolve({
+          success: false,
+          prId,
+          error: error.message,
+        });
+      },
+    });
+  });
+};
+
 export const BulkActionsService = {
   async mergePullRequest(prId: string): Promise<BulkActionResult> {
-    return new Promise((resolve) => {
-      commitMutation(relayEnvironment, {
-        mutation: MergePullRequestMutation,
-        variables: {
-          input: {
-            pullRequestId: prId,
-          },
-        },
-        onCompleted: () => {
-          resolve({
-            success: true,
-            prId,
-          });
-        },
-        onError: (error: Error) => {
-          resolve({
-            success: false,
-            prId,
-            error: error.message,
-          });
-        },
-      });
-    });
+    return performMutation(MergePullRequestMutation, prId);
   },
 
   async closePullRequest(prId: string): Promise<BulkActionResult> {
-    return new Promise((resolve) => {
-      commitMutation(relayEnvironment, {
-        mutation: ClosePullRequestMutation,
-        variables: {
-          input: {
-            pullRequestId: prId,
-          },
-        },
-        onCompleted: () => {
-          resolve({
-            success: true,
-            prId,
-          });
-        },
-        onError: (error: Error) => {
-          resolve({
-            success: false,
-            prId,
-            error: error.message,
-          });
-        },
-      });
-    });
+    return performMutation(ClosePullRequestMutation, prId);
   },
 
   async executeBulkAction(
@@ -82,6 +68,11 @@ export const BulkActionsService = {
 
     onProgress(Array.from(progressMap.values()));
 
+    const performAction =
+      actionType === 'merge'
+        ? (id: string) => this.mergePullRequest(id)
+        : (id: string) => this.closePullRequest(id);
+
     // Executar ações sequencialmente com retry e exponential backoff
     for (const pr of prs) {
       let retryCount = 0;
@@ -97,18 +88,15 @@ export const BulkActionsService = {
         onProgress(Array.from(progressMap.values()));
 
         // Executar ação
-        const result =
-          actionType === 'merge'
-            ? await this.mergePullRequest(pr.id)
-            : await this.closePullRequest(pr.id);
+        const result = await performAction(pr.id);
 
         // Verificar se é erro de rate limit
-        const isRateLimitError = result.error && (
-          result.error.toLowerCase().includes('rate limit') ||
-          result.error.toLowerCase().includes('ratelimit') ||
-          result.error.toLowerCase().includes('too many requests') ||
-          result.error.includes('429')
-        );
+        const isRateLimitError =
+          result.error &&
+          (result.error.toLowerCase().includes('rate limit') ||
+            result.error.toLowerCase().includes('ratelimit') ||
+            result.error.toLowerCase().includes('too many requests') ||
+            result.error.includes('429'));
 
         if (result.success) {
           success = true;
@@ -124,7 +112,9 @@ export const BulkActionsService = {
           progressMap.set(pr.id, {
             ...progressMap.get(pr.id)!,
             status: 'processing',
-            error: `Rate limit - tentativa ${retryCount}/${maxRetries} (aguardando ${delayMs / 1000}s)`,
+            error: `Rate limit - tentativa ${retryCount}/${maxRetries} (aguardando ${
+              delayMs / 1000
+            }s)`,
           });
           onProgress(Array.from(progressMap.values()));
 
