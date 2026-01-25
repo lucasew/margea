@@ -2,6 +2,21 @@ import { SignJWT } from 'jose';
 
 export const config = { runtime: 'edge' };
 
+/**
+ * Initiates the GitHub OAuth 2.0 authorization flow.
+ *
+ * This handler is the entry point for user authentication. Its primary responsibilities are:
+ * 1. **State Generation**: Creates a cryptographically secure random 'state' parameter to prevent
+ *    Cross-Site Request Forgery (CSRF) attacks.
+ * 2. **State Signing**: Signs the state (and requested mode) into a JWT and stores it in a secure,
+ *    HttpOnly cookie. This allows the callback handler to verify that the request originated
+ *    from this application and was not tampered with.
+ * 3. **Redirection**: Redirects the user to GitHub's authorization page with the correct scope
+ *    and parameters.
+ *
+ * @param req - The incoming HTTP request.
+ * @returns A 302 Redirect response to GitHub's OAuth endpoint.
+ */
 export default async function handler(req: Request) {
   const clientId = process.env.GITHUB_CLIENT_ID;
   const callbackUrl = process.env.GITHUB_CALLBACK_URL;
