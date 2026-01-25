@@ -42,8 +42,18 @@ function createGroupingKey(title: string, author: string): string {
 }
 
 /**
- * Group PRs by title and author (creator) only.
- * Deduplicates PRs by permalink (url).
+ * Groups Pull Requests based on a combination of their Title and Author.
+ *
+ * This strategy is useful for identifying related work across multiple repositories
+ * or tracking the progress of a specific contributor's task that spans several PRs.
+ *
+ * Key behaviors:
+ * - **Deduplication**: First removes duplicate PRs based on their URL to prevent double counting.
+ * - **Normalization**: Normalizes titles (e.g., standardizing dependency update formats) to improve grouping accuracy.
+ * - **Sorting**: Resulting groups are sorted first by the count of PRs (descending), then alphabetically by package name.
+ *
+ * @param prs - The list of Pull Requests to group.
+ * @returns An array of `PRGroup` objects, sorted by relevance.
  */
 export function groupPullRequests(prs: PullRequest[]): PRGroup[] {
   const groups = new Map<string, PRGroup>();
@@ -85,7 +95,18 @@ export function groupPullRequests(prs: PullRequest[]): PRGroup[] {
 }
 
 /**
- * Filter PRs based on criteria
+ * Filters a list of Pull Requests based on a set of criteria.
+ *
+ * Filtering is additive (AND logic): a PR must match ALL provided non-empty filters to be included.
+ * String comparisons for Repository, Author, and Owner are case-insensitive.
+ *
+ * @param prs - The source list of Pull Requests.
+ * @param filters - An object containing optional filter criteria:
+ *  - `repository`: Partial match on `repository.nameWithOwner`.
+ *  - `state`: Exact match on PR state (OPEN, MERGED, CLOSED) or 'ALL'.
+ *  - `author`: Partial match on `author.login`.
+ *  - `owner`: Partial match on `repository.owner.login`.
+ * @returns A new array containing only the PRs that satisfy all active filters.
  */
 export function filterPullRequests(
   prs: PullRequest[],
@@ -124,7 +145,19 @@ export function filterPullRequests(
 }
 
 /**
- * Calculate statistics for PRs using a single pass reduction.
+ * Calculates aggregate statistics for a given set of Pull Requests.
+ *
+ * This function uses a single-pass reduction for efficiency, avoiding multiple
+ * iterations over the PR array. It computes counts by state (Open, Merged, Closed)
+ * and determines the number of unique repositories involved.
+ *
+ * @param prs - The list of Pull Requests to analyze.
+ * @returns An object containing:
+ *  - `total`: Total number of PRs.
+ *  - `open`: Count of open PRs.
+ *  - `merged`: Count of merged PRs.
+ *  - `closed`: Count of closed (but not merged) PRs.
+ *  - `repositories`: Count of unique repositories represented in the list.
  */
 export function calculateStats(prs: PullRequest[]) {
   const initialStats = {
