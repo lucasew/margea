@@ -3,6 +3,26 @@ import { parse } from 'cookie';
 
 export const config = { runtime: 'edge' };
 
+/**
+ * Handles the session data retrieval request.
+ *
+ * This endpoint serves as a secure bridge for the client to access session information.
+ * Since the session cookie is `HttpOnly`, the client-side JavaScript cannot read it directly.
+ *
+ * Responsibilities:
+ * 1. **Authentication**: Checks for the presence of the `session` cookie.
+ * 2. **Decryption**: Verifies and decrypts the JWE session token using the server-side secret.
+ * 3. **Exposure**: Returns the decrypted access token and user permissions (mode) to the client
+ *    in a JSON response.
+ *
+ * Security:
+ * - This endpoint allows the React application to get the GitHub token for making API requests
+ *   while keeping the session management secure.
+ * - Responses are set with `Cache-Control: no-store` to prevent caching of sensitive data.
+ *
+ * @param req - The incoming HTTP request.
+ * @returns A JSON response containing `token` and `mode` if authenticated, or an error.
+ */
 export default async function handler(req: Request) {
   // Parse cookies from header
   const cookieHeader = req.headers.get('cookie') || '';
