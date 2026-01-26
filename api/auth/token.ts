@@ -35,7 +35,7 @@ export default async function handler(req: Request) {
         }
       }
     );
-  } catch (error) {
+  } catch {
     return new Response(
       JSON.stringify({ error: 'Invalid session' }),
       {

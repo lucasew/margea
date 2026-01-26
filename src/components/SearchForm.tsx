@@ -9,6 +9,50 @@ interface SearchFormProps {
   isAuthenticated: boolean;
 }
 
+interface OrganizationSelectorProps {
+  value: string;
+  onChange: (value: string) => void;
+}
+
+function OrganizationSelector({ value, onChange }: OrganizationSelectorProps) {
+  const { t } = useTranslation();
+  const { organizations: orgs } = useViewer();
+  // 🛡️ SENTINEL: Sanitize organization data from the API as a defense-in-depth measure.
+  // Even though React escapes JSX, we should never trust external data.
+  const organizations = orgs.map((org) => ({
+    ...org,
+    login: sanitize(org.login) ?? '',
+    name: sanitize(org.name),
+  }));
+
+  if (organizations.length === 0) {
+    return (
+      <input
+        type="text"
+        placeholder="ex: facebook"
+        className="input input-bordered w-full"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    );
+  }
+
+  return (
+    <select
+      className="select select-bordered w-full"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+    >
+      <option value="">{t('search.all_organizations')}</option>
+      {organizations.map((org) => (
+        <option key={org.login} value={org.login}>
+          {org.name || org.login}
+        </option>
+      ))}
+    </select>
+  );
+}
+
 function SearchFormContent({ isAuthenticated }: SearchFormProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -18,30 +62,18 @@ function SearchFormContent({ isAuthenticated }: SearchFormProps) {
     limit: 100,
   });
 
-  // Load organizations only if authenticated
-  let organizations: Array<{ login: string; name: string | null | undefined }> = [];
-  if (isAuthenticated) {
-    try {
-      const { organizations: orgs } = useViewer();
-      // 🛡️ SENTINEL: Sanitize organization data from the API as a defense-in-depth measure.
-      // Even though React escapes JSX, we should never trust external data.
-      organizations = orgs.map(org => ({
-        ...org,
-        login: sanitize(org.login) ?? '',
-        name: sanitize(org.name),
-      }));
-    } catch {
-      // If query fails, just use empty list
-    }
-  }
-
   const handleConfigure = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const limitParam = searchConfig.limit !== 100 ? `?limit=${searchConfig.limit}` : '';
+    const limitParam =
+      searchConfig.limit !== 100 ? `?limit=${searchConfig.limit}` : '';
 
     if (searchConfig.owner && searchConfig.repo) {
-      navigate(`/${encodeURIComponent(searchConfig.owner)}/${encodeURIComponent(searchConfig.repo)}${limitParam}`);
+      navigate(
+        `/${encodeURIComponent(searchConfig.owner)}/${encodeURIComponent(
+          searchConfig.repo
+        )}${limitParam}`
+      );
     } else if (searchConfig.owner) {
       navigate(`/org/${encodeURIComponent(searchConfig.owner)}${limitParam}`);
     } else {
@@ -53,23 +85,21 @@ function SearchFormContent({ isAuthenticated }: SearchFormProps) {
     <form onSubmit={handleConfigure} className="space-y-4">
       <div className="form-control">
         <label className="label">
-          <span className="label-text font-medium">{t('search.owner_organization')}</span>
+          <span className="label-text font-medium">
+            {t('search.owner_organization')}
+          </span>
         </label>
-        {isAuthenticated && organizations.length > 0 ? (
-          <select
-            className="select select-bordered w-full"
-            value={searchConfig.owner}
-            onChange={(e) =>
-              setSearchConfig({ ...searchConfig, owner: e.target.value })
-            }
+        {isAuthenticated ? (
+          <Suspense
+            fallback={<div className="skeleton h-12 w-full rounded-btn"></div>}
           >
-            <option value="">{t('search.all_organizations')}</option>
-            {organizations.map((org) => (
-              <option key={org.login} value={org.login}>
-                {org.name || org.login}
-              </option>
-            ))}
-          </select>
+            <OrganizationSelector
+              value={searchConfig.owner}
+              onChange={(value) =>
+                setSearchConfig({ ...searchConfig, owner: value })
+              }
+            />
+          </Suspense>
         ) : (
           <input
             type="text"

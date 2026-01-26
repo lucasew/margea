@@ -1,4 +1,4 @@
-import { Suspense, useState, useEffect } from 'react';
+import { Suspense, useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useLocation, useNavigate } from 'react-router-dom';
 import { useLazyLoadQuery, fetchQuery } from 'react-relay';
 import { RefreshCw, AlertTriangle } from 'react-feather';
@@ -170,7 +170,7 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
     navigate(-1);
   };
 
-  const fetchMorePRs = async () => {
+  const fetchMorePRs = useCallback(async () => {
     if (!hasNextPage || !endCursor || isLoadingMore) return;
 
     const currentTotal = initialPRs.length + additionalPRs.length;
@@ -197,7 +197,7 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
           .map(edge => transformPR(edge?.node))
           .filter((pr): pr is PullRequest => pr !== null);
 
-        setAdditionalPRs(prev => [...prev, ...newPRs]);
+        setAdditionalPRs((prev) => [...prev, ...newPRs]);
         setHasNextPage(result.search.pageInfo?.hasNextPage ?? false);
         setEndCursor(result.search.pageInfo?.endCursor ?? null);
       }
@@ -206,17 +206,33 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
     } finally {
       setIsLoadingMore(false);
     }
-  };
+  }, [
+    hasNextPage,
+    endCursor,
+    isLoadingMore,
+    initialPRs.length,
+    additionalPRs.length,
+    prTarget,
+    searchQuery,
+  ]);
 
   // Auto-fetch to reach target
   useEffect(() => {
     const currentTotal = initialPRs.length + additionalPRs.length;
-    const shouldFetchMore = hasNextPage && currentTotal < prTarget && !isLoadingMore;
+    const shouldFetchMore =
+      hasNextPage && currentTotal < prTarget && !isLoadingMore;
 
     if (shouldFetchMore) {
       fetchMorePRs();
     }
-  }, [initialPRs.length, additionalPRs.length, hasNextPage, prTarget, isLoadingMore, endCursor]);
+  }, [
+    initialPRs.length,
+    additionalPRs.length,
+    hasNextPage,
+    prTarget,
+    isLoadingMore,
+    fetchMorePRs,
+  ]);
 
   // Show group detail if a group is selected via query param
   if (groupKey) {

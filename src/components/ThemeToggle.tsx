@@ -4,27 +4,22 @@ import { THEMES } from '../constants';
 type Theme = (typeof THEMES)[keyof typeof THEMES];
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>(THEMES.LIGHT);
-
-  const applyTheme = (newTheme: Theme) => {
-    setTheme(newTheme);
-    document.documentElement.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
-  };
-
-  useEffect(() => {
+  const [theme, setTheme] = useState<Theme>(() => {
     const savedTheme = localStorage.getItem('theme') as Theme | null;
     if (savedTheme && Object.values(THEMES).includes(savedTheme)) {
-      applyTheme(savedTheme);
-    } else {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      applyTheme(prefersDark ? THEMES.DARK : THEMES.LIGHT);
+      return savedTheme;
     }
-  }, []);
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    return prefersDark ? THEMES.DARK : THEMES.LIGHT;
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
   const toggleTheme = () => {
-    const newTheme = theme === THEMES.LIGHT ? THEMES.DARK : THEMES.LIGHT;
-    applyTheme(newTheme);
+    setTheme((current) => (current === THEMES.LIGHT ? THEMES.DARK : THEMES.LIGHT));
   };
 
   const isDarkMode = theme === THEMES.DARK;
