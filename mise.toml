@@ -3,3 +3,22 @@
 
 [tasks.dev]
 run = "npm run dev"
+
+[tasks.install]
+run = "npm install"
+
+[tasks.codegen]
+run = "npm run relay"
+
+[tasks.lint]
+depends = ["lint:eslint"]
+
+[tasks."lint:eslint"]
+run = "npx eslint ."
+
+[tasks.test]
+run = "npx playwright test"
+depends = ["codegen"]
+
+[tasks.ci]
+depends = ["install", "codegen", "lint", "test"]

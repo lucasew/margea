@@ -45,7 +45,7 @@ export default async function handler(req: Request) {
     }
     stateFromToken = payload.state;
     mode = payload.mode;
-  } catch (error) {
+  } catch {
     return new Response('Invalid or expired OAuth state token.', { status: 403 });
   }
 
