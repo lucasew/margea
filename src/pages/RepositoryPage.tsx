@@ -6,7 +6,7 @@ import { Footer } from '../components/Footer';
 import { PRList } from '../components/PRList';
 import { useViewer } from '../hooks/useViewer';
 import { sanitize } from '../services/sanitizer';
-import { useMainLayoutContext } from '../components/MainLayout';
+import { useMainLayoutContext } from '../hooks/useMainLayoutContext';
 
 // Helper to build search query from URL params
 function buildSearchQuery(

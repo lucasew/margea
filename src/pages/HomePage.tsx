@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 import { SearchForm } from '../components/SearchForm';
-import { useMainLayoutContext } from '../components/MainLayout';
+import { useMainLayoutContext } from '../hooks/useMainLayoutContext';
 
 export function HomePage() {
   const { onLogout, onLogin, onChangePermissions, isAuthenticated, currentMode } = useMainLayoutContext();

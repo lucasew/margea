@@ -29,3 +29,9 @@
 **Root Cause:** Validation and logic were inline, mixing different levels of abstraction in a single function.
 **Solution:** Extracted `isValidPR` for validation and `getCIStatus` for CI status logic into helper functions.
 **Pattern:** Extract complex inline logic and validation checks into small, named helper functions to improve readability and separation of concerns.
+
+## 2026-01-27 - Fix Fast Refresh Warning in MainLayout
+**Issue:** `MainLayout.tsx` was exporting both a component (`MainLayout`) and a hook (`useMainLayoutContext`), causing a React Fast Refresh warning: "Fast refresh only works when a file only exports components".
+**Root Cause:** Mixing component and non-component exports in the same file breaks Fast Refresh's ability to hot-reload components reliably.
+**Solution:** Extracted `useMainLayoutContext` and its associated type `MainLayoutContextType` into a new file `src/hooks/useMainLayoutContext.ts`. Updated consumers (`HomePage`, `RepositoryPage`, `MainLayout`) to import from the new location.
+**Pattern:** Always separate hooks, contexts, and utility functions into their own files if they are exported alongside components, to ensure Fast Refresh works correctly.
