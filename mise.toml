@@ -11,14 +11,19 @@ run = "npm install"
 run = "npm run relay"
 
 [tasks.lint]
-depends = ["lint:eslint"]
+depends = ["lint:*"]
 
 [tasks."lint:eslint"]
 run = "npx eslint ."
 
+[tasks.fmt]
+depends = ["fmt:*"]
+
+[tasks."fmt:prettier"]
+run = "npx prettier --write ."
+
 [tasks.test]
 run = "npx playwright test"
-depends = ["codegen"]
 
 [tasks.ci]
-depends = ["install", "codegen", "lint", "test"]
+depends = ["lint", "test"]

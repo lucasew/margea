@@ -1,6 +1,12 @@
 import { Filter, RefreshCw, Download } from 'react-feather';
 import { FilterDropdown } from './FilterDropdown';
-import { PR_STATES, PR_STATE_LABELS, MAX_PR_TARGET, URL_SEARCH_PARAMS, PRState } from '../constants';
+import {
+  PR_STATES,
+  PR_STATE_LABELS,
+  MAX_PR_TARGET,
+  URL_SEARCH_PARAMS,
+  PRState,
+} from '../constants';
 
 interface PRListFiltersProps {
   filterRepo: string;
@@ -59,7 +65,9 @@ export function PRListFilters({
             <FilterDropdown
               label="Autor"
               value={filterAuthor}
-              onChange={(value) => updateFilter(URL_SEARCH_PARAMS.AUTHOR, value)}
+              onChange={(value) =>
+                updateFilter(URL_SEARCH_PARAMS.AUTHOR, value)
+              }
               options={uniqueAuthors}
             />
 
@@ -70,7 +78,9 @@ export function PRListFilters({
               <select
                 className="select select-bordered w-full"
                 value={filterState}
-                onChange={(e) => updateFilter(URL_SEARCH_PARAMS.STATE, e.target.value)}
+                onChange={(e) =>
+                  updateFilter(URL_SEARCH_PARAMS.STATE, e.target.value)
+                }
               >
                 {PR_STATES.map((state) => (
                   <option key={state} value={state}>
@@ -97,12 +107,18 @@ export function PRListFilters({
               />
             </div>
 
-            <button onClick={onRefresh} className="btn btn-primary w-full self-end">
+            <button
+              onClick={onRefresh}
+              className="btn btn-primary w-full self-end"
+            >
               <RefreshCw size={18} />
               Atualizar
             </button>
 
-            <button onClick={onExportJSON} className="btn btn-secondary w-full self-end">
+            <button
+              onClick={onExportJSON}
+              className="btn btn-secondary w-full self-end"
+            >
               <Download size={18} />
               Exportar JSON
             </button>

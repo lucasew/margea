@@ -1,0 +1,72 @@
+name: CI/CD
+
+on:
+  push:
+    branches: ['main', 'master']
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install mise
+        uses: jdx/mise-action@v2
+
+      - name: Install dependencies
+        run: mise run install
+
+      - name: Codegen
+        run: mise run codegen
+
+      - name: PR if Difference
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [[ -n $(git status --porcelain) ]]; then
+            echo "Changes detected."
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+            # Create a unique branch for the update
+            BRANCH_NAME="codegen-update-${{ github.run_id }}"
+            git checkout -b $BRANCH_NAME
+            git add .
+            git commit -m "chore: update generated code"
+            git push origin $BRANCH_NAME
+
+            # Create PR
+            # Assuming base is main or the current branch if feasible
+            TARGET_BASE=${{ github.head_ref || github.ref_name }}
+            # If triggered by PR, head_ref is the source branch. If push, ref_name is the branch.
+
+            gh pr create --title "chore: update generated code" --body "Automated changes from codegen." --head $BRANCH_NAME --base $TARGET_BASE || echo "PR creation failed, arguably because one exists or permissions."
+          else
+            echo "No changes detected."
+          fi
+
+      - name: Run CI
+        run: mise run ci
+
+      - name: Release
+        if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            TAG_NAME="v$(date +%Y.%m.%d-%H%M)"
+            echo "Creating release $TAG_NAME"
+            gh release create $TAG_NAME --generate-notes
+          elif [[ "${{ github.ref_type }}" == "tag" ]]; then
+            echo "Creating release for tag ${{ github.ref_name }}"
+            gh release create ${{ github.ref_name }} --generate-notes
+          fi

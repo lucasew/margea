@@ -11,7 +11,7 @@ export function FilterDropdown({
   value,
   onChange,
   options,
-  allLabel = "Todos",
+  allLabel = 'Todos',
 }: FilterDropdownProps) {
   return (
     <div className="form-control">

@@ -25,17 +25,21 @@ export function BulkActionModal({
   const actionLabel = actionType === 'merge' ? 'Mergear' : 'Fechar';
   const actionColor = actionType === 'merge' ? 'success' : 'error';
 
-  const hasStarted = progress.some(p => p.status !== 'pending');
-  const isComplete = progress.length > 0 && progress.every(p => p.status === 'success' || p.status === 'error');
-  const successCount = progress.filter(p => p.status === 'success').length;
-  const errorCount = progress.filter(p => p.status === 'error').length;
+  const hasStarted = progress.some((p) => p.status !== 'pending');
+  const isComplete =
+    progress.length > 0 &&
+    progress.every((p) => p.status === 'success' || p.status === 'error');
+  const successCount = progress.filter((p) => p.status === 'success').length;
+  const errorCount = progress.filter((p) => p.status === 'error').length;
 
   return (
     <div className="modal modal-open">
       <div className="modal-box max-w-3xl">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-bold">
-            {hasStarted ? `${actionLabel} PRs - Progresso` : `Confirmar ${actionLabel} PRs`}
+            {hasStarted
+              ? `${actionLabel} PRs - Progresso`
+              : `Confirmar ${actionLabel} PRs`}
           </h3>
           <button
             onClick={onCancel}
@@ -50,17 +54,21 @@ export function BulkActionModal({
           <div className="alert alert-warning mb-4">
             <AlertCircle size={20} />
             <span>
-              Você está prestes a {actionLabel.toLowerCase()} {progress.length} PR
+              Você está prestes a {actionLabel.toLowerCase()} {progress.length}{' '}
+              PR
               {progress.length > 1 ? 's' : ''}. Esta ação não pode ser desfeita.
             </span>
           </div>
         )}
 
         {isComplete && (
-          <div className={`alert ${errorCount > 0 ? 'alert-warning' : 'alert-success'} mb-4`}>
+          <div
+            className={`alert ${errorCount > 0 ? 'alert-warning' : 'alert-success'} mb-4`}
+          >
             <CheckCircle size={20} />
             <span>
-              {successCount} de {progress.length} PRs {actionType === 'merge' ? 'mergeados' : 'fechados'} com sucesso
+              {successCount} de {progress.length} PRs{' '}
+              {actionType === 'merge' ? 'mergeados' : 'fechados'} com sucesso
               {errorCount > 0 && ` (${errorCount} com erro)`}
             </span>
           </div>
@@ -78,21 +86,29 @@ export function BulkActionModal({
                 <div className="flex items-center justify-between">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-sm">#{item.prNumber}</span>
+                      <span className="font-mono text-sm">
+                        #{item.prNumber}
+                      </span>
                       <span className="truncate text-sm">{item.prTitle}</span>
                     </div>
                     {item.error && (
-                      <div className="text-xs text-error mt-1">{item.error}</div>
+                      <div className="text-xs text-error mt-1">
+                        {item.error}
+                      </div>
                     )}
                   </div>
                   <div className="ml-4 flex-shrink-0">
                     {item.status === 'pending' && (
-                      <div className="badge badge-ghost">{t('bulkActionModal.pending')}</div>
+                      <div className="badge badge-ghost">
+                        {t('bulkActionModal.pending')}
+                      </div>
                     )}
                     {item.status === 'processing' && (
                       <div className="flex items-center gap-2">
                         <Loader size={16} className="animate-spin" />
-                        <span className="text-sm">{t('bulkActionModal.processing')}</span>
+                        <span className="text-sm">
+                          {t('bulkActionModal.processing')}
+                        </span>
                       </div>
                     )}
                     {item.status === 'success' && (
@@ -123,7 +139,8 @@ export function BulkActionModal({
                 className={`btn btn-${actionColor}`}
                 disabled={isExecuting}
               >
-                {actionLabel} {progress.length} PR{progress.length > 1 ? 's' : ''}
+                {actionLabel} {progress.length} PR
+                {progress.length > 1 ? 's' : ''}
               </button>
             </>
           )}

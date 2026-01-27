@@ -2,7 +2,9 @@ import { PullRequest } from '../types';
 import type { SearchPRsQuery as SearchPRsQueryType } from '../queries/__generated__/SearchPRsQuery.graphql';
 
 // This is the type for a single Pull Request node from the GraphQL query
-type PRNodeType = NonNullable<NonNullable<SearchPRsQueryType['response']['search']['edges']>[number]>['node'];
+type PRNodeType = NonNullable<
+  NonNullable<SearchPRsQueryType['response']['search']['edges']>[number]
+>['node'];
 
 /**
  * Checks if the PR node has all required fields to be safely used in the application.
@@ -83,20 +85,24 @@ export function transformPR(pr: PRNodeType): PullRequest | null {
     url: pr!.url!,
     baseRefName: pr!.baseRefName!,
     headRefName: pr!.headRefName!,
-    author: pr!.author ? {
-      login: pr!.author.login,
-      avatarUrl: pr!.author.avatarUrl,
-    } : null,
-    labels: pr!.labels ? {
-      nodes: (pr!.labels.nodes || [])
-        .filter((node): node is NonNullable<typeof node> => node != null)
-        .map(node => ({
-          id: node.id,
-          name: node.name,
-          color: node.color,
-          description: node.description ?? null,
-        })),
-    } : null,
+    author: pr!.author
+      ? {
+          login: pr!.author.login,
+          avatarUrl: pr!.author.avatarUrl,
+        }
+      : null,
+    labels: pr!.labels
+      ? {
+          nodes: (pr!.labels.nodes || [])
+            .filter((node): node is NonNullable<typeof node> => node != null)
+            .map((node) => ({
+              id: node.id,
+              name: node.name,
+              color: node.color,
+              description: node.description ?? null,
+            })),
+        }
+      : null,
     repository: pr!.repository!,
   };
 }

@@ -67,3 +67,31 @@ export interface BulkActionState {
   progress: BulkActionProgress[];
   isExecuting: boolean;
 }
+
+export interface BulkActionOperation {
+  id: string;
+  type: BulkActionType;
+  progress: BulkActionProgress[];
+  isExecuting: boolean;
+  timestamp: number;
+}
+
+export interface BulkActionContextType {
+  operations: BulkActionOperation[];
+  startBulkAction: (prs: PullRequest[], type: BulkActionType) => Promise<void>;
+  isGlobalModalOpen: boolean;
+  activeModalOperationId: string | null;
+  openGlobalModal: (operationId?: string) => void;
+  closeGlobalModal: () => void;
+  minimizeGlobalModal: () => void;
+  clearState: (operationId?: string) => void;
+  dismissOperation: (operationId: string) => void;
+}
+
+export interface MainLayoutContextType {
+  onLogout: () => void;
+  onLogin: () => void;
+  onChangePermissions: () => void;
+  isAuthenticated: boolean;
+  currentMode: 'read' | 'write' | null;
+}
