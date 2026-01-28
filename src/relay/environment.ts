@@ -9,6 +9,23 @@ import { AuthService } from '../services/auth';
 
 const GITHUB_GRAPHQL_URL = 'https://api.github.com/graphql';
 
+/**
+ * Custom fetch function for Relay to interact with the GitHub GraphQL API.
+ *
+ * Responsibilities:
+ * 1. **Authentication**: Asynchronously retrieves the current session token from `AuthService`
+ *    and attaches it as a Bearer token.
+ * 2. **Unauthenticated Handling**: Warns if a request is made without a token, noting the stricter
+ *    rate limits (60/hour vs 5000/hour).
+ * 3. **Error Handling**:
+ *    - Automatically logs out and redirects to home on 401 Unauthorized responses.
+ *    - Throws errors for network failures or GraphQL-level errors.
+ * 4. **Monitoring**: Logs GitHub API rate limit status from response headers.
+ *
+ * @param operation - The GraphQL operation (query/mutation) to execute.
+ * @param variables - Variables required by the operation.
+ * @returns A promise resolving to the GraphQL response payload.
+ */
 const fetchQuery: FetchFunction = async (operation, variables) => {
   // Buscar token da API (agora é async)
   const token = await AuthService.getToken();
@@ -69,4 +86,13 @@ function createEnvironment() {
   });
 }
 
+/**
+ * The singleton Relay Environment instance.
+ *
+ * This environment is configured with:
+ * - A custom Network layer that handles authentication and rate limiting (`fetchQuery`).
+ * - A standard Store and RecordSource for caching GraphQL data.
+ *
+ * This instance should be provided to the `RelayEnvironmentProvider` at the root of the React application.
+ */
 export const relayEnvironment = createEnvironment();

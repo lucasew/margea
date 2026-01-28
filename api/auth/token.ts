@@ -11,8 +11,8 @@ export const config = { runtime: 'edge' };
  *
  * Responsibilities:
  * 1. **Authentication**: Checks for the presence of the `session` cookie.
- * 2. **Decryption**: Verifies and decrypts the JWE session token using the server-side secret.
- * 3. **Exposure**: Returns the decrypted access token and user permissions (mode) to the client
+ * 2. **Verification**: Verifies the signed JWS session token using the server-side secret.
+ * 3. **Exposure**: Returns the access token and user permissions (mode) to the client
  *    in a JSON response.
  *
  * Security:

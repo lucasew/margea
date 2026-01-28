@@ -8,10 +8,10 @@ export const config = { runtime: 'edge' };
  *
  * This function completes the authentication flow by:
  * 1. **Validation**: Verifying the presence of the authorization `code` and `state`.
- * 2. **CSRF Protection**: Decrypting the `oauth_state` cookie and comparing its state with the one
+ * 2. **CSRF Protection**: Verifying the `oauth_state` signed cookie and comparing its state with the one
  *    returned by GitHub. This ensures the response corresponds to a request we initiated.
  * 3. **Token Exchange**: Exchanging the authorization code for a GitHub access token.
- * 4. **Session Creation**: Creating a long-lived, encrypted JWE session cookie containing the
+ * 4. **Session Creation**: Creating a long-lived, signed JWS session cookie containing the
  *    GitHub access token and the user's selected mode.
  * 5. **Cleanup**: Clearing the temporary `oauth_state` cookie.
  *
