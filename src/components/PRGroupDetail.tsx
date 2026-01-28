@@ -4,7 +4,7 @@ import { ArrowLeft, Package, GitBranch, Tag, ExternalLink, Calendar, User, GitCo
 import { PRGroup, BulkActionType, BulkActionProgress } from '../types';
 import { BulkActionModal } from './BulkActionModal';
 import { useAuth } from '../hooks/useAuth';
-import { useBulkAction } from '../context/BulkActionContext';
+import { useBulkAction } from '../hooks/useBulkAction';
 import { CiStatusChart } from './CiStatusChart';
 
 interface PRGroupDetailProps {

@@ -29,3 +29,9 @@
 **Root Cause:** Validation and logic were inline, mixing different levels of abstraction in a single function.
 **Solution:** Extracted `isValidPR` for validation and `getCIStatus` for CI status logic into helper functions.
 **Pattern:** Extract complex inline logic and validation checks into small, named helper functions to improve readability and separation of concerns.
+
+## 2026-01-28 - Fix Fast Refresh Warning in BulkActionContext
+**Issue:** `src/context/BulkActionContext.tsx` triggered a "Fast Refresh" warning because it exported both a React component (`BulkActionProvider`) and non-component values (interfaces, hooks).
+**Root Cause:** Mixing component and non-component exports in the same file breaks React Fast Refresh boundaries, causing full page reloads on edits.
+**Solution:** Split the file into three: `BulkActionContext.ts` (Context object), `BulkActionProvider.tsx` (Component), and `useBulkAction.ts` (Hook). Also moved `BulkActionOperation` interface to `src/types/index.ts`.
+**Pattern:** Isolate React Context definitions and Hooks into separate files from the Provider component to ensure reliable Hot Module Replacement (HMR).

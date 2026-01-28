@@ -1,4 +1,4 @@
-import { useBulkAction } from '../context/BulkActionContext';
+import { useBulkAction } from '../hooks/useBulkAction';
 import { BulkActionModal } from './BulkActionModal';
 
 export function GlobalBulkActionModal() {

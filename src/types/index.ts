@@ -67,3 +67,11 @@ export interface BulkActionState {
   progress: BulkActionProgress[];
   isExecuting: boolean;
 }
+
+export interface BulkActionOperation {
+  id: string;
+  type: BulkActionType;
+  progress: BulkActionProgress[];
+  isExecuting: boolean;
+  timestamp: number;
+}

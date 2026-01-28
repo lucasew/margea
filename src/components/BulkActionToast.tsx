@@ -1,5 +1,5 @@
 import { CheckCircle, AlertCircle, X, Maximize2 } from 'react-feather';
-import { useBulkAction } from '../context/BulkActionContext';
+import { useBulkAction } from '../hooks/useBulkAction';
 
 export function BulkActionToast() {
   const { operations, openGlobalModal, dismissOperation } = useBulkAction();

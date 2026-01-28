@@ -1,40 +1,7 @@
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
-import { PullRequest, BulkActionType, BulkActionProgress } from '../types';
+import { useState, useCallback, ReactNode } from 'react';
+import { PullRequest, BulkActionType, BulkActionOperation } from '../types';
 import { BulkActionsService } from '../services/bulkActions';
-
-export interface BulkActionOperation {
-  id: string;
-  type: BulkActionType;
-  progress: BulkActionProgress[];
-  isExecuting: boolean;
-  timestamp: number;
-}
-
-interface BulkActionContextType {
-  // Legacy support for single operation (optional, or we can deprecate/remove if we update all consumers)
-  // To avoid breaking changes immediately, we can map these to the "latest" operation or "active" one.
-  // But strictly speaking, if we change the return type of useBulkAction, we MUST update all consumers.
-  // Given the limited number of consumers (Toast, Modal, PRGroupDetail), it is better to update them.
-
-  operations: BulkActionOperation[];
-  startBulkAction: (prs: PullRequest[], type: BulkActionType) => Promise<void>;
-
-  // Modal handling
-  isGlobalModalOpen: boolean;
-  activeModalOperationId: string | null;
-  openGlobalModal: (operationId?: string) => void;
-  closeGlobalModal: () => void;
-  minimizeGlobalModal: () => void;
-
-  // State management
-  clearState: (operationId?: string) => void;
-  dismissOperation: (operationId: string) => void;
-
-  // Helpers for backward compatibility or ease of use (optional)
-  // For now let's expose the operations list.
-}
-
-const BulkActionContext = createContext<BulkActionContextType | undefined>(undefined);
+import { BulkActionContext } from './BulkActionContext';
 
 export function BulkActionProvider({ children }: { children: ReactNode }) {
   const [operations, setOperations] = useState<BulkActionOperation[]>([]);
@@ -126,12 +93,4 @@ export function BulkActionProvider({ children }: { children: ReactNode }) {
       {children}
     </BulkActionContext.Provider>
   );
-}
-
-export function useBulkAction() {
-  const context = useContext(BulkActionContext);
-  if (context === undefined) {
-    throw new Error('useBulkAction must be used within a BulkActionProvider');
-  }
-  return context;
 }
