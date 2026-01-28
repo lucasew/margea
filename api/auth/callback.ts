@@ -19,6 +19,12 @@ export const config = { runtime: 'edge' };
  * @returns A 302 Redirect response to the application root with the new session.
  */
 export default async function handler(req: Request) {
+  const { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, GITHUB_CALLBACK_URL, SESSION_SECRET } = process.env;
+
+  if (!GITHUB_CLIENT_ID || !GITHUB_CLIENT_SECRET || !GITHUB_CALLBACK_URL || !SESSION_SECRET) {
+    return new Response('Missing environment variables', { status: 500 });
+  }
+
   const { searchParams } = new URL(req.url);
   const code = searchParams.get('code');
   const stateFromParam = searchParams.get('state');
@@ -34,7 +40,7 @@ export default async function handler(req: Request) {
 
   // 🛡️ SENTINEL: Verify the signed JWT from the cookie.
   // This prevents tampering with the state and permissions (mode).
-  const secret = new TextEncoder().encode(process.env.SESSION_SECRET);
+  const secret = new TextEncoder().encode(SESSION_SECRET);
   let stateFromToken: string;
   let mode: string;
 
@@ -62,8 +68,8 @@ export default async function handler(req: Request) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      client_id: process.env.GITHUB_CLIENT_ID,
-      client_secret: process.env.GITHUB_CLIENT_SECRET,
+      client_id: GITHUB_CLIENT_ID,
+      client_secret: GITHUB_CLIENT_SECRET,
       code,
     }),
   });
@@ -88,7 +94,10 @@ export default async function handler(req: Request) {
     .setExpirationTime('7d')
     .sign(secret);
 
-  const baseUrl = new URL(req.url).origin;
+  // 🛡️ SENTINEL: Derive origin from the configured callback URL.
+  // Never use `req.url` or Host header for redirect destinations,
+  // as they can be spoofed to perform Open Redirect attacks.
+  const baseUrl = new URL(GITHUB_CALLBACK_URL).origin;
 
   // Set the session cookie and clear the state cookie
   const sessionCookie = `session=${session}; HttpOnly; Secure; SameSite=Strict; Max-Age=${
@@ -102,6 +111,10 @@ export default async function handler(req: Request) {
   headers.append('Location', baseUrl);
   headers.append('Set-Cookie', sessionCookie);
   headers.append('Set-Cookie', clearStateCookie);
+
+  // 🛡️ SENTINEL: Security Headers
+  headers.append('X-Content-Type-Options', 'nosniff');
+  headers.append('X-Frame-Options', 'DENY');
 
   return new Response(null, {
     status: 302,
