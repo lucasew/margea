@@ -1,5 +1,6 @@
-import { SignJWT, jwtVerify } from 'jose';
+import { jwtVerify, EncryptJWT } from 'jose';
 import { parse } from 'cookie';
+import { getSecretKey } from './utils';
 
 export const config = { runtime: 'edge' };
 
@@ -78,15 +79,17 @@ export default async function handler(req: Request) {
     );
   }
 
-  // Create a secure session JWT
-  const session = await new SignJWT({
+  const encryptionKey = await getSecretKey(process.env.SESSION_SECRET || '');
+
+  // Create a secure session JWE (Encrypted JWT)
+  const session = await new EncryptJWT({
     github_token: access_token,
     mode: mode,
   })
-    .setProtectedHeader({ alg: 'HS256' })
+    .setProtectedHeader({ alg: 'dir', enc: 'A256GCM' })
     .setIssuedAt()
     .setExpirationTime('7d')
-    .sign(secret);
+    .encrypt(encryptionKey);
 
   const baseUrl = new URL(req.url).origin;
 
