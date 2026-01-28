@@ -21,6 +21,17 @@ interface PRListContentProps {
   onRefresh: () => void;
 }
 
+/**
+ * The core component for displaying and managing the list of Pull Requests.
+ *
+ * Responsibilities:
+ * 1. **Data Lifecycle**: Manages the fetching of PRs from GitHub via Relay.
+ * 2. **Pagination Strategy**: Implements a custom "target-based" pagination. unlike standard infinite scroll,
+ *    it attempts to automatically fetch enough pages to reach a user-defined count (`prTarget`) of PRs.
+ * 3. **Filter Persistence**: Synchronizes filter state with URL parameters and persists them in `sessionStorage`
+ *    so users don't lose context when navigating away and back.
+ * 4. **Grouping & Filtering**: Applies client-side filtering and grouping logic to the fetched dataset.
+ */
 function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -41,6 +52,8 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
   });
 
   // Persist filters in sessionStorage
+  // 'isRestored' acts as a latch to prevent overwriting the URL params with default values
+  // before we've had a chance to read from sessionStorage.
   const [isRestored, setIsRestored] = useState(false);
 
   useEffect(() => {
@@ -85,6 +98,8 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
   }, [searchParams]);
 
   // States for pagination
+  // 'additionalPRs' stores pages beyond the first one (which comes from 'data').
+  // This allows us to accumulate a large list of PRs client-side to meet the 'prTarget'.
   const [additionalPRs, setAdditionalPRs] = useState<PullRequest[]>([]);
   const [endCursor, setEndCursor] = useState<string | null>(null);
   const [hasNextPage, setHasNextPage] = useState(false);
@@ -170,6 +185,13 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
     navigate(-1);
   };
 
+  /**
+   * Fetches the next page of PRs.
+   *
+   * This is part of the custom "target-based" pagination loop.
+   * It is called recursively (via the effect below) until the total number of loaded PRs
+   * reaches `prTarget` or there are no more pages.
+   */
   const fetchMorePRs = useCallback(async () => {
     if (!hasNextPage || !endCursor || isLoadingMore) return;
 
@@ -321,6 +343,10 @@ interface PRListProps {
   searchQuery: string;
 }
 
+/**
+ * Fallback UI displayed when the PR list fails to load (e.g., network error, API rate limit).
+ * Provides context on possible causes and a retry mechanism.
+ */
 function PRListErrorFallback({ error, resetErrorBoundary, onRetry }: FallbackProps & { onRetry: () => void }) {
     return (
         <div className="flex flex-col items-center justify-center min-h-screen gap-4 p-4">

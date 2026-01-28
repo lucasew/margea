@@ -17,6 +17,13 @@ interface PRListFiltersProps {
   handleLimitChange: (value: string) => void;
 }
 
+/**
+ * A purely presentational component that renders the filter controls and action buttons.
+ *
+ * Note: The `uniqueRepos`, `uniqueOwners`, and `uniqueAuthors` props are derived from the
+ * *entire* loaded dataset (all accumulated pages), not just the currently filtered view.
+ * This ensures that users can always see valid options even after applying filters.
+ */
 export function PRListFilters({
   filterRepo,
   filterOwner,

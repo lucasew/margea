@@ -8,6 +8,15 @@ interface PRGroupCardProps {
   onExpand: (group: PRGroup) => void;
 }
 
+/**
+ * Displays a summary card for a group of Pull Requests.
+ *
+ * This component visualizes key metrics for the group:
+ * - **CI Status**: Aggregates the CI status (success/failure/pending) of all PRs in the group.
+ *   The card border color changes to reflect the overall health (Red if any failure, Green if all passed).
+ * - **Progress Bar**: Shows the distribution of PR states (Open/Merged/Closed).
+ * - **Metadata**: Displays the common base branch, labels, and the group author.
+ */
 export function PRGroupCard({ group, onExpand }: PRGroupCardProps) {
   const { t } = useTranslation();
   const states = group.prs.reduce((acc, pr) => {
