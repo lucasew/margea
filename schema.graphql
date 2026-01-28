@@ -2,7 +2,12 @@ type Query {
   viewer: User!
   organization(login: String!): Organization
   repository(owner: String!, name: String!): Repository
-  search(query: String!, type: SearchType!, first: Int, after: String): SearchResultItemConnection!
+  search(
+    query: String!
+    type: SearchType!
+    first: Int
+    after: String
+  ): SearchResultItemConnection!
 }
 
 type Mutation {
@@ -90,7 +95,12 @@ type Repository {
   name: String!
   nameWithOwner: String!
   owner: RepositoryOwner!
-  pullRequests(first: Int, after: String, states: [PullRequestState!], orderBy: IssueOrder): PullRequestConnection!
+  pullRequests(
+    first: Int
+    after: String
+    states: [PullRequestState!]
+    orderBy: IssueOrder
+  ): PullRequestConnection!
 }
 
 interface RepositoryOwner {

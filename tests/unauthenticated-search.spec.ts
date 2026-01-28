@@ -14,22 +14,32 @@ test.describe('Unauthenticated Search Flow', () => {
 
   test('should display login required on search button', async ({ page }) => {
     // Check for login required text on search button
-    const searchButton = page.locator(`button:has-text("${en.login_required}")`);
+    const searchButton = page.locator(
+      `button:has-text("${en.login_required}")`,
+    );
     await expect(searchButton).toBeVisible();
     await expect(searchButton).toBeDisabled();
   });
 
-  test('should allow filling search inputs but not searching', async ({ page }) => {
+  test('should allow filling search inputs but not searching', async ({
+    page,
+  }) => {
     // Fill in owner
     await page.fill('input[placeholder="ex: facebook"]', 'lucasew');
-    await expect(page.locator('input[placeholder="ex: facebook"]')).toHaveValue('lucasew');
+    await expect(page.locator('input[placeholder="ex: facebook"]')).toHaveValue(
+      'lucasew',
+    );
 
     // Fill in repo
     await page.fill('input[placeholder="ex: react"]', 'margea');
-    await expect(page.locator('input[placeholder="ex: react"]')).toHaveValue('margea');
+    await expect(page.locator('input[placeholder="ex: react"]')).toHaveValue(
+      'margea',
+    );
 
     // Search button should be disabled
-    const searchButton = page.locator(`button:has-text("${en.login_required}")`);
+    const searchButton = page.locator(
+      `button:has-text("${en.login_required}")`,
+    );
     await expect(searchButton).toBeDisabled();
   });
 
@@ -39,7 +49,9 @@ test.describe('Unauthenticated Search Flow', () => {
   // test('should display error message on API failure', async ({ page }) => { ... });
   // test('should allow retry after error', async ({ page }) => { ... });
 
-  test('should navigate to login page when clicking login button in header', async ({ page }) => {
+  test('should navigate to login page when clicking login button in header', async ({
+    page,
+  }) => {
     // Click login button in header
     const loginButton = page.locator('header button:has-text("Login")');
     await expect(loginButton).toBeVisible();
@@ -47,6 +59,10 @@ test.describe('Unauthenticated Search Flow', () => {
 
     // Should show login page
     await expect(page.locator('h1:has-text("Margea")')).toBeVisible();
-    await expect(page.locator(`h2:has-text("${translations.en.loginPage.chooseAccessLevel}")`)).toBeVisible({ timeout: 5000 });
+    await expect(
+      page.locator(
+        `h2:has-text("${translations.en.loginPage.chooseAccessLevel}")`,
+      ),
+    ).toBeVisible({ timeout: 5000 });
   });
 });

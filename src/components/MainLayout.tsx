@@ -1,6 +1,6 @@
-import { Outlet, useOutletContext } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 
-type ContextType = {
+export type MainLayoutContextType = {
   onLogout: () => void;
   onLogin: () => void;
   onChangePermissions: () => void;
@@ -8,10 +8,6 @@ type ContextType = {
   currentMode: 'read' | 'write' | null;
 };
 
-export function useMainLayoutContext() {
-  return useOutletContext<ContextType>();
-}
-
-export const MainLayout = (props: ContextType) => {
+export const MainLayout = (props: MainLayoutContextType) => {
   return <Outlet context={props} />;
 };

@@ -29,7 +29,9 @@ export default async function handler(req: Request) {
   const oauthStateCookie = cookies.oauth_state;
 
   if (!code || !stateFromParam || !oauthStateCookie) {
-    return new Response('Invalid request: missing parameters.', { status: 400 });
+    return new Response('Invalid request: missing parameters.', {
+      status: 400,
+    });
   }
 
   // 🛡️ SENTINEL: Verify the signed JWT from the cookie.
@@ -46,19 +48,23 @@ export default async function handler(req: Request) {
     stateFromToken = payload.state;
     mode = payload.mode;
   } catch {
-    return new Response('Invalid or expired OAuth state token.', { status: 403 });
+    return new Response('Invalid or expired OAuth state token.', {
+      status: 403,
+    });
   }
 
   // Compare the state from the parameter with the one from the signed JWT
   if (stateFromParam !== stateFromToken) {
-    return new Response('Invalid CSRF token (state mismatch).', { status: 403 });
+    return new Response('Invalid CSRF token (state mismatch).', {
+      status: 403,
+    });
   }
 
   // Exchange the authorization code for an access token
   const tokenRes = await fetch('https://github.com/login/oauth/access_token', {
     method: 'POST',
     headers: {
-      'Accept': 'application/json',
+      Accept: 'application/json',
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
@@ -74,7 +80,7 @@ export default async function handler(req: Request) {
   if (!access_token) {
     return new Response(
       `Failed to get token: ${data.error_description || data.error || 'Unknown error'}`,
-      { status: 500 }
+      { status: 500 },
     );
   }
 

@@ -25,7 +25,9 @@ export function Footer() {
 
           {/* Links Section */}
           <div>
-            <h3 className="font-bold mb-4 text-base-content">{t('footer.resources')}</h3>
+            <h3 className="font-bold mb-4 text-base-content">
+              {t('footer.resources')}
+            </h3>
             <ul className="space-y-3 text-base-content/70">
               <li>
                 <a
@@ -52,7 +54,9 @@ export function Footer() {
 
           {/* Info Section */}
           <div>
-            <h3 className="font-bold mb-4 text-base-content">{t('footer.technologies')}</h3>
+            <h3 className="font-bold mb-4 text-base-content">
+              {t('footer.technologies')}
+            </h3>
             <ul className="space-y-3 text-base-content/70">
               <li>React + TypeScript</li>
               <li>Relay GraphQL</li>
@@ -66,9 +70,15 @@ export function Footer() {
         <div className="divider my-6"></div>
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-base-content/60">
           <p className="flex items-center gap-1">
-            {t('footer.made_with')} <span className="w-[14px] h-[14px] text-error"><Heart size={14} className="text-error fill-error" /></span> {t('footer.using')}
+            {t('footer.made_with')}{' '}
+            <span className="w-[14px] h-[14px] text-error">
+              <Heart size={14} className="text-error fill-error" />
+            </span>{' '}
+            {t('footer.using')}
           </p>
-          <p>&copy; {currentYear} Margea. {t('footer.rights_reserved')}</p>
+          <p>
+            &copy; {currentYear} Margea. {t('footer.rights_reserved')}
+          </p>
         </div>
       </div>
     </footer>

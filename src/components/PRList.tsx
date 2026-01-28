@@ -2,17 +2,30 @@ import { Suspense, useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useLocation, useNavigate } from 'react-router-dom';
 import { useLazyLoadQuery, fetchQuery } from 'react-relay';
 import { RefreshCw, AlertTriangle } from 'react-feather';
-import { ErrorBoundary as ReactErrorBoundary, FallbackProps } from 'react-error-boundary';
+import {
+  ErrorBoundary as ReactErrorBoundary,
+  FallbackProps,
+} from 'react-error-boundary';
 import { relayEnvironment } from '../relay/environment';
 import { SearchPRsQuery } from '../queries/SearchPRsQuery';
 import { SearchPRsQuery as SearchPRsQueryType } from '../queries/__generated__/SearchPRsQuery.graphql';
-import { groupPullRequests, filterPullRequests, calculateStats } from '../services/prGrouping';
+import {
+  groupPullRequests,
+  filterPullRequests,
+  calculateStats,
+} from '../services/prGrouping';
 import { transformPR } from '../services/prTransformer';
 import { PRGroupCard } from './PRGroupCard';
 import { PRGroupDetail } from './PRGroupDetail';
 import { InfoIcon } from './icons/InfoIcon';
 import { PRGroup, PullRequest } from '../types';
-import { PRState, DEFAULT_PR_TARGET, MAX_PR_TARGET, BATCH_SIZE, URL_SEARCH_PARAMS } from '../constants';
+import {
+  PRState,
+  DEFAULT_PR_TARGET,
+  MAX_PR_TARGET,
+  BATCH_SIZE,
+  URL_SEARCH_PARAMS,
+} from '../constants';
 import { PRListStats } from './PRListStats';
 import { PRListFilters } from './PRListFilters';
 
@@ -30,13 +43,17 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
 
   // Read filters from URL
   const filterRepo = searchParams.get(URL_SEARCH_PARAMS.REPO) || '';
-  const filterState = (searchParams.get(URL_SEARCH_PARAMS.STATE) || 'ALL') as PRState;
+  const filterState = (searchParams.get(URL_SEARCH_PARAMS.STATE) ||
+    'ALL') as PRState;
   const filterAuthor = searchParams.get(URL_SEARCH_PARAMS.AUTHOR) || '';
   const filterOwner = searchParams.get(URL_SEARCH_PARAMS.OWNER) || '';
 
   // State for PR target/goal, synced with URL param
   const [prTarget, setPrTarget] = useState(() => {
-    const limit = parseInt(searchParams.get(URL_SEARCH_PARAMS.LIMIT) || DEFAULT_PR_TARGET.toString(), 10);
+    const limit = parseInt(
+      searchParams.get(URL_SEARCH_PARAMS.LIMIT) || DEFAULT_PR_TARGET.toString(),
+      10,
+    );
     return limit > 0 && limit <= MAX_PR_TARGET ? limit : DEFAULT_PR_TARGET;
   });
 
@@ -79,8 +96,12 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
   }, [searchParams, location.pathname, isRestored]);
 
   useEffect(() => {
-    const limit = parseInt(searchParams.get(URL_SEARCH_PARAMS.LIMIT) || DEFAULT_PR_TARGET.toString(), 10);
-    const validLimit = limit > 0 && limit <= MAX_PR_TARGET ? limit : DEFAULT_PR_TARGET;
+    const limit = parseInt(
+      searchParams.get(URL_SEARCH_PARAMS.LIMIT) || DEFAULT_PR_TARGET.toString(),
+      10,
+    );
+    const validLimit =
+      limit > 0 && limit <= MAX_PR_TARGET ? limit : DEFAULT_PR_TARGET;
     setPrTarget(validLimit);
   }, [searchParams]);
 
@@ -109,15 +130,12 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
     const newParams = new URLSearchParams(searchParams);
     newParams.set(URL_SEARCH_PARAMS.LIMIT, value);
     setSearchParams(newParams, { replace: true });
-  }
+  };
 
-  const data = useLazyLoadQuery<SearchPRsQueryType>(
-    SearchPRsQuery,
-    {
-      searchQuery,
-      first: Math.min(BATCH_SIZE, prTarget),
-    }
-  );
+  const data = useLazyLoadQuery<SearchPRsQueryType>(SearchPRsQuery, {
+    searchQuery,
+    first: Math.min(BATCH_SIZE, prTarget),
+  });
 
   // Update pagination info from initial query and trigger auto-fetch
   useEffect(() => {
@@ -130,7 +148,7 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
 
   // Transform Relay data to our PullRequest type
   const initialPRs: PullRequest[] = (data.search.edges || [])
-    .map(edge => transformPR(edge?.node))
+    .map((edge) => transformPR(edge?.node))
     .filter((pr): pr is PullRequest => pr !== null);
 
   // Combine initial PRs with additional PRs from pagination
@@ -147,9 +165,17 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
   const stats = calculateStats(filteredPrs);
 
   // Extract unique values for dropdowns from ALL PRs (not filtered)
-  const uniqueRepos = Array.from(new Set(prs.map(pr => `${pr.repository.owner.login}/${pr.repository.name}`))).sort();
-  const uniqueOwners = Array.from(new Set(prs.map(pr => pr.repository.owner.login))).sort();
-  const uniqueAuthors = Array.from(new Set(prs.map(pr => pr.author?.login).filter(Boolean) as string[])).sort();
+  const uniqueRepos = Array.from(
+    new Set(
+      prs.map((pr) => `${pr.repository.owner.login}/${pr.repository.name}`),
+    ),
+  ).sort();
+  const uniqueOwners = Array.from(
+    new Set(prs.map((pr) => pr.repository.owner.login)),
+  ).sort();
+  const uniqueAuthors = Array.from(
+    new Set(prs.map((pr) => pr.author?.login).filter(Boolean) as string[]),
+  ).sort();
 
   const handleExportJSON = () => {
     const dataStr = JSON.stringify(groups, null, 2);
@@ -188,13 +214,13 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
           searchQuery,
           first: batchSize,
           after: endCursor,
-        }
+        },
       ).toPromise();
 
       if (result?.search) {
         // Transform new PRs
         const newPRs: PullRequest[] = (result.search.edges || [])
-          .map(edge => transformPR(edge?.node))
+          .map((edge) => transformPR(edge?.node))
           .filter((pr): pr is PullRequest => pr !== null);
 
         setAdditionalPRs((prev) => [...prev, ...newPRs]);
@@ -236,9 +262,11 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
 
   // Show group detail if a group is selected via query param
   if (groupKey) {
-    const selectedGroup = groups.find(g => g.key === groupKey);
+    const selectedGroup = groups.find((g) => g.key === groupKey);
     if (selectedGroup) {
-      return <PRGroupDetail group={selectedGroup} onBack={handleBackFromGroup} />;
+      return (
+        <PRGroupDetail group={selectedGroup} onBack={handleBackFromGroup} />
+      );
     }
   }
 
@@ -278,7 +306,11 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
               {groups.map((group) => (
-                <PRGroupCard key={group.key} group={group} onExpand={handleSelectGroup} />
+                <PRGroupCard
+                  key={group.key}
+                  group={group}
+                  onExpand={handleSelectGroup}
+                />
               ))}
             </div>
 
@@ -300,16 +332,20 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
             )}
 
             {/* Info when target reached or no more PRs */}
-            {!isLoadingMore && prs.length > 0 && prs.length < prTarget && !hasNextPage && (
-              <div className="mt-8 flex justify-center">
-                <div className="alert alert-info max-w-md">
-                  <InfoIcon />
-                  <span>
-                    Carregados {prs.length} PRs (meta: {prTarget}). Não há mais PRs disponíveis.
-                  </span>
+            {!isLoadingMore &&
+              prs.length > 0 &&
+              prs.length < prTarget &&
+              !hasNextPage && (
+                <div className="mt-8 flex justify-center">
+                  <div className="alert alert-info max-w-md">
+                    <InfoIcon />
+                    <span>
+                      Carregados {prs.length} PRs (meta: {prTarget}). Não há
+                      mais PRs disponíveis.
+                    </span>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
           </>
         )}
       </div>
@@ -321,63 +357,67 @@ interface PRListProps {
   searchQuery: string;
 }
 
-function PRListErrorFallback({ error, resetErrorBoundary, onRetry }: FallbackProps & { onRetry: () => void }) {
-    return (
-        <div className="flex flex-col items-center justify-center min-h-screen gap-4 p-4">
-          <div className="card w-full max-w-2xl bg-base-100 shadow-xl">
-            <div className="card-body items-center text-center">
-              <AlertTriangle size={64} className="text-error mb-4" />
-              <h2 className="card-title text-2xl mb-2">Erro ao carregar PRs</h2>
-              <p className="text-base-content/70 mb-4">
-                Não foi possível carregar os Pull Requests do GitHub.
-              </p>
+function PRListErrorFallback({
+  error,
+  resetErrorBoundary,
+  onRetry,
+}: FallbackProps & { onRetry: () => void }) {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen gap-4 p-4">
+      <div className="card w-full max-w-2xl bg-base-100 shadow-xl">
+        <div className="card-body items-center text-center">
+          <AlertTriangle size={64} className="text-error mb-4" />
+          <h2 className="card-title text-2xl mb-2">Erro ao carregar PRs</h2>
+          <p className="text-base-content/70 mb-4">
+            Não foi possível carregar os Pull Requests do GitHub.
+          </p>
 
-              {error && (
-                <div className="alert alert-error w-full mb-4">
-                  <div className="flex flex-col items-start gap-2 w-full">
-                    <span className="font-semibold">Detalhes:</span>
-                    <code className="text-sm bg-base-200 p-2 rounded w-full text-left overflow-x-auto">
-                      {error.message}
-                    </code>
-                  </div>
-                </div>
-              )}
-
-              <div className="alert alert-info w-full mb-4">
-                <div className="flex flex-col items-start gap-2 w-full text-left">
-                  <span className="font-semibold">Possíveis causas:</span>
-                  <ul className="text-sm list-disc list-inside">
-                    <li>Token de autenticação inválido ou expirado</li>
-                    <li>Limite de requisições da API do GitHub excedido</li>
-                    <li>Problemas de conectividade com a internet</li>
-                    <li>Parâmetros de busca inválidos</li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className="card-actions">
-                <button
-                  onClick={() => {
-                    resetErrorBoundary();
-                    onRetry();
-                  }}
-                  className="btn btn-primary"
-                >
-                  <RefreshCw size={18} />
-                  Tentar novamente
-                </button>
+          {error && (
+            <div className="alert alert-error w-full mb-4">
+              <div className="flex flex-col items-start gap-2 w-full">
+                <span className="font-semibold">Detalhes:</span>
+                <code className="text-sm bg-base-200 p-2 rounded w-full text-left overflow-x-auto">
+                  {error.message}
+                </code>
               </div>
             </div>
+          )}
+
+          <div className="alert alert-info w-full mb-4">
+            <div className="flex flex-col items-start gap-2 w-full text-left">
+              <span className="font-semibold">Possíveis causas:</span>
+              <ul className="text-sm list-disc list-inside">
+                <li>Token de autenticação inválido ou expirado</li>
+                <li>Limite de requisições da API do GitHub excedido</li>
+                <li>Problemas de conectividade com a internet</li>
+                <li>Parâmetros de busca inválidos</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="card-actions">
+            <button
+              onClick={() => {
+                resetErrorBoundary();
+                onRetry();
+              }}
+              className="btn btn-primary"
+            >
+              <RefreshCw size={18} />
+              Tentar novamente
+            </button>
           </div>
         </div>
-      );
+      </div>
+    </div>
+  );
 }
 
 export function PRList({ searchQuery }: PRListProps) {
   const [key, setKey] = useState(0);
 
   const handleRefresh = () => {
-    setKey(prev => prev + 1);
+    setKey((prev) => prev + 1);
   };
 
   const logError = (error: Error, info: { componentStack?: string | null }) => {
@@ -386,21 +426,29 @@ export function PRList({ searchQuery }: PRListProps) {
 
   return (
     <ReactErrorBoundary
-        FallbackComponent={(props) => <PRListErrorFallback {...props} onRetry={handleRefresh} />}
-        onError={logError}
-        onReset={() => {
-            // Optional: any cleanup or state reset needed when boundary resets
-        }}
+      FallbackComponent={(props) => (
+        <PRListErrorFallback {...props} onRetry={handleRefresh} />
+      )}
+      onError={logError}
+      onReset={() => {
+        // Optional: any cleanup or state reset needed when boundary resets
+      }}
     >
       <Suspense
         fallback={
           <div className="flex flex-col items-center justify-center min-h-screen gap-4">
             <span className="loading loading-spinner loading-lg text-primary"></span>
-            <p className="text-lg text-base-content/70">Carregando Pull Requests...</p>
+            <p className="text-lg text-base-content/70">
+              Carregando Pull Requests...
+            </p>
           </div>
         }
       >
-        <PRListContent key={key} searchQuery={searchQuery} onRefresh={handleRefresh} />
+        <PRListContent
+          key={key}
+          searchQuery={searchQuery}
+          onRefresh={handleRefresh}
+        />
       </Suspense>
     </ReactErrorBoundary>
   );

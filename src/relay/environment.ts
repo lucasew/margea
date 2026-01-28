@@ -21,7 +21,9 @@ const fetchQuery: FetchFunction = async (operation, variables) => {
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   } else {
-    console.warn('Making unauthenticated request to GitHub API. Rate limits will be more restrictive (60 requests/hour vs 5000 with token).');
+    console.warn(
+      'Making unauthenticated request to GitHub API. Rate limits will be more restrictive (60 requests/hour vs 5000 with token).',
+    );
   }
 
   const response = await fetch(GITHUB_GRAPHQL_URL, {
@@ -47,7 +49,9 @@ const fetchQuery: FetchFunction = async (operation, variables) => {
   if (response.headers.get('X-RateLimit-Remaining')) {
     const remaining = response.headers.get('X-RateLimit-Remaining');
     const reset = response.headers.get('X-RateLimit-Reset');
-    console.log(`GitHub API Rate Limit: ${remaining} remaining, resets at ${reset}`);
+    console.log(
+      `GitHub API Rate Limit: ${remaining} remaining, resets at ${reset}`,
+    );
   }
 
   if (!response.ok) {

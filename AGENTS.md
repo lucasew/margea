@@ -1,4 +1,5 @@
 # Guidelines
+
 - Always install jdx/mise before touching anything in code. Make sure intermediary files are gitignored or ausent.
 - Don't ever inline icons
 - Don't touch the headers

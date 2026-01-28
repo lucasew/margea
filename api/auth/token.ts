@@ -30,13 +30,10 @@ export default async function handler(req: Request) {
   const sessionCookie = cookies.session;
 
   if (!sessionCookie) {
-    return new Response(
-      JSON.stringify({ error: 'Not authenticated' }),
-      {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
+    return new Response(JSON.stringify({ error: 'Not authenticated' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 
   try {
@@ -46,22 +43,19 @@ export default async function handler(req: Request) {
     return new Response(
       JSON.stringify({
         token: payload.github_token,
-        mode: payload.mode || 'read' // Default: read-only
+        mode: payload.mode || 'read', // Default: read-only
       }),
       {
         headers: {
           'Content-Type': 'application/json',
-          'Cache-Control': 'no-store, no-cache, must-revalidate'
-        }
-      }
+          'Cache-Control': 'no-store, no-cache, must-revalidate',
+        },
+      },
     );
   } catch {
-    return new Response(
-      JSON.stringify({ error: 'Invalid session' }),
-      {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
+    return new Response(JSON.stringify({ error: 'Invalid session' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }

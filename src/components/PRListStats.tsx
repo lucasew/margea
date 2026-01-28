@@ -1,4 +1,10 @@
-import { GitPullRequest, GitMerge, XCircle, CheckCircle, Folder } from 'react-feather';
+import {
+  GitPullRequest,
+  GitMerge,
+  XCircle,
+  CheckCircle,
+  Folder,
+} from 'react-feather';
 
 interface PRListStatsProps {
   stats: {

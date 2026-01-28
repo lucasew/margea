@@ -71,8 +71,8 @@ function SearchFormContent({ isAuthenticated }: SearchFormProps) {
     if (searchConfig.owner && searchConfig.repo) {
       navigate(
         `/${encodeURIComponent(searchConfig.owner)}/${encodeURIComponent(
-          searchConfig.repo
-        )}${limitParam}`
+          searchConfig.repo,
+        )}${limitParam}`,
       );
     } else if (searchConfig.owner) {
       navigate(`/org/${encodeURIComponent(searchConfig.owner)}${limitParam}`);
@@ -122,7 +122,9 @@ function SearchFormContent({ isAuthenticated }: SearchFormProps) {
 
       <div className="form-control">
         <label className="label">
-          <span className="label-text font-medium">{t('search.repository')}</span>
+          <span className="label-text font-medium">
+            {t('search.repository')}
+          </span>
         </label>
         <input
           type="text"
@@ -153,7 +155,10 @@ function SearchFormContent({ isAuthenticated }: SearchFormProps) {
           className="input input-bordered w-full"
           value={searchConfig.limit}
           onChange={(e) =>
-            setSearchConfig({ ...searchConfig, limit: parseInt(e.target.value) || 100 })
+            setSearchConfig({
+              ...searchConfig,
+              limit: parseInt(e.target.value) || 100,
+            })
           }
         />
         <label className="label">
@@ -170,7 +175,9 @@ function SearchFormContent({ isAuthenticated }: SearchFormProps) {
           disabled={!isAuthenticated}
         >
           <Search size={20} />
-          {isAuthenticated ? t('search.search_pull_requests') : t('search.login_required')}
+          {isAuthenticated
+            ? t('search.search_pull_requests')
+            : t('search.login_required')}
         </button>
       </div>
     </form>
@@ -185,13 +192,17 @@ export function SearchForm({ isAuthenticated }: SearchFormProps) {
         <form className="space-y-4">
           <div className="form-control">
             <label className="label">
-              <span className="label-text font-medium">{t('search.owner_organization')}</span>
+              <span className="label-text font-medium">
+                {t('search.owner_organization')}
+              </span>
             </label>
             <div className="skeleton h-12 w-full"></div>
           </div>
           <div className="form-control">
             <label className="label">
-              <span className="label-text font-medium">{t('search.repository')}</span>
+              <span className="label-text font-medium">
+                {t('search.repository')}
+              </span>
             </label>
             <div className="skeleton h-12 w-full"></div>
           </div>
