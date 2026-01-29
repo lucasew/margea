@@ -7,7 +7,7 @@ import { LoginPage } from './components/LoginPage';
 import { HomePage } from './pages/HomePage';
 import { RepositoryPage } from './pages/RepositoryPage';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import { BulkActionProvider } from './context/BulkActionContext';
+import { BulkActionProvider } from './context/BulkActionProvider';
 import { BulkActionToast } from './components/BulkActionToast';
 import { GlobalBulkActionModal } from './components/GlobalBulkActionModal';
 import { MainLayout } from './components/MainLayout';

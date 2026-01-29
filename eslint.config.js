@@ -4,9 +4,18 @@ import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
 import tseslint from 'typescript-eslint';
 import react from 'eslint-plugin-react';
+import eslintConfigPrettier from 'eslint-config-prettier';
 
 export default tseslint.config(
-  { ignores: ['dist', 'coverage', 'src/__generated__'] },
+  {
+    ignores: [
+      'dist',
+      'coverage',
+      'src/__generated__',
+      'test-results',
+      'playwright-report',
+    ],
+  },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ['**/*.{ts,tsx}'],
@@ -29,9 +38,10 @@ export default tseslint.config(
       ...react.configs['jsx-runtime'].rules,
     },
     settings: {
-        react: {
-            version: 'detect',
-        },
+      react: {
+        version: 'detect',
+      },
     },
   },
+  eslintConfigPrettier,
 );

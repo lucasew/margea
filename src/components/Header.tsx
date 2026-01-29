@@ -12,14 +12,23 @@ interface HeaderProps {
   currentMode?: 'read' | 'write' | null;
 }
 
-export function Header({ onLogout, onLogin, onChangePermissions, isAuthenticated, currentMode }: HeaderProps) {
+export function Header({
+  onLogout,
+  onLogin,
+  onChangePermissions,
+  isAuthenticated,
+  currentMode,
+}: HeaderProps) {
   const { t } = useTranslation();
 
   return (
     <header className="border-b border-base-300">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between py-4">
-          <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+          <Link
+            to="/"
+            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+          >
             <Logo size={24} />
             <span className="font-bold text-lg">Margea</span>
           </Link>

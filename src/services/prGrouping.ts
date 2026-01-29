@@ -68,7 +68,7 @@ export function groupPullRequests(prs: PullRequest[]): PRGroup[] {
       // Base ref and labels are no longer part of the grouping key,
       // but we still capture them for display (taking from the first PR in the group).
       const baseRef = normalizeBaseRef(pr.baseRefName);
-      const labels = pr.labels?.nodes?.map(l => l.name).sort() || [];
+      const labels = pr.labels?.nodes?.map((l) => l.name).sort() || [];
 
       groups.set(key, {
         key,
@@ -115,29 +115,33 @@ export function filterPullRequests(
     state?: PRState;
     author?: string;
     owner?: string;
-  }
+  },
 ): PullRequest[] {
   let filtered = [...prs];
 
   if (filters.repository) {
-    filtered = filtered.filter(pr =>
-      pr.repository.nameWithOwner.toLowerCase().includes(filters.repository!.toLowerCase())
+    filtered = filtered.filter((pr) =>
+      pr.repository.nameWithOwner
+        .toLowerCase()
+        .includes(filters.repository!.toLowerCase()),
     );
   }
 
   if (filters.state && filters.state !== 'ALL') {
-    filtered = filtered.filter(pr => pr.state === filters.state);
+    filtered = filtered.filter((pr) => pr.state === filters.state);
   }
 
   if (filters.author) {
-    filtered = filtered.filter(pr =>
-      pr.author?.login.toLowerCase().includes(filters.author!.toLowerCase())
+    filtered = filtered.filter((pr) =>
+      pr.author?.login.toLowerCase().includes(filters.author!.toLowerCase()),
     );
   }
 
   if (filters.owner) {
-    filtered = filtered.filter(pr =>
-      pr.repository.owner.login.toLowerCase().includes(filters.owner!.toLowerCase())
+    filtered = filtered.filter((pr) =>
+      pr.repository.owner.login
+        .toLowerCase()
+        .includes(filters.owner!.toLowerCase()),
     );
   }
 

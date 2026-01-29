@@ -28,7 +28,7 @@ export interface BulkActionResult {
  */
 const performMutation = (
   mutation: GraphQLTaggedNode,
-  prId: string
+  prId: string,
 ): Promise<BulkActionResult> => {
   return new Promise((resolve) => {
     commitMutation(relayEnvironment, {
@@ -92,7 +92,7 @@ export const BulkActionsService = {
   async executeBulkAction(
     prs: PullRequest[],
     actionType: 'merge' | 'close',
-    onProgress: (progress: BulkActionProgress[]) => void
+    onProgress: (progress: BulkActionProgress[]) => void,
   ): Promise<void> {
     const progressMap = new Map<string, BulkActionProgress>();
 

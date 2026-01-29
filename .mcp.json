@@ -2,10 +2,7 @@
   "mcpServers": {
     "selenium": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@angiejones/mcp-selenium"
-      ]
+      "args": ["-y", "@angiejones/mcp-selenium"]
     },
     "context7": {
       "type": "http",

@@ -1,6 +1,5 @@
 # Margea
 
-
 <a href="https://hosted.weblate.org/engage/margea/">
 <img src="https://hosted.weblate.org/widget/margea/multi-auto.svg" alt="Status da tradução" />
 </a>
