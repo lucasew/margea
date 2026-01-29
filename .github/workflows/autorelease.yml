@@ -51,18 +51,3 @@ jobs:
       - name: Build
         if: steps.git-check.outputs.changes != 'true' && (github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/'))
         run: mise run build
-
-      - name: Release
-        if: steps.git-check.outputs.changes != 'true' && (github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/'))
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          tar -czf release.tar.gz dist/
-          gh release create ${{ github.ref_name }} release.tar.gz --generate-notes
-
-      - name: Upload Artifacts
-        if: steps.git-check.outputs.changes != 'true' && (github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/'))
-        uses: actions/upload-artifact@v4
-        with:
-          name: release-dist
-          path: dist/
