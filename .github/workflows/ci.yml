@@ -1,4 +1,4 @@
-name: Autorelease
+name: CI
 
 on:
   push:
@@ -11,7 +11,7 @@ permissions:
   pull-requests: write
 
 jobs:
-  autorelease:
+  ci:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -38,16 +38,16 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: 'chore: update generated code'
-          title: 'chore: update generated code'
-          body: 'This PR updates the generated code from `mise run codegen`.'
-          branch: 'chore/codegen-update'
-          base: 'main'
+          commit-message: "chore: update generated code"
+          title: "chore: update generated code"
+          body: "This PR updates the generated code from `mise run codegen`."
+          branch: "chore/codegen-update"
+          base: "main"
 
       - name: CI
         if: steps.git-check.outputs.changes != 'true'
         run: mise run ci
 
       - name: Build
-        if: steps.git-check.outputs.changes != 'true' && (github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/'))
+        if: steps.git-check.outputs.changes != 'true'
         run: mise run build
