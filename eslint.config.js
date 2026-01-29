@@ -7,7 +7,15 @@ import react from 'eslint-plugin-react';
 import eslintConfigPrettier from 'eslint-config-prettier';
 
 export default tseslint.config(
-  { ignores: ['dist', 'coverage', 'src/__generated__'] },
+  {
+    ignores: [
+      'dist',
+      'coverage',
+      'src/__generated__',
+      'test-results',
+      'playwright-report',
+    ],
+  },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ['**/*.{ts,tsx}'],
