@@ -34,11 +34,14 @@ export default async function handler(req: Request) {
   // We can then verify it to prevent Cross-Site Request Forgery attacks.
   const randomBytes = new Uint8Array(32);
   crypto.getRandomValues(randomBytes);
-  const state = Array.from(randomBytes).map(b => b.toString(16).padStart(2, '0')).join('');
+  const state = Array.from(randomBytes)
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
 
-  const scopes = mode === 'write'
-    ? 'read:user read:org repo' // Write: full access
-    : 'read:user read:org';      // Read: read-only
+  const scopes =
+    mode === 'write'
+      ? 'read:user read:org repo' // Write: full access
+      : 'read:user read:org'; // Read: read-only
 
   const url = new URL('https://github.com/login/oauth/authorize');
   url.searchParams.set('client_id', clientId);
@@ -55,7 +58,6 @@ export default async function handler(req: Request) {
     .setExpirationTime('5m') // Short-lived token
     .sign(secret);
 
-
   // Store the state and mode in a secure, HttpOnly cookie to verify on callback.
   const isSecure = requestUrl.protocol === 'https:';
 
@@ -67,7 +69,7 @@ export default async function handler(req: Request) {
   return new Response(null, {
     status: 302,
     headers: {
-      'Location': url.toString(),
+      Location: url.toString(),
       'Set-Cookie': cookie,
     },
   });

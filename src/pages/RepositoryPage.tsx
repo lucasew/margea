@@ -6,13 +6,13 @@ import { Footer } from '../components/Footer';
 import { PRList } from '../components/PRList';
 import { useViewer } from '../hooks/useViewer';
 import { sanitize } from '../services/sanitizer';
-import { useMainLayoutContext } from '../components/MainLayout';
+import { useMainLayoutContext } from '../hooks/useMainLayoutContext';
 
 // Helper to build search query from URL params
 function buildSearchQuery(
   params: { owner?: string; repo?: string },
   organizations?: Array<{ login: string }>,
-  userLogin?: string
+  userLogin?: string,
 ): string {
   const { owner, repo } = params;
 
@@ -26,7 +26,7 @@ function buildSearchQuery(
     query += ` org:${owner}`;
   } else if (organizations && organizations.length > 0) {
     // /orgs route - filter by user's organizations and user's own PRs
-    const orgFilters = organizations.map(org => `org:${org.login}`).join(' ');
+    const orgFilters = organizations.map((org) => `org:${org.login}`).join(' ');
     query += ` ${orgFilters}`;
 
     // Also include PRs authored by the user
@@ -38,7 +38,11 @@ function buildSearchQuery(
   return query;
 }
 
-function DashboardPRList({ params }: { params: { owner?: string; repo?: string } }) {
+function DashboardPRList({
+  params,
+}: {
+  params: { owner?: string; repo?: string };
+}) {
   const { organizations: orgs, viewer } = useViewer();
   // 🛡️ SENTINEL: Sanitize API data as a defense-in-depth measure.
   const organizations = orgs.map((org) => ({
@@ -52,7 +56,13 @@ function DashboardPRList({ params }: { params: { owner?: string; repo?: string }
 }
 
 function RepositoryPageContent() {
-  const { onLogout, onLogin, onChangePermissions, isAuthenticated, currentMode } = useMainLayoutContext();
+  const {
+    onLogout,
+    onLogin,
+    onChangePermissions,
+    isAuthenticated,
+    currentMode,
+  } = useMainLayoutContext();
   const { t } = useTranslation();
   const rawParams = useParams<{ owner?: string; repo?: string }>();
 
@@ -77,8 +87,18 @@ function RepositoryPageContent() {
       return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="alert alert-warning shadow-lg max-w-2xl mx-auto">
-            <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="stroke-current shrink-0 h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
             </svg>
             <div>
               <h3 className="font-bold">{t('repositoryPage.loginRequired')}</h3>
@@ -121,9 +141,7 @@ function RepositoryPageContent() {
         <div className="bg-base-200 border-b border-base-300">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <h1 className="text-3xl md:text-4xl font-bold">{pageTitle}</h1>
-            <p className="text-base-content/70 mt-2">
-              {subtitle}
-            </p>
+            <p className="text-base-content/70 mt-2">{subtitle}</p>
           </div>
         </div>
 

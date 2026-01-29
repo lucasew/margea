@@ -5,20 +5,32 @@ node = "25.4.0"
 run = "npm run dev"
 
 [tasks.install]
-run = "npm install"
+run = "npm install && npx playwright install"
 
 [tasks.codegen]
 run = "npm run relay"
 
+[tasks.build]
+run = "npm run build"
+
 [tasks.lint]
-depends = ["lint:eslint"]
+depends = ["lint:*"]
 
 [tasks."lint:eslint"]
 run = "npx eslint ."
+
+[tasks."lint:prettier"]
+run = "npx prettier --check ."
+
+[tasks.fmt]
+depends = ["fmt:*"]
+
+[tasks."fmt:prettier"]
+run = "npx prettier --write ."
 
 [tasks.test]
 run = "npx playwright test"
 depends = ["codegen"]
 
 [tasks.ci]
-depends = ["install", "codegen", "lint", "test"]
+depends = ["lint", "test"]

@@ -107,5 +107,5 @@ export const AuthService = {
   async isAuthenticated(): Promise<boolean> {
     const token = await this.getToken();
     return !!token;
-  }
+  },
 };

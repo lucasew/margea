@@ -17,14 +17,14 @@ export default function handler(req: Request) {
     return new Response('Method not allowed', { status: 405 });
   }
 
-  const response = new Response(
-    JSON.stringify({ success: true }),
-    { headers: { 'Content-Type': 'application/json' } }
-  );
+  const response = new Response(JSON.stringify({ success: true }), {
+    headers: { 'Content-Type': 'application/json' },
+  });
 
   // Limpar cookie
-  response.headers.set('Set-Cookie',
-    'session=; HttpOnly; Secure; SameSite=Strict; Max-Age=0; Path=/'
+  response.headers.set(
+    'Set-Cookie',
+    'session=; HttpOnly; Secure; SameSite=Strict; Max-Age=0; Path=/',
   );
 
   return response;

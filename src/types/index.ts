@@ -60,10 +60,26 @@ export interface BulkActionProgress {
   error?: string;
 }
 
+export interface BulkActionOperation {
+  id: string;
+  type: BulkActionType;
+  progress: BulkActionProgress[];
+  isExecuting: boolean;
+  timestamp: number;
+}
+
 export interface BulkActionState {
   isOpen: boolean;
   actionType: BulkActionType | null;
   selectedPRs: PullRequest[];
   progress: BulkActionProgress[];
   isExecuting: boolean;
+}
+
+export interface MainLayoutContextType {
+  onLogout: () => void;
+  onLogin: () => void;
+  onChangePermissions: () => void;
+  isAuthenticated: boolean;
+  currentMode: 'read' | 'write' | null;
 }
