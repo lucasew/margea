@@ -30,7 +30,6 @@ run = "npx prettier --write ."
 
 [tasks.test]
 run = "npx playwright test"
-depends = ["codegen"]
 
 [tasks.ci]
 depends = ["lint", "test"]
