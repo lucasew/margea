@@ -34,3 +34,10 @@
 **Root Cause:** Validation and logic were inline, mixing different levels of abstraction in a single function.
 **Solution:** Extracted `isValidPR` for validation and `getCIStatus` for CI status logic into helper functions.
 **Pattern:** Extract complex inline logic and validation checks into small, named helper functions to improve readability and separation of concerns.
+
+## 2026-01-30 - Optimize PR Filtering Logic
+
+**Issue:** The `filterPullRequests` function in `src/services/prGrouping.ts` performed multiple array traversals (up to 4 passes) to apply filters, which is inefficient.
+**Root Cause:** The logic used chained `.filter()` calls, where each filter created a new intermediate array.
+**Solution:** Refactored the function to use a single `.filter()` pass that checks all conditions simultaneously. Also pre-calculated lowercased filter values to avoid repetitive string manipulation.
+**Pattern:** Replace multiple array traversals (chains of `.filter()`) with a single-pass loop or `.filter()` with combined conditions to reduce computational complexity and improve performance (O(n) vs O(4n)).
