@@ -5,7 +5,7 @@ node = "25.4.0"
 run = "npm run dev"
 
 [tasks.install]
-run = "npm install && npx playwright install --with-deps"
+run = "npm ci && npx playwright install --with-deps"
 
 [tasks.codegen]
 run = "npm run relay"
