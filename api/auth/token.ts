@@ -1,4 +1,4 @@
-import { jwtVerify } from 'jose';
+import { jwtDecrypt } from 'jose';
 import { parse } from 'cookie';
 
 export const config = { runtime: 'edge' };
@@ -37,8 +37,9 @@ export default async function handler(req: Request) {
   }
 
   try {
-    const secret = new TextEncoder().encode(process.env.SESSION_SECRET);
-    const { payload } = await jwtVerify(sessionCookie, secret);
+    const rawSecret = new TextEncoder().encode(process.env.SESSION_SECRET);
+    const encryptionKey = await crypto.subtle.digest('SHA-256', rawSecret);
+    const { payload } = await jwtDecrypt(sessionCookie, new Uint8Array(encryptionKey));
 
     return new Response(
       JSON.stringify({

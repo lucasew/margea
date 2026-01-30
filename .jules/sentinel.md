@@ -25,3 +25,9 @@ This journal is NOT a log - only add entries for CRITICAL security learnings.
 **Vulnerability:** The OAuth flow in `api/auth/github.ts` used `crypto.randomUUID()` to generate the CSRF `state` token. While providing a unique value, the UUID specification does not guarantee that the output is generated from a cryptographically secure pseudo-random number generator (CSPRNG), making it potentially predictable in some environments.
 **Learning:** For security-critical values like CSRF tokens, relying on non-security-focused APIs like `crypto.randomUUID()` is a risk. An attacker who could predict the output could bypass the CSRF protection. The principle of defense in depth requires using the most secure primitive available for a given security control.
 **Prevention:** Always use a dedicated CSPRNG for generating security tokens. In modern JavaScript environments, `crypto.getRandomValues` is the standard, secure choice for this purpose. Mandate its use for any security-related random value generation in the codebase.
+
+## 2026-01-16 - Sensitive Data Exposure in Session Cookie
+
+**Vulnerability:** The session cookie containing the GitHub Access Token was stored as a Signed JWT (JWS). While signed to prevent tampering, it was not encrypted, allowing anyone with access to the cookie (e.g., via logs or physical access) to decode it and view the raw access token.
+**Learning:** JWS (`SignJWT`) only guarantees integrity, not confidentiality. Sensitive data like access tokens must be encrypted to prevent exposure.
+**Prevention:** Use JWE (`EncryptJWT`) with strong encryption (e.g., `A256GCM`) for any cookie containing sensitive information. Ensure the encryption key is derived securely (e.g., using SHA-256) to meet algorithm requirements.

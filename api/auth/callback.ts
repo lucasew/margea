@@ -1,4 +1,4 @@
-import { SignJWT, jwtVerify } from 'jose';
+import { EncryptJWT, jwtVerify } from 'jose';
 import { parse } from 'cookie';
 
 export const config = { runtime: 'edge' };
@@ -36,12 +36,12 @@ export default async function handler(req: Request) {
 
   // 🛡️ SENTINEL: Verify the signed JWT from the cookie.
   // This prevents tampering with the state and permissions (mode).
-  const secret = new TextEncoder().encode(process.env.SESSION_SECRET);
+  const rawSecret = new TextEncoder().encode(process.env.SESSION_SECRET);
   let stateFromToken: string;
   let mode: string;
 
   try {
-    const { payload } = await jwtVerify(oauthStateCookie, secret);
+    const { payload } = await jwtVerify(oauthStateCookie, rawSecret);
     if (typeof payload.state !== 'string' || typeof payload.mode !== 'string') {
       throw new Error('Invalid JWT payload');
     }
@@ -84,15 +84,18 @@ export default async function handler(req: Request) {
     );
   }
 
-  // Create a secure session JWT
-  const session = await new SignJWT({
+  // Create a secure session JWT (Encrypted JWE)
+  // We use SHA-256 to derive a 32-byte key for A256GCM encryption.
+  const encryptionKey = await crypto.subtle.digest('SHA-256', rawSecret);
+
+  const session = await new EncryptJWT({
     github_token: access_token,
     mode: mode,
   })
-    .setProtectedHeader({ alg: 'HS256' })
+    .setProtectedHeader({ alg: 'dir', enc: 'A256GCM' })
     .setIssuedAt()
     .setExpirationTime('7d')
-    .sign(secret);
+    .encrypt(new Uint8Array(encryptionKey));
 
   const baseUrl = new URL(req.url).origin;
 
