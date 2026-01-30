@@ -37,7 +37,7 @@ jobs:
           git diff --exit-code || echo "changes=true" >> $GITHUB_OUTPUT
 
       - name: Create Pull Request
-        if: steps.git-check.outputs.changes == 'true'
+        if: steps.git-check.outputs.changes == 'true' && github.event_name != 'pull_request'
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -46,6 +46,12 @@ jobs:
           body: 'This PR updates the generated code from `mise run codegen`.'
           branch: 'chore/codegen-update'
           base: 'main'
+
+      - name: Fail if changes in PR
+        if: steps.git-check.outputs.changes == 'true' && github.event_name == 'pull_request'
+        run: |
+          echo "Error: Generated code is out of date. Please run 'mise run codegen' locally and push the changes."
+          exit 1
 
       - name: CI
         if: steps.git-check.outputs.changes != 'true'
