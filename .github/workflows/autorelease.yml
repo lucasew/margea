@@ -26,9 +26,6 @@ jobs:
       - name: Install dependencies
         run: mise run install
 
-      - name: Discard package-lock.json changes
-        run: git checkout package-lock.json
-
       - name: Codegen
         run: mise run codegen
 
