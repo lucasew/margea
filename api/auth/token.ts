@@ -39,7 +39,10 @@ export default async function handler(req: Request) {
   try {
     const rawSecret = new TextEncoder().encode(process.env.SESSION_SECRET);
     const encryptionKey = await crypto.subtle.digest('SHA-256', rawSecret);
-    const { payload } = await jwtDecrypt(sessionCookie, new Uint8Array(encryptionKey));
+    const { payload } = await jwtDecrypt(
+      sessionCookie,
+      new Uint8Array(encryptionKey),
+    );
 
     return new Response(
       JSON.stringify({
