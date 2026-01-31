@@ -88,18 +88,12 @@ export function PRListFilters({
 
           {/* Ações - Linha 2 */}
           <div className="flex flex-row gap-4 justify-end">
-            <button
-              onClick={onRefresh}
-              className="btn btn-primary"
-            >
+            <button onClick={onRefresh} className="btn btn-primary">
               <RefreshCw size={18} />
               Atualizar
             </button>
 
-            <button
-              onClick={onExportJSON}
-              className="btn btn-secondary"
-            >
+            <button onClick={onExportJSON} className="btn btn-secondary">
               <Download size={18} />
               Exportar JSON
             </button>

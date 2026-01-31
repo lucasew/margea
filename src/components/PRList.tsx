@@ -5,18 +5,12 @@ import {
   ErrorBoundary as ReactErrorBoundary,
   FallbackProps,
 } from 'react-error-boundary';
-import {
-  filterPullRequests,
-  calculateStats,
-} from '../services/prGrouping';
+import { filterPullRequests, calculateStats } from '../services/prGrouping';
 import { PRGroupCard } from './PRGroupCard';
 import { PRGroupDetail } from './PRGroupDetail';
 import { InfoIcon } from './icons/InfoIcon';
 import { PRGroup } from '../types';
-import {
-  PRState,
-  URL_SEARCH_PARAMS,
-} from '../constants';
+import { PRState, URL_SEARCH_PARAMS } from '../constants';
 import { PRListStats } from './PRListStats';
 import { PRListFilters } from './PRListFilters';
 import { usePRContext } from '../context/PRContext';
@@ -27,7 +21,14 @@ function PRListContent() {
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
 
-  const { prMap, loadNextPage, pageInfo, isFetchingNextPage, refresh, isLoading } = usePRContext();
+  const {
+    prMap,
+    loadNextPage,
+    pageInfo,
+    isFetchingNextPage,
+    refresh,
+    isLoading,
+  } = usePRContext();
 
   const groupKey = searchParams.get(URL_SEARCH_PARAMS.GROUP);
 
@@ -147,11 +148,16 @@ function PRListContent() {
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && pageInfo.hasNextPage && !isFetchingNextPage && !isLoading) {
+        if (
+          entries[0].isIntersecting &&
+          pageInfo.hasNextPage &&
+          !isFetchingNextPage &&
+          !isLoading
+        ) {
           loadNextPage();
         }
       },
-      { rootMargin: '400px' } // Load well before reaching bottom
+      { rootMargin: '400px' }, // Load well before reaching bottom
     );
 
     if (sentinelRef.current) {
@@ -160,7 +166,6 @@ function PRListContent() {
 
     return () => observer.disconnect();
   }, [pageInfo.hasNextPage, isFetchingNextPage, isLoading, loadNextPage]);
-
 
   // Show group detail if a group is selected via query param
   if (groupKey) {
@@ -221,16 +226,19 @@ function PRListContent() {
         )}
 
         {/* Sentinel & Loader for Infinite Scroll */}
-        <div ref={sentinelRef} className="h-20 w-full flex items-center justify-center mt-8">
-           {(isFetchingNextPage || (isLoading && groups.length > 0)) && (
-             <div className="flex flex-col items-center gap-2">
-                <span className="loading loading-spinner loading-lg text-primary"></span>
-                <span className="text-sm opacity-50">Carregando mais...</span>
-             </div>
-           )}
-           {!pageInfo.hasNextPage && groups.length > 0 && !isLoading && (
-              <span className="text-sm opacity-50">Isso é tudo, pessoal! 🐰</span>
-           )}
+        <div
+          ref={sentinelRef}
+          className="h-20 w-full flex items-center justify-center mt-8"
+        >
+          {(isFetchingNextPage || (isLoading && groups.length > 0)) && (
+            <div className="flex flex-col items-center gap-2">
+              <span className="loading loading-spinner loading-lg text-primary"></span>
+              <span className="text-sm opacity-50">Carregando mais...</span>
+            </div>
+          )}
+          {!pageInfo.hasNextPage && groups.length > 0 && !isLoading && (
+            <span className="text-sm opacity-50">Isso é tudo, pessoal! 🐰</span>
+          )}
         </div>
       </div>
     </div>

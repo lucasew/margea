@@ -1,10 +1,19 @@
 export const translations = {
   en: {
-    search: {
-      login_required: 'Login required to search',
+    homepage: {
+      login_prompt:
+        'Log in for a better experience and to avoid API rate limits.',
+    },
+    header: {
+      login: 'Login',
     },
     loginPage: {
-      chooseAccessLevel: 'Choose the access level:',
+      readOnly: {
+        title: 'Read-Only',
+      },
+      readWrite: {
+        title: 'Read and Write',
+      },
     },
   },
 };

@@ -86,8 +86,14 @@ function App() {
                   <Route index element={<HomePage />} />
                   {/* Redirect old routes to home */}
                   <Route path="/orgs" element={<Navigate to="/" replace />} />
-                  <Route path="/org/:owner" element={<Navigate to="/" replace />} />
-                  <Route path="/:owner/:repo" element={<Navigate to="/" replace />} />
+                  <Route
+                    path="/org/:owner"
+                    element={<Navigate to="/" replace />}
+                  />
+                  <Route
+                    path="/:owner/:repo"
+                    element={<Navigate to="/" replace />}
+                  />
                 </Route>
               </Routes>
               <BulkActionToast />

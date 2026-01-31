@@ -12,7 +12,10 @@ import { groupPullRequests } from '../services/prGrouping';
  * 2. When `prs` updates (e.g. loading more pages), existing groups stay in their
  *    current position. New groups are appended to the end.
  */
-export function useStablePRGroups(prs: PullRequest[], filterKey: string): PRGroup[] {
+export function useStablePRGroups(
+  prs: PullRequest[],
+  filterKey: string,
+): PRGroup[] {
   const [orderedKeys, setOrderedKeys] = useState<string[]>([]);
   const [prevFilterKey, setPrevFilterKey] = useState(filterKey);
 
@@ -21,13 +24,13 @@ export function useStablePRGroups(prs: PullRequest[], filterKey: string): PRGrou
   const freshGroups = useMemo(() => groupPullRequests(prs), [prs]);
 
   const freshGroupsMap = useMemo(() => {
-    return new Map(freshGroups.map(g => [g.key, g]));
+    return new Map(freshGroups.map((g) => [g.key, g]));
   }, [freshGroups]);
 
   // Adjust state during render if filterKey changes (Pattern: Derived State)
   if (filterKey !== prevFilterKey) {
     setPrevFilterKey(filterKey);
-    const newKeys = freshGroups.map(g => g.key);
+    const newKeys = freshGroups.map((g) => g.key);
     setOrderedKeys(newKeys);
     // React restarts render here.
   }
@@ -59,10 +62,13 @@ export function useStablePRGroups(prs: PullRequest[], filterKey: string): PRGrou
 
   // Sync state if new groups were added (Render Phase Update)
   // This ensures orderedKeys includes the newly discovered groups for future stability
-  const currentKeys = stableGroups.map(g => g.key);
-  if (currentKeys.length !== orderedKeys.length || !currentKeys.every((k, i) => k === orderedKeys[i])) {
-      setOrderedKeys(currentKeys);
-      // React restarts render here.
+  const currentKeys = stableGroups.map((g) => g.key);
+  if (
+    currentKeys.length !== orderedKeys.length ||
+    !currentKeys.every((k, i) => k === orderedKeys[i])
+  ) {
+    setOrderedKeys(currentKeys);
+    // React restarts render here.
   }
 
   return stableGroups;

@@ -16,7 +16,10 @@ export function PRProvider({ children }: PRProviderProps) {
 
   // Map Key: Pull Request ID (Global Node ID)
   const [prMap, setPrMap] = useState<Map<string, PullRequest>>(new Map());
-  const [pageInfo, setPageInfo] = useState<{ endCursor: string | null; hasNextPage: boolean }>({
+  const [pageInfo, setPageInfo] = useState<{
+    endCursor: string | null;
+    hasNextPage: boolean;
+  }>({
     endCursor: null,
     hasNextPage: false,
   });
@@ -37,86 +40,101 @@ export function PRProvider({ children }: PRProviderProps) {
     });
   }, []);
 
-  const fetchPRs = useCallback(async (query: string, cursor: string | null, isNextPage: boolean) => {
-    if (!query) return;
+  const fetchPRs = useCallback(
+    async (query: string, cursor: string | null, isNextPage: boolean) => {
+      if (!query) return;
 
-    if (isNextPage) {
-      setIsFetchingNextPage(true);
-    } else {
-      setIsLoading(true);
-    }
-
-    try {
-      const data = await fetchQuery<SearchPRsQueryType>(
-        environment,
-        SearchPRsQuery,
-        {
-          searchQuery: query,
-          first: BATCH_SIZE,
-          after: cursor,
-        }
-      ).toPromise();
-
-      if (data?.search) {
-        const newPRs = (data.search.edges || [])
-          .map((edge) => transformPR(edge?.node))
-          .filter((pr): pr is PullRequest => pr !== null);
-
-        updatePRs(newPRs, isNextPage);
-
-        setPageInfo({
-          hasNextPage: data.search.pageInfo?.hasNextPage ?? false,
-          endCursor: data.search.pageInfo?.endCursor ?? null,
-        });
-      }
-    } catch (error) {
-      console.error('Error fetching PRs:', error);
-    } finally {
       if (isNextPage) {
-        setIsFetchingNextPage(false);
+        setIsFetchingNextPage(true);
       } else {
-        setIsLoading(false);
+        setIsLoading(true);
       }
-    }
-  }, [environment, updatePRs]);
 
-  const setSearchQuery = useCallback((query: string) => {
-    setSearchQueryState(query);
-    setPageInfo({ endCursor: null, hasNextPage: false });
-    fetchPRs(query, null, false);
-  }, [fetchPRs]);
+      try {
+        const data = await fetchQuery<SearchPRsQueryType>(
+          environment,
+          SearchPRsQuery,
+          {
+            searchQuery: query,
+            first: BATCH_SIZE,
+            after: cursor,
+          },
+        ).toPromise();
+
+        if (data?.search) {
+          const newPRs = (data.search.edges || [])
+            .map((edge) => transformPR(edge?.node))
+            .filter((pr): pr is PullRequest => pr !== null);
+
+          updatePRs(newPRs, isNextPage);
+
+          setPageInfo({
+            hasNextPage: data.search.pageInfo?.hasNextPage ?? false,
+            endCursor: data.search.pageInfo?.endCursor ?? null,
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching PRs:', error);
+      } finally {
+        if (isNextPage) {
+          setIsFetchingNextPage(false);
+        } else {
+          setIsLoading(false);
+        }
+      }
+    },
+    [environment, updatePRs],
+  );
+
+  const setSearchQuery = useCallback(
+    (query: string) => {
+      setSearchQueryState(query);
+      setPageInfo({ endCursor: null, hasNextPage: false });
+      fetchPRs(query, null, false);
+    },
+    [fetchPRs],
+  );
 
   const refresh = useCallback(() => {
     if (searchQuery) {
-        fetchPRs(searchQuery, null, false);
+      fetchPRs(searchQuery, null, false);
     }
   }, [searchQuery, fetchPRs]);
 
   const loadNextPage = useCallback(() => {
-    if (!isLoading && !isFetchingNextPage && pageInfo.hasNextPage && pageInfo.endCursor && searchQuery) {
+    if (
+      !isLoading &&
+      !isFetchingNextPage &&
+      pageInfo.hasNextPage &&
+      pageInfo.endCursor &&
+      searchQuery
+    ) {
       fetchPRs(searchQuery, pageInfo.endCursor, true);
     }
   }, [isLoading, isFetchingNextPage, pageInfo, searchQuery, fetchPRs]);
 
-  const optimisticUpdate = useCallback((prId: string, changes: Partial<PullRequest>) => {
-    setPrMap((prev) => {
-      // O(1) Lookup by ID
-      if (!prev.has(prId)) return prev;
+  const optimisticUpdate = useCallback(
+    (prId: string, changes: Partial<PullRequest>) => {
+      setPrMap((prev) => {
+        // O(1) Lookup by ID
+        if (!prev.has(prId)) return prev;
 
-      const next = new Map(prev);
-      const current = next.get(prId)!;
-      next.set(prId, { ...current, ...changes });
+        const next = new Map(prev);
+        const current = next.get(prId)!;
+        next.set(prId, { ...current, ...changes });
 
-      return next;
-    });
-  }, []);
+        return next;
+      });
+    },
+    [],
+  );
 
   const removePR = useCallback((prId: string) => {
     setPrMap((prev) => {
-        if (!prev.has(prId)) return prev;
-        const next = new Map(prev);
-        next.delete(prId);
-        return next;
+      if (!prev.has(prId)) return prev;
+      const next = new Map(prev);
+      next.delete(prId);
+      return next;
     });
   }, []);
 
@@ -134,8 +152,6 @@ export function PRProvider({ children }: PRProviderProps) {
   };
 
   return (
-    <PRContext.Provider value={contextValue}>
-      {children}
-    </PRContext.Provider>
+    <PRContext.Provider value={contextValue}>{children}</PRContext.Provider>
   );
 }
