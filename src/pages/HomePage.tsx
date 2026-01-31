@@ -19,7 +19,7 @@ function AuthenticatedDashboard() {
       `user:${viewer.login}`,
     ];
 
-    const scopeQuery = scopeParts.join(' OR ');
+    const scopeQuery = scopeParts.join(' or ');
 
     // If scope is empty (weird), fallback to involves:@me?
     const finalScope = scopeQuery
