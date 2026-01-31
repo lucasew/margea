@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Eye, Edit, GitHub } from 'react-feather';
 import { ThemeToggle } from './ThemeToggle';
 import { Logo } from './Logo';
+import { RateLimitIndicator } from './RateLimitIndicator';
 
 interface HeaderProps {
   onLogout: () => void;
@@ -33,6 +34,7 @@ export function Header({
             <span className="font-bold text-lg">Margea</span>
           </Link>
           <div className="flex items-center gap-3">
+            <RateLimitIndicator />
             <ThemeToggle />
             <a
               href="https://github.com/lucasew/margea"

@@ -6,6 +6,7 @@ import {
   FetchFunction,
 } from 'relay-runtime';
 import { AuthService } from '../services/auth';
+import { rateLimitStore } from '../services/rateLimitStore';
 
 const GITHUB_GRAPHQL_URL = 'https://api.github.com/graphql';
 
@@ -46,9 +47,12 @@ const fetchQuery: FetchFunction = async (operation, variables) => {
   const json = await response.json();
 
   // Check for rate limit info
-  if (response.headers.get('X-RateLimit-Remaining')) {
-    const remaining = response.headers.get('X-RateLimit-Remaining');
-    const reset = response.headers.get('X-RateLimit-Reset');
+  const limit = response.headers.get('X-RateLimit-Limit');
+  const remaining = response.headers.get('X-RateLimit-Remaining');
+  const reset = response.headers.get('X-RateLimit-Reset');
+
+  if (remaining && reset) {
+    rateLimitStore.update(limit, remaining, reset);
     console.log(
       `GitHub API Rate Limit: ${remaining} remaining, resets at ${reset}`,
     );

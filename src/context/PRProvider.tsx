@@ -68,6 +68,10 @@ export function PRProvider({ children }: PRProviderProps) {
             .map((edge) => transformPR(edge?.node))
             .filter((pr): pr is PullRequest => pr !== null);
 
+          if (newPRs.length === 0) {
+            console.warn(`Search returned 0 PRs. Query: "${query}"`, data);
+          }
+
           updatePRs(newPRs, isNextPage);
 
           setPageInfo({
@@ -75,7 +79,7 @@ export function PRProvider({ children }: PRProviderProps) {
             endCursor: data.search.pageInfo?.endCursor ?? null,
           });
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Error fetching PRs:', err);
         // Capture error for display
         setError(
