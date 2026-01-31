@@ -24,7 +24,7 @@ jobs:
         uses: jdx/mise-action@v2
 
       - name: Install dependencies
-        run: mise run install
+        run: mise run install-ci
 
       - name: Codegen
         run: mise run codegen
