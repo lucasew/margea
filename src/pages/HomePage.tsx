@@ -1,107 +1,119 @@
-import { LogIn } from 'react-feather';
+import { Suspense, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Header } from '../components/Header';
-import { Footer } from '../components/Footer';
-import { SearchForm } from '../components/SearchForm';
+import { LogIn } from 'react-feather';
+import { useViewer } from '../hooks/useViewer';
 import { useMainLayoutContext } from '../hooks/useMainLayoutContext';
+import { usePRContext } from '../context/PRContext';
+import { PRList } from '../components/PRList';
+
+function AuthenticatedDashboard() {
+  const { viewer, organizations } = useViewer();
+  const { setSearchQuery, searchQuery } = usePRContext();
+
+  useEffect(() => {
+    // Construct the global query
+    // is:pr state:open (org:A OR org:B OR user:login)
+    // Note: 'user:login' finds repos owned by user.
+    // 'author:@me' finds PRs created by me (which might be in other repos).
+    // The requirement is "list all PRs that he can look and merge".
+    // Usually this means PRs in Repositories I have access to.
+    // 'is:pr state:open' + org filters is best.
+
+    // If no orgs, maybe just 'is:pr state:open user:me'?
+    // But 'is:pr state:open' without scope searches all GitHub public?
+    // We should be careful.
+    // If user has no orgs, maybe they just work on their own repos.
+
+    // Combine with OR logic if possible, or just space separated (implicit AND usually, but specific qualifiers might behave differently).
+    // GitHub Search: "org:github org:atom" finds issues in EITHER org. (Implicit OR for same qualifier type? No, usually AND).
+    // Actually, GitHub docs say: "Qualifiers are ANDed by default".
+    // "org:github org:atom" -> Find issues that are in BOTH orgs (Impossible).
+    // So we MUST use "org:github OR org:atom".
+
+    const scopeParts = [
+      ...organizations.map(org => `org:${org.login}`),
+      `user:${viewer.login}`
+    ];
+
+    const scopeQuery = scopeParts.join(' OR ');
+
+    // If scope is empty (weird), fallback to involves:@me?
+    const finalScope = scopeQuery ? `(${scopeQuery})` : `involves:${viewer.login}`;
+
+    const query = `is:pr state:open ${finalScope}`;
+
+    // Only update if different
+    if (query !== searchQuery) {
+      setSearchQuery(query);
+    }
+  }, [viewer.login, organizations, setSearchQuery, searchQuery]);
+
+  // If query not set yet, show loading
+  if (!searchQuery) {
+     return <div className="loading loading-spinner" />;
+  }
+
+  return <PRList />;
+}
 
 export function HomePage() {
   const {
-    onLogout,
-    onLogin,
-    onChangePermissions,
     isAuthenticated,
-    currentMode,
+    onLogin,
   } = useMainLayoutContext();
   const { t } = useTranslation();
 
-  return (
-    <div className="min-h-screen flex flex-col bg-base-100">
-      <Header
-        onLogout={onLogout}
-        onLogin={onLogin}
-        onChangePermissions={onChangePermissions}
-        isAuthenticated={isAuthenticated}
-        currentMode={currentMode}
-      />
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-base-100 p-4">
+        <div className="text-center max-w-2xl">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6">
+            {t('homepage.title')}
+          </h1>
+          <p className="text-lg md:text-xl text-base-content/70 mb-8">
+            {t('homepage.subtitle')}
+          </p>
 
-      <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16">
-        <div className="max-w-2xl mx-auto">
-          {/* Hero Section */}
-          <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-6xl font-bold mb-4">
-              {t('homepage.title')}
-            </h1>
-            <p className="text-lg md:text-xl text-base-content/70 max-w-2xl mx-auto">
-              {t('homepage.subtitle')}
-            </p>
-          </div>
-
-          {/* Login prompt if not authenticated */}
-          {!isAuthenticated && (
-            <div className="alert alert-info mb-8">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                className="stroke-current shrink-0 w-6 h-6"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                ></path>
-              </svg>
-              <div className="flex-1">
-                <span>{t('homepage.login_prompt')}</span>
-              </div>
-              <button
-                onClick={onLogin}
-                className="btn btn-sm btn-primary gap-2"
-              >
-                <LogIn size={16} />
-                {t('header.login')}
-              </button>
-            </div>
-          )}
-
-          {/* Search Form */}
-          <div className="card bg-base-200 shadow-xl">
-            <div className="card-body">
-              <h2 className="card-title text-2xl mb-4">{t('search.title')}</h2>
-              <SearchForm isAuthenticated={isAuthenticated} />
+          <div className="alert alert-info mb-8 shadow-lg">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              className="stroke-current shrink-0 w-6 h-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              ></path>
+            </svg>
+            <div className="flex-1 text-left">
+              <span>{t('homepage.login_prompt')}</span>
             </div>
           </div>
 
-          {/* Info Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
-            <div className="card bg-base-200">
-              <div className="card-body">
-                <h3 className="font-semibold mb-2">
-                  {t('homepage.intelligent_grouping')}
-                </h3>
-                <p className="text-sm text-base-content/70">
-                  {t('homepage.intelligent_grouping_description')}
-                </p>
-              </div>
-            </div>
-
-            <div className="card bg-base-200">
-              <div className="card-body">
-                <h3 className="font-semibold mb-2">
-                  {t('homepage.easy_export')}
-                </h3>
-                <p className="text-sm text-base-content/70">
-                  {t('homepage.easy_export_description')}
-                </p>
-              </div>
-            </div>
-          </div>
+          <button
+            onClick={onLogin}
+            className="btn btn-primary btn-lg gap-2 shadow-xl"
+          >
+            <LogIn size={20} />
+            {t('header.login')}
+          </button>
         </div>
-      </main>
+      </div>
+    );
+  }
 
-      <Footer />
+  return (
+    <div className="min-h-screen bg-base-100">
+      <Suspense fallback={
+        <div className="flex items-center justify-center min-h-[50vh]">
+          <span className="loading loading-spinner loading-lg"></span>
+        </div>
+      }>
+        <AuthenticatedDashboard />
+      </Suspense>
     </div>
   );
 }
