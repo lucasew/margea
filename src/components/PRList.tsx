@@ -1,6 +1,6 @@
 import { Suspense, useState, useEffect, useRef } from 'react';
 import { useSearchParams, useLocation, useNavigate } from 'react-router-dom';
-import { RefreshCw, AlertTriangle } from 'react-feather';
+import { RefreshCw, AlertTriangle, AlertCircle } from 'react-feather';
 import {
   ErrorBoundary as ReactErrorBoundary,
   FallbackProps,
@@ -28,6 +28,7 @@ function PRListContent() {
     isFetchingNextPage,
     refresh,
     isLoading,
+    error,
   } = usePRContext();
 
   const groupKey = searchParams.get(URL_SEARCH_PARAMS.GROUP);
@@ -197,6 +198,16 @@ function PRListContent() {
           updateFilter={updateFilter}
         />
 
+        {error && (
+          <div role="alert" className="alert alert-error mb-6 shadow-lg">
+            <AlertCircle />
+            <div>
+              <h3 className="font-bold">Error loading PRs</h3>
+              <div className="text-xs">{error.message}</div>
+            </div>
+          </div>
+        )}
+
         {/* Groups */}
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-2xl font-bold flex items-center gap-3">
@@ -208,7 +219,7 @@ function PRListContent() {
           )}
         </div>
 
-        {groups.length === 0 && !isLoading ? (
+        {groups.length === 0 && !isLoading && !error ? (
           <div role="alert" className="alert alert-info shadow-lg">
             <InfoIcon />
             <span>Nenhum PR encontrado com os filtros aplicados.</span>
@@ -236,9 +247,14 @@ function PRListContent() {
               <span className="text-sm opacity-50">Carregando mais...</span>
             </div>
           )}
-          {!pageInfo.hasNextPage && groups.length > 0 && !isLoading && (
-            <span className="text-sm opacity-50">Isso é tudo, pessoal! 🐰</span>
-          )}
+          {!pageInfo.hasNextPage &&
+            groups.length > 0 &&
+            !isLoading &&
+            !error && (
+              <span className="text-sm opacity-50">
+                Isso é tudo, pessoal! 🐰
+              </span>
+            )}
         </div>
       </div>
     </div>

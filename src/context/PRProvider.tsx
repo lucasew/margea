@@ -26,6 +26,7 @@ export function PRProvider({ children }: PRProviderProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
   const [searchQuery, setSearchQueryState] = useState('');
+  const [error, setError] = useState<Error | null>(null);
 
   const updatePRs = useCallback((newPRs: PullRequest[], append: boolean) => {
     setPrMap((prev) => {
@@ -49,6 +50,7 @@ export function PRProvider({ children }: PRProviderProps) {
       } else {
         setIsLoading(true);
       }
+      setError(null);
 
       try {
         const data = await fetchQuery<SearchPRsQueryType>(
@@ -73,8 +75,12 @@ export function PRProvider({ children }: PRProviderProps) {
             endCursor: data.search.pageInfo?.endCursor ?? null,
           });
         }
-      } catch (error) {
-        console.error('Error fetching PRs:', error);
+      } catch (err: any) {
+        console.error('Error fetching PRs:', err);
+        // Capture error for display
+        setError(
+          err instanceof Error ? err : new Error('Unknown error occurred'),
+        );
       } finally {
         if (isNextPage) {
           setIsFetchingNextPage(false);
@@ -149,6 +155,7 @@ export function PRProvider({ children }: PRProviderProps) {
     refresh,
     optimisticUpdate,
     removePR,
+    error,
   };
 
   return (

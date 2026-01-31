@@ -93,6 +93,7 @@ export interface PRContextState {
   isLoading: boolean;
   isFetchingNextPage: boolean;
   searchQuery: string;
+  error: Error | null;
 }
 
 export interface PRContextType extends PRContextState {
