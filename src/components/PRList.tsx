@@ -1,43 +1,35 @@
-import { Suspense, useState, useEffect, useCallback } from 'react';
+import { Suspense, useState, useEffect, useRef } from 'react';
 import { useSearchParams, useLocation, useNavigate } from 'react-router-dom';
-import { useLazyLoadQuery, fetchQuery } from 'react-relay';
-import { RefreshCw, AlertTriangle } from 'react-feather';
+import { RefreshCw, AlertTriangle, AlertCircle } from 'react-feather';
 import {
   ErrorBoundary as ReactErrorBoundary,
   FallbackProps,
 } from 'react-error-boundary';
-import { relayEnvironment } from '../relay/environment';
-import { SearchPRsQuery } from '../queries/SearchPRsQuery';
-import { SearchPRsQuery as SearchPRsQueryType } from '../queries/__generated__/SearchPRsQuery.graphql';
-import {
-  groupPullRequests,
-  filterPullRequests,
-  calculateStats,
-} from '../services/prGrouping';
-import { transformPR } from '../services/prTransformer';
+import { filterPullRequests, calculateStats } from '../services/prGrouping';
 import { PRGroupCard } from './PRGroupCard';
 import { PRGroupDetail } from './PRGroupDetail';
 import { InfoIcon } from './icons/InfoIcon';
-import { PRGroup, PullRequest } from '../types';
-import {
-  PRState,
-  DEFAULT_PR_TARGET,
-  MAX_PR_TARGET,
-  BATCH_SIZE,
-  URL_SEARCH_PARAMS,
-} from '../constants';
+import { PRGroup } from '../types';
+import { PRState, URL_SEARCH_PARAMS } from '../constants';
 import { PRListStats } from './PRListStats';
 import { PRListFilters } from './PRListFilters';
+import { usePRContext } from '../context/PRContext';
+import { useStablePRGroups } from '../hooks/useStablePRGroups';
 
-interface PRListContentProps {
-  searchQuery: string;
-  onRefresh: () => void;
-}
-
-function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
+function PRListContent() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
+
+  const {
+    prMap,
+    loadNextPage,
+    pageInfo,
+    isFetchingNextPage,
+    refresh,
+    isLoading,
+    error,
+  } = usePRContext();
 
   const groupKey = searchParams.get(URL_SEARCH_PARAMS.GROUP);
 
@@ -47,15 +39,6 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
     'ALL') as PRState;
   const filterAuthor = searchParams.get(URL_SEARCH_PARAMS.AUTHOR) || '';
   const filterOwner = searchParams.get(URL_SEARCH_PARAMS.OWNER) || '';
-
-  // State for PR target/goal, synced with URL param
-  const [prTarget, setPrTarget] = useState(() => {
-    const limit = parseInt(
-      searchParams.get(URL_SEARCH_PARAMS.LIMIT) || DEFAULT_PR_TARGET.toString(),
-      10,
-    );
-    return limit > 0 && limit <= MAX_PR_TARGET ? limit : DEFAULT_PR_TARGET;
-  });
 
   // Persist filters in sessionStorage
   const [isRestored, setIsRestored] = useState(false);
@@ -85,6 +68,7 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
       }
     }
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsRestored(true);
   }, [location.pathname, isRestored, searchParams, setSearchParams]);
 
@@ -94,22 +78,6 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
     const storageKey = `margea_filters_${location.pathname}`;
     sessionStorage.setItem(storageKey, searchParams.toString());
   }, [searchParams, location.pathname, isRestored]);
-
-  useEffect(() => {
-    const limit = parseInt(
-      searchParams.get(URL_SEARCH_PARAMS.LIMIT) || DEFAULT_PR_TARGET.toString(),
-      10,
-    );
-    const validLimit =
-      limit > 0 && limit <= MAX_PR_TARGET ? limit : DEFAULT_PR_TARGET;
-    setPrTarget(validLimit);
-  }, [searchParams]);
-
-  // States for pagination
-  const [additionalPRs, setAdditionalPRs] = useState<PullRequest[]>([]);
-  const [endCursor, setEndCursor] = useState<string | null>(null);
-  const [hasNextPage, setHasNextPage] = useState(false);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   // Helper to update filters in URL
   const updateFilter = (key: string, value: string) => {
@@ -126,55 +94,34 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
     setSearchParams(newParams);
   };
 
-  const handleLimitChange = (value: string) => {
-    const newParams = new URLSearchParams(searchParams);
-    newParams.set(URL_SEARCH_PARAMS.LIMIT, value);
-    setSearchParams(newParams, { replace: true });
-  };
+  const allPRs = Array.from(prMap.values());
 
-  const data = useLazyLoadQuery<SearchPRsQueryType>(SearchPRsQuery, {
-    searchQuery,
-    first: Math.min(BATCH_SIZE, prTarget),
-  });
-
-  // Update pagination info from initial query and trigger auto-fetch
-  useEffect(() => {
-    setHasNextPage(data.search.pageInfo?.hasNextPage ?? false);
-    setEndCursor(data.search.pageInfo?.endCursor ?? null);
-    // Reset additional PRs when query changes
-    setAdditionalPRs([]);
-    setIsLoadingMore(false);
-  }, [data]);
-
-  // Transform Relay data to our PullRequest type
-  const initialPRs: PullRequest[] = (data.search.edges || [])
-    .map((edge) => transformPR(edge?.node))
-    .filter((pr): pr is PullRequest => pr !== null);
-
-  // Combine initial PRs with additional PRs from pagination
-  const prs: PullRequest[] = [...initialPRs, ...additionalPRs];
-
-  const filteredPrs = filterPullRequests(prs, {
+  const filteredPrs = filterPullRequests(allPRs, {
     repository: filterRepo,
     state: filterState,
     author: filterAuthor,
     owner: filterOwner,
   });
 
-  const groups = groupPullRequests(filteredPrs);
+  // Calculate stats from the filtered set
   const stats = calculateStats(filteredPrs);
+
+  // Use stable grouping
+  // Construct a filter hash to reset stability if filters change
+  const filterHash = `${filterRepo}|${filterState}|${filterAuthor}|${filterOwner}`;
+  const groups = useStablePRGroups(filteredPrs, filterHash);
 
   // Extract unique values for dropdowns from ALL PRs (not filtered)
   const uniqueRepos = Array.from(
     new Set(
-      prs.map((pr) => `${pr.repository.owner.login}/${pr.repository.name}`),
+      allPRs.map((pr) => `${pr.repository.owner.login}/${pr.repository.name}`),
     ),
   ).sort();
   const uniqueOwners = Array.from(
-    new Set(prs.map((pr) => pr.repository.owner.login)),
+    new Set(allPRs.map((pr) => pr.repository.owner.login)),
   ).sort();
   const uniqueAuthors = Array.from(
-    new Set(prs.map((pr) => pr.author?.login).filter(Boolean) as string[]),
+    new Set(allPRs.map((pr) => pr.author?.login).filter(Boolean) as string[]),
   ).sort();
 
   const handleExportJSON = () => {
@@ -196,72 +143,36 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
     navigate(-1);
   };
 
-  const fetchMorePRs = useCallback(async () => {
-    if (!hasNextPage || !endCursor || isLoadingMore) return;
+  // Infinite Scroll Sentinel
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
-    const currentTotal = initialPRs.length + additionalPRs.length;
-    if (currentTotal >= prTarget) return; // Already reached target
-
-    setIsLoadingMore(true);
-    try {
-      const remainingToFetch = prTarget - currentTotal;
-      const batchSize = Math.min(BATCH_SIZE, remainingToFetch);
-
-      const result = await fetchQuery<SearchPRsQueryType>(
-        relayEnvironment,
-        SearchPRsQuery,
-        {
-          searchQuery,
-          first: batchSize,
-          after: endCursor,
-        },
-      ).toPromise();
-
-      if (result?.search) {
-        // Transform new PRs
-        const newPRs: PullRequest[] = (result.search.edges || [])
-          .map((edge) => transformPR(edge?.node))
-          .filter((pr): pr is PullRequest => pr !== null);
-
-        setAdditionalPRs((prev) => [...prev, ...newPRs]);
-        setHasNextPage(result.search.pageInfo?.hasNextPage ?? false);
-        setEndCursor(result.search.pageInfo?.endCursor ?? null);
-      }
-    } catch (error) {
-      console.error('Error loading more PRs:', error);
-    } finally {
-      setIsLoadingMore(false);
-    }
-  }, [
-    hasNextPage,
-    endCursor,
-    isLoadingMore,
-    initialPRs.length,
-    additionalPRs.length,
-    prTarget,
-    searchQuery,
-  ]);
-
-  // Auto-fetch to reach target
   useEffect(() => {
-    const currentTotal = initialPRs.length + additionalPRs.length;
-    const shouldFetchMore =
-      hasNextPage && currentTotal < prTarget && !isLoadingMore;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (
+          entries[0].isIntersecting &&
+          pageInfo.hasNextPage &&
+          !isFetchingNextPage &&
+          !isLoading
+        ) {
+          loadNextPage();
+        }
+      },
+      { rootMargin: '400px' }, // Load well before reaching bottom
+    );
 
-    if (shouldFetchMore) {
-      fetchMorePRs();
+    if (sentinelRef.current) {
+      observer.observe(sentinelRef.current);
     }
-  }, [
-    initialPRs.length,
-    additionalPRs.length,
-    hasNextPage,
-    prTarget,
-    isLoadingMore,
-    fetchMorePRs,
-  ]);
+
+    return () => observer.disconnect();
+  }, [pageInfo.hasNextPage, isFetchingNextPage, isLoading, loadNextPage]);
 
   // Show group detail if a group is selected via query param
   if (groupKey) {
+    // Note: We search in current groups. If filters exclude the group, it might be missing.
+    // We could fallback to searching allPRs to rebuild the group if needed,
+    // but usually user navigates from list to detail.
     const selectedGroup = groups.find((g) => g.key === groupKey);
     if (selectedGroup) {
       return (
@@ -282,79 +193,72 @@ function PRListContent({ searchQuery, onRefresh }: PRListContentProps) {
           uniqueRepos={uniqueRepos}
           uniqueOwners={uniqueOwners}
           uniqueAuthors={uniqueAuthors}
-          prTarget={prTarget}
-          onRefresh={onRefresh}
+          onRefresh={refresh}
           onExportJSON={handleExportJSON}
           updateFilter={updateFilter}
-          handleLimitChange={handleLimitChange}
         />
 
+        {error && (
+          <div role="alert" className="alert alert-error mb-6 shadow-lg">
+            <AlertCircle />
+            <div>
+              <h3 className="font-bold">Error loading PRs</h3>
+              <div className="text-xs">{error.message}</div>
+            </div>
+          </div>
+        )}
+
         {/* Groups */}
-        <div className="mb-6">
+        <div className="mb-6 flex items-center justify-between">
           <h2 className="text-2xl font-bold flex items-center gap-3">
             Grupos de PRs
             <div className="badge badge-lg badge-neutral">{groups.length}</div>
           </h2>
+          {isLoading && !isFetchingNextPage && (
+            <span className="loading loading-spinner loading-md"></span>
+          )}
         </div>
 
-        {groups.length === 0 ? (
+        {groups.length === 0 && !isLoading && !error ? (
           <div role="alert" className="alert alert-info shadow-lg">
             <InfoIcon />
             <span>Nenhum PR encontrado com os filtros aplicados.</span>
           </div>
         ) : (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {groups.map((group) => (
-                <PRGroupCard
-                  key={group.key}
-                  group={group}
-                  onExpand={handleSelectGroup}
-                />
-              ))}
-            </div>
-
-            {/* Loading progress indicator */}
-            {isLoadingMore && (
-              <div className="mt-8 flex flex-col items-center gap-4">
-                <div className="flex items-center gap-3">
-                  <span className="loading loading-spinner loading-md text-primary"></span>
-                  <span className="text-lg">
-                    Carregando PRs... {prs.length} de {prTarget}
-                  </span>
-                </div>
-                <progress
-                  className="progress progress-primary w-64"
-                  value={prs.length}
-                  max={prTarget}
-                ></progress>
-              </div>
-            )}
-
-            {/* Info when target reached or no more PRs */}
-            {!isLoadingMore &&
-              prs.length > 0 &&
-              prs.length < prTarget &&
-              !hasNextPage && (
-                <div className="mt-8 flex justify-center">
-                  <div className="alert alert-info max-w-md">
-                    <InfoIcon />
-                    <span>
-                      Carregados {prs.length} PRs (meta: {prTarget}). Não há
-                      mais PRs disponíveis.
-                    </span>
-                  </div>
-                </div>
-              )}
-          </>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {groups.map((group) => (
+              <PRGroupCard
+                key={group.key}
+                group={group}
+                onExpand={handleSelectGroup}
+              />
+            ))}
+          </div>
         )}
+
+        {/* Sentinel & Loader for Infinite Scroll */}
+        <div
+          ref={sentinelRef}
+          className="h-20 w-full flex items-center justify-center mt-8"
+        >
+          {(isFetchingNextPage || (isLoading && groups.length > 0)) && (
+            <div className="flex flex-col items-center gap-2">
+              <span className="loading loading-spinner loading-lg text-primary"></span>
+              <span className="text-sm opacity-50">Carregando mais...</span>
+            </div>
+          )}
+          {!pageInfo.hasNextPage &&
+            groups.length > 0 &&
+            !isLoading &&
+            !error && (
+              <span className="text-sm opacity-50">
+                Isso é tudo, pessoal! 🐰
+              </span>
+            )}
+        </div>
       </div>
     </div>
   );
-}
-
-interface PRListProps {
-  searchQuery: string;
 }
 
 function PRListErrorFallback({
@@ -369,31 +273,16 @@ function PRListErrorFallback({
           <AlertTriangle size={64} className="text-error mb-4" />
           <h2 className="card-title text-2xl mb-2">Erro ao carregar PRs</h2>
           <p className="text-base-content/70 mb-4">
-            Não foi possível carregar os Pull Requests do GitHub.
+            Não foi possível carregar os Pull Requests.
           </p>
 
           {error && (
             <div className="alert alert-error w-full mb-4">
-              <div className="flex flex-col items-start gap-2 w-full">
-                <span className="font-semibold">Detalhes:</span>
-                <code className="text-sm bg-base-200 p-2 rounded w-full text-left overflow-x-auto">
-                  {error.message}
-                </code>
-              </div>
+              <code className="text-sm bg-base-200 p-2 rounded w-full text-left overflow-x-auto">
+                {error.message}
+              </code>
             </div>
           )}
-
-          <div className="alert alert-info w-full mb-4">
-            <div className="flex flex-col items-start gap-2 w-full text-left">
-              <span className="font-semibold">Possíveis causas:</span>
-              <ul className="text-sm list-disc list-inside">
-                <li>Token de autenticação inválido ou expirado</li>
-                <li>Limite de requisições da API do GitHub excedido</li>
-                <li>Problemas de conectividade com a internet</li>
-                <li>Parâmetros de busca inválidos</li>
-              </ul>
-            </div>
-          </div>
 
           <div className="card-actions">
             <button
@@ -413,12 +302,8 @@ function PRListErrorFallback({
   );
 }
 
-export function PRList({ searchQuery }: PRListProps) {
-  const [key, setKey] = useState(0);
-
-  const handleRefresh = () => {
-    setKey((prev) => prev + 1);
-  };
+export function PRList() {
+  const { refresh } = usePRContext();
 
   const logError = (error: Error, info: { componentStack?: string | null }) => {
     console.error('PR List error:', error, info);
@@ -427,12 +312,9 @@ export function PRList({ searchQuery }: PRListProps) {
   return (
     <ReactErrorBoundary
       FallbackComponent={(props) => (
-        <PRListErrorFallback {...props} onRetry={handleRefresh} />
+        <PRListErrorFallback {...props} onRetry={refresh} />
       )}
       onError={logError}
-      onReset={() => {
-        // Optional: any cleanup or state reset needed when boundary resets
-      }}
     >
       <Suspense
         fallback={
@@ -444,11 +326,7 @@ export function PRList({ searchQuery }: PRListProps) {
           </div>
         }
       >
-        <PRListContent
-          key={key}
-          searchQuery={searchQuery}
-          onRefresh={handleRefresh}
-        />
+        <PRListContent />
       </Suspense>
     </ReactErrorBoundary>
   );

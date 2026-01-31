@@ -83,3 +83,23 @@ export interface MainLayoutContextType {
   isAuthenticated: boolean;
   currentMode: 'read' | 'write' | null;
 }
+
+export interface PRContextState {
+  prMap: Map<string, PullRequest>;
+  pageInfo: {
+    endCursor: string | null;
+    hasNextPage: boolean;
+  };
+  isLoading: boolean;
+  isFetchingNextPage: boolean;
+  searchQuery: string;
+  error: Error | null;
+}
+
+export interface PRContextType extends PRContextState {
+  setSearchQuery: (query: string) => void;
+  loadNextPage: () => void;
+  refresh: () => void;
+  optimisticUpdate: (prId: string, changes: Partial<PullRequest>) => void;
+  removePR: (prId: string) => void;
+}

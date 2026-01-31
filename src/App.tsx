@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { RelayEnvironmentProvider } from 'react-relay';
 import { relayEnvironment } from './relay/environment';
 import { AuthService } from './services/auth';
 import { LoginPage } from './components/LoginPage';
 import { HomePage } from './pages/HomePage';
-import { RepositoryPage } from './pages/RepositoryPage';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { BulkActionProvider } from './context/BulkActionProvider';
+import { PRProvider } from './context/PRProvider';
 import { BulkActionToast } from './components/BulkActionToast';
 import { GlobalBulkActionModal } from './components/GlobalBulkActionModal';
 import { MainLayout } from './components/MainLayout';
@@ -79,18 +79,27 @@ function App() {
     <ErrorBoundary>
       <RelayEnvironmentProvider environment={relayEnvironment}>
         <BulkActionProvider>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<MainLayout {...mainLayoutProps} />}>
-                <Route index element={<HomePage />} />
-                <Route path="/orgs" element={<RepositoryPage />} />
-                <Route path="/org/:owner" element={<RepositoryPage />} />
-                <Route path="/:owner/:repo" element={<RepositoryPage />} />
-              </Route>
-            </Routes>
-            <BulkActionToast />
-            <GlobalBulkActionModal />
-          </BrowserRouter>
+          <PRProvider>
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<MainLayout {...mainLayoutProps} />}>
+                  <Route index element={<HomePage />} />
+                  {/* Redirect old routes to home */}
+                  <Route path="/orgs" element={<Navigate to="/" replace />} />
+                  <Route
+                    path="/org/:owner"
+                    element={<Navigate to="/" replace />}
+                  />
+                  <Route
+                    path="/:owner/:repo"
+                    element={<Navigate to="/" replace />}
+                  />
+                </Route>
+              </Routes>
+              <BulkActionToast />
+              <GlobalBulkActionModal />
+            </BrowserRouter>
+          </PRProvider>
         </BulkActionProvider>
       </RelayEnvironmentProvider>
     </ErrorBoundary>

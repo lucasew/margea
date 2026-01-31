@@ -1,8 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { translations } from './utils/translations';
 
-test.describe('Unauthenticated Search Flow', () => {
-  const en = translations.en.search;
+test.describe('Unauthenticated Home Page', () => {
+  const en = translations.en;
 
   test.beforeEach(async ({ page, context }) => {
     // Clear localStorage to ensure unauthenticated state
@@ -12,57 +12,54 @@ test.describe('Unauthenticated Search Flow', () => {
     await page.reload();
   });
 
-  test('should display login required on search button', async ({ page }) => {
-    // Check for login required text on search button
-    const searchButton = page.locator(
-      `button:has-text("${en.login_required}")`,
-    );
-    await expect(searchButton).toBeVisible();
-    await expect(searchButton).toBeDisabled();
+  test('should display login prompt and buttons', async ({ page }) => {
+    // Check for login required prompt
+    await expect(
+      page.locator(`text=${en.homepage.login_prompt}`),
+    ).toBeVisible();
+
+    // Check for Hero Login button
+    const heroLoginButton = page.locator('button.btn-primary.btn-lg');
+    await expect(heroLoginButton).toBeVisible();
+    await expect(heroLoginButton).toHaveText(en.header.login);
+
+    // Check for Header Login button (filtering by text to avoid matching theme toggle if it uses same class)
+    const headerLoginButton = page
+      .locator('header button.btn-ghost')
+      .filter({ hasText: en.header.login });
+    await expect(headerLoginButton).toBeVisible();
   });
-
-  test('should allow filling search inputs but not searching', async ({
-    page,
-  }) => {
-    // Fill in owner
-    await page.fill('input[placeholder="ex: facebook"]', 'lucasew');
-    await expect(page.locator('input[placeholder="ex: facebook"]')).toHaveValue(
-      'lucasew',
-    );
-
-    // Fill in repo
-    await page.fill('input[placeholder="ex: react"]', 'margea');
-    await expect(page.locator('input[placeholder="ex: react"]')).toHaveValue(
-      'margea',
-    );
-
-    // Search button should be disabled
-    const searchButton = page.locator(
-      `button:has-text("${en.login_required}")`,
-    );
-    await expect(searchButton).toBeDisabled();
-  });
-
-  // Since unauthenticated users can't search, API calls won't be made.
-  // These tests are commented out as they're no longer valid in the current flow.
-  // test('should handle GitHub API calls without authentication', async ({ page }) => { ... });
-  // test('should display error message on API failure', async ({ page }) => { ... });
-  // test('should allow retry after error', async ({ page }) => { ... });
 
   test('should navigate to login page when clicking login button in header', async ({
     page,
   }) => {
     // Click login button in header
-    const loginButton = page.locator('header button:has-text("Login")');
+    const loginButton = page
+      .locator('header button.btn-ghost')
+      .filter({ hasText: en.header.login });
     await expect(loginButton).toBeVisible();
     await loginButton.click();
 
     // Should show login page
-    await expect(page.locator('h1:has-text("Margea")')).toBeVisible();
     await expect(
-      page.locator(
-        `h2:has-text("${translations.en.loginPage.chooseAccessLevel}")`,
-      ),
+      page.locator(`text=${en.loginPage.readOnly.title}`),
+    ).toBeVisible({ timeout: 5000 });
+    await expect(
+      page.locator(`text=${en.loginPage.readWrite.title}`),
+    ).toBeVisible();
+  });
+
+  test('should navigate to login page when clicking login button in hero', async ({
+    page,
+  }) => {
+    // Click login button in hero
+    const loginButton = page.locator('button.btn-primary.btn-lg');
+    await expect(loginButton).toBeVisible();
+    await loginButton.click();
+
+    // Should show login page
+    await expect(
+      page.locator(`text=${en.loginPage.readOnly.title}`),
     ).toBeVisible({ timeout: 5000 });
   });
 });

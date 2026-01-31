@@ -3,7 +3,6 @@ import { FilterDropdown } from './FilterDropdown';
 import {
   PR_STATES,
   PR_STATE_LABELS,
-  MAX_PR_TARGET,
   URL_SEARCH_PARAMS,
   PRState,
 } from '../constants';
@@ -16,11 +15,9 @@ interface PRListFiltersProps {
   uniqueRepos: string[];
   uniqueOwners: string[];
   uniqueAuthors: string[];
-  prTarget: number;
   onRefresh: () => void;
   onExportJSON: () => void;
   updateFilter: (key: string, value: string) => void;
-  handleLimitChange: (value: string) => void;
 }
 
 export function PRListFilters({
@@ -31,11 +28,9 @@ export function PRListFilters({
   uniqueRepos,
   uniqueOwners,
   uniqueAuthors,
-  prTarget,
   onRefresh,
   onExportJSON,
   updateFilter,
-  handleLimitChange,
 }: PRListFiltersProps) {
   return (
     <div className="card bg-base-100 shadow-lg mb-6">
@@ -92,33 +87,13 @@ export function PRListFilters({
           </div>
 
           {/* Ações - Linha 2 */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text font-semibold">Meta de PRs</span>
-              </label>
-              <input
-                type="number"
-                min="1"
-                max={MAX_PR_TARGET}
-                value={prTarget}
-                onChange={(e) => handleLimitChange(e.target.value)}
-                className="input input-bordered w-full"
-              />
-            </div>
-
-            <button
-              onClick={onRefresh}
-              className="btn btn-primary w-full self-end"
-            >
+          <div className="flex flex-row gap-4 justify-end">
+            <button onClick={onRefresh} className="btn btn-primary">
               <RefreshCw size={18} />
               Atualizar
             </button>
 
-            <button
-              onClick={onExportJSON}
-              className="btn btn-secondary w-full self-end"
-            >
+            <button onClick={onExportJSON} className="btn btn-secondary">
               <Download size={18} />
               Exportar JSON
             </button>
