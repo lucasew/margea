@@ -79,7 +79,7 @@ export function PRProvider({ children }: PRProviderProps) {
             endCursor: data.search.pageInfo?.endCursor ?? null,
           });
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Error fetching PRs:', err);
         // Capture error for display
         setError(

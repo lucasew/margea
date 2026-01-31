@@ -32,9 +32,13 @@ export function RateLimitIndicator() {
 
   // Calculate percentage (0 to 100)
   // Avoid division by zero
-  const percentage = state.limit > 0
-    ? Math.min(100, Math.max(0, Math.round((state.remaining / state.limit) * 100)))
-    : 0;
+  const percentage =
+    state.limit > 0
+      ? Math.min(
+          100,
+          Math.max(0, Math.round((state.remaining / state.limit) * 100)),
+        )
+      : 0;
 
   // Determine color based on percentage
   let colorClass = 'text-success';
@@ -51,11 +55,13 @@ export function RateLimitIndicator() {
       >
         <div
           className={`radial-progress ${colorClass}`}
-          style={{
-            '--value': percentage,
-            '--size': '2rem',
-            '--thickness': '3px'
-          } as any}
+          style={
+            {
+              '--value': percentage,
+              '--size': '2rem',
+              '--thickness': '3px',
+            } as React.CSSProperties
+          }
         >
           <span className="text-[10px] font-bold text-base-content opacity-70">
             {percentage}
