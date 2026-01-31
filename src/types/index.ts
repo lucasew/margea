@@ -100,5 +100,5 @@ export interface PRContextType extends PRContextState {
   loadNextPage: () => void;
   refresh: () => void;
   optimisticUpdate: (prId: string, changes: Partial<PullRequest>) => void;
-  removePR: (prUrl: string) => void;
+  removePR: (prId: string) => void;
 }
