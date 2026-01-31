@@ -9,9 +9,8 @@ export function useAuth() {
   useEffect(() => {
     const checkPermissions = async () => {
       setIsLoading(true);
-      const hasWrite = await AuthService.hasWritePermission();
       const permissions = await AuthService.getPermissions();
-      setHasWritePermission(hasWrite);
+      setHasWritePermission(permissions === 'write');
       setMode(permissions);
       setIsLoading(false);
     };

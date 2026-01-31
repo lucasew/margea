@@ -34,3 +34,10 @@
 **Root Cause:** Validation and logic were inline, mixing different levels of abstraction in a single function.
 **Solution:** Extracted `isValidPR` for validation and `getCIStatus` for CI status logic into helper functions.
 **Pattern:** Extract complex inline logic and validation checks into small, named helper functions to improve readability and separation of concerns.
+
+## 2026-01-31 - Optimize useAuth Hook to Reduce API Calls
+
+**Issue:** The `useAuth` hook was making two redundant API calls to check for permissions on mount (`hasWritePermission` and `getPermissions` both called `getAuthData`).
+**Root Cause:** The hook was calling `AuthService.hasWritePermission()` and `AuthService.getPermissions()` independently, unaware that the former wraps the latter and triggers a new fetch.
+**Solution:** I derived `hasWritePermission` state directly from the result of `AuthService.getPermissions()`, reducing the number of network requests from 2 to 1.
+**Pattern:** When dependent data can be derived from a single source of truth (or API call), avoid making parallel redundant calls.
