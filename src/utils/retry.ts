@@ -18,7 +18,6 @@ export async function executeWithRetry<T>(
 ): Promise<T> {
   let retryCount = 0;
 
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     const result = await operation();
 
