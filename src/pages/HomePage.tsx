@@ -22,9 +22,7 @@ function AuthenticatedDashboard() {
     const scopeQuery = scopeParts.join(' or ');
 
     // If scope is empty (weird), fallback to involves:@me?
-    const finalScope = scopeQuery
-      ? scopeQuery
-      : `involves:${viewer.login}`;
+    const finalScope = scopeQuery ? scopeQuery : `involves:${viewer.login}`;
 
     const query = `is:pr ${finalScope}`;
 
