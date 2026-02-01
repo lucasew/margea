@@ -2,6 +2,7 @@ import { commitMutation } from 'react-relay';
 import { relayEnvironment } from '../relay/environment';
 import { MergePullRequestMutation } from '../queries/MergePullRequestMutation';
 import { ClosePullRequestMutation } from '../queries/ClosePullRequestMutation';
+import { withRetry } from '../utils/retry';
 import type { PullRequest, BulkActionProgress } from '../types';
 import type { GraphQLTaggedNode } from 'relay-runtime';
 
@@ -115,62 +116,66 @@ export const BulkActionsService = {
 
     // Executar ações sequencialmente com retry e exponential backoff
     for (const pr of prs) {
-      let retryCount = 0;
-      const maxRetries = 5;
-      let success = false;
+      try {
+        await withRetry(
+          async () => {
+            // Atualizar status para processing (importante para retries)
+            progressMap.set(pr.id, {
+              ...progressMap.get(pr.id)!,
+              status: 'processing',
+              error: undefined,
+            });
+            onProgress(Array.from(progressMap.values()));
 
-      while (!success && retryCount <= maxRetries) {
-        // Atualizar status para processing
+            // Executar ação
+            const result = await performAction(pr.id);
+
+            if (!result.success) {
+              throw new Error(result.error || 'Unknown error');
+            }
+
+            return result;
+          },
+          {
+            maxRetries: 5,
+            baseDelay: 1000,
+            shouldRetry: (error: unknown) => {
+              const msg = (
+                error instanceof Error ? error.message : String(error)
+              ).toLowerCase();
+              return (
+                msg.includes('rate limit') ||
+                msg.includes('ratelimit') ||
+                msg.includes('too many requests') ||
+                msg.includes('429')
+              );
+            },
+            onRetry: (attempt, _error, delay) => {
+              progressMap.set(pr.id, {
+                ...progressMap.get(pr.id)!,
+                status: 'processing',
+                error: `Rate limit - tentativa ${attempt}/5 (aguardando ${
+                  delay / 1000
+                }s)`,
+              });
+              onProgress(Array.from(progressMap.values()));
+            },
+          },
+        );
+
         progressMap.set(pr.id, {
           ...progressMap.get(pr.id)!,
-          status: 'processing',
+          status: 'success',
         });
-        onProgress(Array.from(progressMap.values()));
-
-        // Executar ação
-        const result = await performAction(pr.id);
-
-        // Verificar se é erro de rate limit
-        const isRateLimitError =
-          result.error &&
-          (result.error.toLowerCase().includes('rate limit') ||
-            result.error.toLowerCase().includes('ratelimit') ||
-            result.error.toLowerCase().includes('too many requests') ||
-            result.error.includes('429'));
-
-        if (result.success) {
-          success = true;
-          progressMap.set(pr.id, {
-            ...progressMap.get(pr.id)!,
-            status: 'success',
-          });
-        } else if (isRateLimitError && retryCount < maxRetries) {
-          // Exponential backoff: 2s, 4s, 8s, 16s, 32s
-          const delayMs = Math.pow(2, retryCount + 1) * 1000;
-          retryCount++;
-
-          progressMap.set(pr.id, {
-            ...progressMap.get(pr.id)!,
-            status: 'processing',
-            error: `Rate limit - tentativa ${retryCount}/${maxRetries} (aguardando ${
-              delayMs / 1000
-            }s)`,
-          });
-          onProgress(Array.from(progressMap.values()));
-
-          await new Promise((resolve) => setTimeout(resolve, delayMs));
-        } else {
-          // Erro não relacionado a rate limit ou excedeu tentativas
-          success = true; // Para sair do loop
-          progressMap.set(pr.id, {
-            ...progressMap.get(pr.id)!,
-            status: 'error',
-            error: result.error,
-          });
-        }
-
-        onProgress(Array.from(progressMap.values()));
+      } catch (error: unknown) {
+        progressMap.set(pr.id, {
+          ...progressMap.get(pr.id)!,
+          status: 'error',
+          error: error instanceof Error ? error.message : String(error),
+        });
       }
+
+      onProgress(Array.from(progressMap.values()));
     }
   },
 };
