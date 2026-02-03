@@ -145,8 +145,14 @@ function PRListContent() {
 
   // Infinite Scroll Sentinel
   const sentinelRef = useRef<HTMLDivElement>(null);
+  // Disable auto-load if any filter is active
+  const hasActiveFilters = Boolean(
+    filterRepo || filterState !== 'ALL' || filterAuthor || filterOwner,
+  );
 
   useEffect(() => {
+    if (hasActiveFilters) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
         if (
@@ -166,7 +172,13 @@ function PRListContent() {
     }
 
     return () => observer.disconnect();
-  }, [pageInfo.hasNextPage, isFetchingNextPage, isLoading, loadNextPage]);
+  }, [
+    pageInfo.hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    loadNextPage,
+    hasActiveFilters,
+  ]);
 
   // Show group detail if a group is selected via query param
   if (groupKey) {
@@ -247,9 +259,12 @@ function PRListContent() {
               <span className="text-sm opacity-50">Carregando mais...</span>
             </div>
           ) : pageInfo.hasNextPage ? (
+            // Show button if manually loading (filters active) or auto-load fallback
             <button
               onClick={() => loadNextPage()}
-              className="btn btn-circle btn-outline btn-primary shadow-md hover:scale-110 transition-transform"
+              className={`btn btn-circle btn-outline btn-primary shadow-md hover:scale-110 transition-transform ${
+                !hasActiveFilters ? 'opacity-0 hover:opacity-100' : ''
+              }`}
               aria-label="Carregar mais"
               title="Carregar mais"
             >
