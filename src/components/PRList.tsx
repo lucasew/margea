@@ -1,6 +1,6 @@
 import { Suspense, useState, useEffect, useRef } from 'react';
 import { useSearchParams, useLocation, useNavigate } from 'react-router-dom';
-import { RefreshCw, AlertTriangle, AlertCircle } from 'react-feather';
+import { RefreshCw, AlertTriangle, AlertCircle, Plus } from 'react-feather';
 import {
   ErrorBoundary as ReactErrorBoundary,
   FallbackProps,
@@ -241,20 +241,29 @@ function PRListContent() {
           ref={sentinelRef}
           className="h-20 w-full flex items-center justify-center mt-8"
         >
-          {(isFetchingNextPage || (isLoading && groups.length > 0)) && (
+          {isFetchingNextPage || (isLoading && groups.length > 0) ? (
             <div className="flex flex-col items-center gap-2">
               <span className="loading loading-spinner loading-lg text-primary"></span>
               <span className="text-sm opacity-50">Carregando mais...</span>
             </div>
-          )}
-          {!pageInfo.hasNextPage &&
+          ) : pageInfo.hasNextPage ? (
+            <button
+              onClick={() => loadNextPage()}
+              className="btn btn-circle btn-outline btn-primary shadow-md hover:scale-110 transition-transform"
+              aria-label="Carregar mais"
+              title="Carregar mais"
+            >
+              <Plus size={24} />
+            </button>
+          ) : (
             groups.length > 0 &&
             !isLoading &&
             !error && (
               <span className="text-sm opacity-50">
                 Isso é tudo, pessoal! 🐰
               </span>
-            )}
+            )
+          )}
         </div>
       </div>
     </div>
