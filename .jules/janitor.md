@@ -34,3 +34,10 @@
 **Root Cause:** Validation and logic were inline, mixing different levels of abstraction in a single function.
 **Solution:** Extracted `isValidPR` for validation and `getCIStatus` for CI status logic into helper functions.
 **Pattern:** Extract complex inline logic and validation checks into small, named helper functions to improve readability and separation of concerns.
+
+## 2026-02-04 - Optimize Pull Request Filtering
+
+**Issue:** The `filterPullRequests` function in `src/services/prGrouping.ts` used chained `.filter()` calls, iterating over the array multiple times.
+**Root Cause:** The implementation applied each filter sequentially, creating intermediate arrays and performing redundant iterations.
+**Solution:** I refactored the function to use a single `.filter()` pass. Filter criteria are pre-calculated (lowercased) outside the loop, and the predicate checks all conditions in one go.
+**Pattern:** Combine multiple filter conditions into a single pass to avoid unnecessary array allocations and iterations, improving performance on large datasets.

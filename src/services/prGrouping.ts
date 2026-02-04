@@ -117,35 +117,39 @@ export function filterPullRequests(
     owner?: string;
   },
 ): PullRequest[] {
-  let filtered = [...prs];
+  const repositoryFilter = filters.repository?.toLowerCase();
+  const authorFilter = filters.author?.toLowerCase();
+  const ownerFilter = filters.owner?.toLowerCase();
+  const stateFilter = filters.state === 'ALL' ? undefined : filters.state;
 
-  if (filters.repository) {
-    filtered = filtered.filter((pr) =>
-      pr.repository.nameWithOwner
-        .toLowerCase()
-        .includes(filters.repository!.toLowerCase()),
-    );
-  }
+  return prs.filter((pr) => {
+    if (
+      repositoryFilter &&
+      !pr.repository.nameWithOwner.toLowerCase().includes(repositoryFilter)
+    ) {
+      return false;
+    }
 
-  if (filters.state && filters.state !== 'ALL') {
-    filtered = filtered.filter((pr) => pr.state === filters.state);
-  }
+    if (stateFilter && pr.state !== stateFilter) {
+      return false;
+    }
 
-  if (filters.author) {
-    filtered = filtered.filter((pr) =>
-      pr.author?.login.toLowerCase().includes(filters.author!.toLowerCase()),
-    );
-  }
+    if (
+      authorFilter &&
+      !pr.author?.login.toLowerCase().includes(authorFilter)
+    ) {
+      return false;
+    }
 
-  if (filters.owner) {
-    filtered = filtered.filter((pr) =>
-      pr.repository.owner.login
-        .toLowerCase()
-        .includes(filters.owner!.toLowerCase()),
-    );
-  }
+    if (
+      ownerFilter &&
+      !pr.repository.owner.login.toLowerCase().includes(ownerFilter)
+    ) {
+      return false;
+    }
 
-  return filtered;
+    return true;
+  });
 }
 
 /**

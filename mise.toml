@@ -7,6 +7,9 @@ run = "npm run dev"
 [tasks.install]
 run = "npm install && npx playwright install --with-deps"
 
+[tasks.install-ci]
+run = "npm ci && npx playwright install --with-deps"
+
 [tasks.codegen]
 run = "npm run relay"
 
