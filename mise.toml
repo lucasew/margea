@@ -32,4 +32,4 @@ run = "npx prettier --write ."
 run = "npx playwright test"
 
 [tasks.ci]
-depends = ["lint", "test"]
+depends = ["lint", "test", "build"]
