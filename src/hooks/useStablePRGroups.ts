@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { PullRequest, PRGroup } from '../types';
+import { PullRequest, PRGroup, GroupingStrategy } from '../types';
 import { groupPullRequests } from '../services/prGrouping';
 
 /**
@@ -15,13 +15,17 @@ import { groupPullRequests } from '../services/prGrouping';
 export function useStablePRGroups(
   prs: PullRequest[],
   filterKey: string,
+  groupingStrategy: GroupingStrategy = 'renovate',
 ): PRGroup[] {
   const [orderedKeys, setOrderedKeys] = useState<string[]>([]);
   const [prevFilterKey, setPrevFilterKey] = useState(filterKey);
 
   // Calculate fresh groups from PRs
   // This gives us the latest data for each group, sorted by count (default from service)
-  const freshGroups = useMemo(() => groupPullRequests(prs), [prs]);
+  const freshGroups = useMemo(
+    () => groupPullRequests(prs, groupingStrategy),
+    [prs, groupingStrategy],
+  );
 
   const freshGroupsMap = useMemo(() => {
     return new Map(freshGroups.map((g) => [g.key, g]));
