@@ -9,7 +9,7 @@ import { filterPullRequests, calculateStats } from '../services/prGrouping';
 import { PRGroupCard } from './PRGroupCard';
 import { PRGroupDetail } from './PRGroupDetail';
 import { InfoIcon } from './icons/InfoIcon';
-import { PRGroup } from '../types';
+import { PRGroup, GroupingStrategy } from '../types';
 import { PRState, URL_SEARCH_PARAMS } from '../constants';
 import { PRListStats } from './PRListStats';
 import { PRListFilters } from './PRListFilters';
@@ -39,6 +39,9 @@ function PRListContent() {
     'ALL') as PRState;
   const filterAuthor = searchParams.get(URL_SEARCH_PARAMS.AUTHOR) || '';
   const filterOwner = searchParams.get(URL_SEARCH_PARAMS.OWNER) || '';
+  const groupBy =
+    (searchParams.get(URL_SEARCH_PARAMS.GROUP_BY) as GroupingStrategy) ||
+    'renovate';
 
   // Persist filters in sessionStorage
   const [isRestored, setIsRestored] = useState(false);
@@ -108,8 +111,8 @@ function PRListContent() {
 
   // Use stable grouping
   // Construct a filter hash to reset stability if filters change
-  const filterHash = `${filterRepo}|${filterState}|${filterAuthor}|${filterOwner}`;
-  const groups = useStablePRGroups(filteredPrs, filterHash);
+  const filterHash = `${filterRepo}|${filterState}|${filterAuthor}|${filterOwner}|${groupBy}`;
+  const groups = useStablePRGroups(filteredPrs, filterHash, groupBy);
 
   // Extract unique values for dropdowns from ALL PRs (not filtered)
   const uniqueRepos = Array.from(
@@ -202,6 +205,7 @@ function PRListContent() {
           filterOwner={filterOwner}
           filterAuthor={filterAuthor}
           filterState={filterState}
+          groupBy={groupBy}
           uniqueRepos={uniqueRepos}
           uniqueOwners={uniqueOwners}
           uniqueAuthors={uniqueAuthors}

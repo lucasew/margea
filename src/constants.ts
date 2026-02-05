@@ -20,6 +20,13 @@ export const URL_SEARCH_PARAMS = {
   AUTHOR: 'author',
   OWNER: 'owner',
   LIMIT: 'limit',
+  GROUP_BY: 'group_by',
+} as const;
+
+export const GROUPING_STRATEGIES = {
+  renovate: 'Renovate',
+  repository: 'Repositório',
+  author: 'Autor',
 } as const;
 
 export const THEME_LIGHT = 'light';

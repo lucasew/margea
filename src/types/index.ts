@@ -1,3 +1,7 @@
+import { GROUPING_STRATEGIES } from '../constants';
+
+export type GroupingStrategy = keyof typeof GROUPING_STRATEGIES;
+
 export interface PullRequest {
   id: string;
   number: number;

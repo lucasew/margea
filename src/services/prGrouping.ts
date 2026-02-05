@@ -1,4 +1,4 @@
-import { PullRequest, PRGroup } from '../types';
+import { PullRequest, PRGroup, GroupingStrategy } from '../types';
 import { PRState } from '../constants';
 
 /**
@@ -41,38 +41,28 @@ function createGroupingKey(title: string, author: string): string {
   return `${title}|${author}`;
 }
 
+type GroupingFunction = (prs: PullRequest[]) => PRGroup[];
+
 /**
- * Groups Pull Requests based on a combination of their Title and Author.
- *
- * This strategy is useful for identifying related work across multiple repositories
- * or tracking the progress of a specific contributor's task that spans several PRs.
- *
- * Key behaviors:
- * - **Deduplication**: First removes duplicate PRs based on their URL to prevent double counting.
- * - **Normalization**: Normalizes titles (e.g., standardizing dependency update formats) to improve grouping accuracy.
- * - **Sorting**: Resulting groups are sorted first by the count of PRs (descending), then alphabetically by package name.
- *
- * @param prs - The list of Pull Requests to group.
- * @returns An array of `PRGroup` objects, sorted by relevance.
+ * Generic grouping helper that groups PRs based on a key extraction function.
  */
-export function groupPullRequests(prs: PullRequest[]): PRGroup[] {
+function groupByHelper(
+  prs: PullRequest[],
+  keyExtractor: (pr: PullRequest) => { key: string; groupName: string },
+): PRGroup[] {
   const groups = new Map<string, PRGroup>();
   const uniquePrs = deduplicatePRs(prs);
 
   for (const pr of uniquePrs) {
-    const title = normalizeTitle(pr.title);
-    const author = pr.author?.login || 'unknown';
-    const key = createGroupingKey(title, author);
+    const { key, groupName } = keyExtractor(pr);
 
     if (!groups.has(key)) {
-      // Base ref and labels are no longer part of the grouping key,
-      // but we still capture them for display (taking from the first PR in the group).
       const baseRef = normalizeBaseRef(pr.baseRefName);
       const labels = pr.labels?.nodes?.map((l) => l.name).sort() || [];
 
       groups.set(key, {
         key,
-        package: title,
+        package: groupName,
         baseRef,
         labels,
         prs: [],
@@ -92,6 +82,62 @@ export function groupPullRequests(prs: PullRequest[]): PRGroup[] {
     }
     return a.package.localeCompare(b.package);
   });
+}
+
+/**
+ * Grouping Strategy: Renovate (Default)
+ * Groups by Title + Author.
+ */
+const groupRenovate: GroupingFunction = (prs) => {
+  return groupByHelper(prs, (pr) => {
+    const title = normalizeTitle(pr.title);
+    const author = pr.author?.login || 'unknown';
+    const key = createGroupingKey(title, author);
+    return { key, groupName: title };
+  });
+};
+
+/**
+ * Grouping Strategy: Repository
+ * Groups by Repository Name (owner/name).
+ */
+const groupRepository: GroupingFunction = (prs) => {
+  return groupByHelper(prs, (pr) => {
+    const name = pr.repository.nameWithOwner;
+    return { key: name, groupName: name };
+  });
+};
+
+/**
+ * Grouping Strategy: Author
+ * Groups by Author Login.
+ */
+const groupAuthor: GroupingFunction = (prs) => {
+  return groupByHelper(prs, (pr) => {
+    const login = pr.author?.login || 'unknown';
+    return { key: login, groupName: login };
+  });
+};
+
+const STRATEGY_HANDLERS: Record<GroupingStrategy, GroupingFunction> = {
+  renovate: groupRenovate,
+  repository: groupRepository,
+  author: groupAuthor,
+};
+
+/**
+ * Groups Pull Requests based on the provided strategy.
+ *
+ * @param prs - The list of Pull Requests to group.
+ * @param strategy - The strategy to use for grouping.
+ * @returns An array of `PRGroup` objects, sorted by relevance.
+ */
+export function groupPullRequests(
+  prs: PullRequest[],
+  strategy: GroupingStrategy = 'renovate',
+): PRGroup[] {
+  const handler = STRATEGY_HANDLERS[strategy] || STRATEGY_HANDLERS.renovate;
+  return handler(prs);
 }
 
 /**

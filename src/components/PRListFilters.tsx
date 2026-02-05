@@ -5,13 +5,16 @@ import {
   PR_STATE_LABELS,
   URL_SEARCH_PARAMS,
   PRState,
+  GROUPING_STRATEGIES,
 } from '../constants';
+import { GroupingStrategy } from '../types';
 
 interface PRListFiltersProps {
   filterRepo: string;
   filterOwner: string;
   filterAuthor: string;
   filterState: PRState;
+  groupBy: GroupingStrategy;
   uniqueRepos: string[];
   uniqueOwners: string[];
   uniqueAuthors: string[];
@@ -25,6 +28,7 @@ export function PRListFilters({
   filterOwner,
   filterAuthor,
   filterState,
+  groupBy,
   uniqueRepos,
   uniqueOwners,
   uniqueAuthors,
@@ -86,7 +90,29 @@ export function PRListFilters({
             </div>
           </div>
 
-          {/* Ações - Linha 2 */}
+          {/* Filtros - Linha 2 (Agrupamento) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text font-semibold">Agrupar por</span>
+              </label>
+              <select
+                className="select select-bordered w-full"
+                value={groupBy}
+                onChange={(e) =>
+                  updateFilter(URL_SEARCH_PARAMS.GROUP_BY, e.target.value)
+                }
+              >
+                {Object.entries(GROUPING_STRATEGIES).map(([key, label]) => (
+                  <option key={key} value={key}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Ações - Linha 3 */}
           <div className="flex flex-row gap-4 justify-end">
             <button onClick={onRefresh} className="btn btn-primary">
               <RefreshCw size={18} />
