@@ -31,6 +31,7 @@ export function PRProvider({ children }: PRProviderProps) {
   // Track active scopes, abort controller, and per-scope adaptive state
   const abortRef = useRef<AbortController | null>(null);
   const scopesRef = useRef<string[]>([]);
+  const scopeKeyRef = useRef('');
   const adaptiveStatesRef = useRef<Map<string, AdaptiveFetchState>>(new Map());
 
   const mergePRBatch = useCallback((newPRs: PullRequest[]) => {
@@ -52,14 +53,18 @@ export function PRProvider({ children }: PRProviderProps) {
       startDate: Date,
       savedStates: Map<string, AdaptiveFetchState> | null,
       isLoadMore: boolean,
+      clearExisting: boolean,
     ) => {
       // Cancel any in-flight fetch
       if (abortRef.current) {
         abortRef.current.abort();
       }
 
-      if (!isLoadMore) {
+      if (clearExisting) {
         setPrMap(new Map());
+      }
+
+      if (!isLoadMore) {
         adaptiveStatesRef.current = new Map();
         setIsLoading(true);
       } else {
@@ -123,6 +128,12 @@ export function PRProvider({ children }: PRProviderProps) {
    */
   const setSearchScopes = useCallback(
     (scopes: string[]) => {
+      // Dedup: skip if the same scopes are passed again (effect re-fires
+      // when organizations is a new array reference on each render).
+      const newKey = scopes.slice().sort().join('\n');
+      if (newKey === scopeKeyRef.current) return;
+      scopeKeyRef.current = newKey;
+
       scopesRef.current = scopes;
 
       const syntheticQuery =
@@ -137,7 +148,7 @@ export function PRProvider({ children }: PRProviderProps) {
 
       const now = new Date();
       const startDate = new Date(now.getTime() - INITIAL_FETCH_DAYS * DAY_MS);
-      startFetch(scopes, now, startDate, null, false);
+      startFetch(scopes, now, startDate, null, false, true);
     },
     [startFetch],
   );
@@ -156,13 +167,17 @@ export function PRProvider({ children }: PRProviderProps) {
   );
 
   /**
-   * Refresh: re-fetch all current scopes from scratch.
+   * Refresh: re-fetch the same scopes and merge results by ID.
+   * Existing PRs stay visible while fresh data overwrites them in place.
    */
   const refresh = useCallback(() => {
-    if (scopesRef.current.length > 0) {
-      setSearchScopes([...scopesRef.current]);
-    }
-  }, [setSearchScopes]);
+    const scopes = scopesRef.current;
+    if (scopes.length === 0) return;
+
+    const now = new Date();
+    const startDate = new Date(now.getTime() - INITIAL_FETCH_DAYS * DAY_MS);
+    startFetch(scopes, now, startDate, null, false, false);
+  }, [startFetch]);
 
   /**
    * Load more: extends each scope backwards from where it stopped.
@@ -191,6 +206,7 @@ export function PRProvider({ children }: PRProviderProps) {
       newStartDate,
       states,
       true,
+      false,
     );
   }, [isLoading, isFetchingNextPage, startFetch]);
 
