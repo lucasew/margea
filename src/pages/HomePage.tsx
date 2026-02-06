@@ -8,29 +8,24 @@ import { PRList } from '../components/PRList';
 
 function AuthenticatedDashboard() {
   const { viewer, organizations } = useViewer();
-  const { setSearchQuery, searchQuery } = usePRContext();
+  const { setSearchScopes, searchQuery } = usePRContext();
 
   useEffect(() => {
-    // Construct the global query
-    // is:pr (org:A OR org:B OR user:login)
-    // Note: state:open is removed to allow client-side filtering of all states.
-    const scopeParts = [
+    // Each scope gets its own search query and 1000-result window,
+    // fetched in parallel with auto-pagination.
+    const scopes = [
       ...organizations.map((org) => `org:${org.login}`),
       `user:${viewer.login}`,
     ];
 
-    const scopeQuery = scopeParts.join(' or ');
-
-    // If scope is empty (weird), fallback to involves:@me?
-    const finalScope = scopeQuery ? scopeQuery : `involves:${viewer.login}`;
-
-    const query = `is:pr ${finalScope}`;
-
-    // Only update if different
-    if (query !== searchQuery) {
-      setSearchQuery(query);
+    // Fallback if no orgs (unlikely but safe)
+    if (scopes.length === 0) {
+      setSearchScopes([`involves:${viewer.login}`]);
+      return;
     }
-  }, [viewer.login, organizations, setSearchQuery, searchQuery]);
+
+    setSearchScopes(scopes);
+  }, [viewer.login, organizations, setSearchScopes]);
 
   // If query not set yet, show loading
   if (!searchQuery) {

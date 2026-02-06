@@ -13,6 +13,11 @@ export const DEFAULT_PR_TARGET = 100;
 export const MAX_PR_TARGET = 1000;
 export const BATCH_SIZE = 100;
 
+// Adaptive fetch: initial load covers this many days
+export const INITIAL_FETCH_DAYS = 7;
+// Each "load more" extends backwards by this many days
+export const LOAD_MORE_DAYS = 7;
+
 export const URL_SEARCH_PARAMS = {
   GROUP: 'group',
   REPO: 'repo',

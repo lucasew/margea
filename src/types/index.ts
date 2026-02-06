@@ -102,6 +102,7 @@ export interface PRContextState {
 
 export interface PRContextType extends PRContextState {
   setSearchQuery: (query: string) => void;
+  setSearchScopes: (scopes: string[]) => void;
   loadNextPage: () => void;
   refresh: () => void;
   optimisticUpdate: (prId: string, changes: Partial<PullRequest>) => void;
