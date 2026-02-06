@@ -53,14 +53,18 @@ export function PRProvider({ children }: PRProviderProps) {
       startDate: Date,
       savedStates: Map<string, AdaptiveFetchState> | null,
       isLoadMore: boolean,
+      clearExisting: boolean,
     ) => {
       // Cancel any in-flight fetch
       if (abortRef.current) {
         abortRef.current.abort();
       }
 
-      if (!isLoadMore) {
+      if (clearExisting) {
         setPrMap(new Map());
+      }
+
+      if (!isLoadMore) {
         adaptiveStatesRef.current = new Map();
         setIsLoading(true);
       } else {
@@ -144,7 +148,7 @@ export function PRProvider({ children }: PRProviderProps) {
 
       const now = new Date();
       const startDate = new Date(now.getTime() - INITIAL_FETCH_DAYS * DAY_MS);
-      startFetch(scopes, now, startDate, null, false);
+      startFetch(scopes, now, startDate, null, false, true);
     },
     [startFetch],
   );
@@ -163,8 +167,8 @@ export function PRProvider({ children }: PRProviderProps) {
   );
 
   /**
-   * Refresh: re-fetch all current scopes from scratch.
-   * Calls startFetch directly to bypass the dedup guard in setSearchScopes.
+   * Refresh: re-fetch the same scopes and merge results by ID.
+   * Existing PRs stay visible while fresh data overwrites them in place.
    */
   const refresh = useCallback(() => {
     const scopes = scopesRef.current;
@@ -172,7 +176,7 @@ export function PRProvider({ children }: PRProviderProps) {
 
     const now = new Date();
     const startDate = new Date(now.getTime() - INITIAL_FETCH_DAYS * DAY_MS);
-    startFetch(scopes, now, startDate, null, false);
+    startFetch(scopes, now, startDate, null, false, false);
   }, [startFetch]);
 
   /**
@@ -202,6 +206,7 @@ export function PRProvider({ children }: PRProviderProps) {
       newStartDate,
       states,
       true,
+      false,
     );
   }, [isLoading, isFetchingNextPage, startFetch]);
 
