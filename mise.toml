@@ -2,18 +2,23 @@
 node = "25.4.0"
 
 [tasks.dev]
+description = "Start development server"
 run = "npm run dev"
 
 [tasks.install]
+description = "Install dependencies"
 run = "npm install && npx playwright install --with-deps"
 
 [tasks.codegen]
+description = "Regenerate Relay artifacts"
 run = "npm run relay"
 
 [tasks.build]
+description = "Build the application"
 run = "npm run build"
 
 [tasks.lint]
+description = "Run all linters"
 depends = ["lint:*"]
 
 [tasks."lint:eslint"]
@@ -23,13 +28,16 @@ run = "npx eslint ."
 run = "npx prettier --check ."
 
 [tasks.fmt]
+description = "Format all code"
 depends = ["fmt:*"]
 
 [tasks."fmt:prettier"]
 run = "npx prettier --write ."
 
 [tasks.test]
+description = "Run tests"
 run = "npx playwright test"
 
 [tasks.ci]
+description = "Run CI checks"
 depends = ["lint", "test"]
