@@ -1,11 +1,8 @@
-import { useState, useCallback, ReactNode } from 'react';
-import { fetchQuery, useRelayEnvironment } from 'react-relay';
+import { useState, useCallback, useRef, ReactNode } from 'react';
+import { useRelayEnvironment } from 'react-relay';
 import { PRContext } from './PRContext';
 import { PRContextType, PullRequest } from '../types';
-import { SearchPRsQuery } from '../queries/SearchPRsQuery';
-import { SearchPRsQuery as SearchPRsQueryType } from '../queries/__generated__/SearchPRsQuery.graphql';
-import { transformPR } from '../services/prTransformer';
-import { BATCH_SIZE } from '../constants';
+import { fetchScopes, ScopeProgress } from '../services/prFetchService';
 
 interface PRProviderProps {
   children: ReactNode;
@@ -28,105 +25,139 @@ export function PRProvider({ children }: PRProviderProps) {
   const [searchQuery, setSearchQueryState] = useState('');
   const [error, setError] = useState<Error | null>(null);
 
-  const updatePRs = useCallback((newPRs: PullRequest[], append: boolean) => {
+  // Track active scopes and their abort controller
+  const abortRef = useRef<AbortController | null>(null);
+  const scopesRef = useRef<string[]>([]);
+  const scopeProgressRef = useRef<Map<string, ScopeProgress>>(new Map());
+
+  const mergePRBatch = useCallback((newPRs: PullRequest[]) => {
     setPrMap((prev) => {
-      // If not appending (i.e. full refresh), start with new map.
-      const next = append ? new Map(prev) : new Map();
-
-      newPRs.forEach((pr) => {
-        next.set(pr.id, pr); // Use ID as key
-      });
-
+      const next = new Map(prev);
+      newPRs.forEach((pr) => next.set(pr.id, pr));
       return next;
     });
   }, []);
 
-  const fetchPRs = useCallback(
-    async (query: string, cursor: string | null, isNextPage: boolean) => {
-      if (!query) return;
-
-      if (isNextPage) {
-        setIsFetchingNextPage(true);
-      } else {
-        setIsLoading(true);
+  /**
+   * Primary fetch method: fetches PRs for multiple scopes in parallel.
+   * Each scope gets its own 1000-result window and auto-paginates.
+   */
+  const setSearchScopes = useCallback(
+    (scopes: string[]) => {
+      // Cancel any in-flight fetch
+      if (abortRef.current) {
+        abortRef.current.abort();
       }
+
+      scopesRef.current = scopes;
+      scopeProgressRef.current = new Map();
+
+      // Build a synthetic searchQuery for display/compat
+      const syntheticQuery =
+        scopes.length > 0 ? `is:pr ${scopes.join(' or ')}` : '';
+      setSearchQueryState(syntheticQuery);
+
+      if (scopes.length === 0) {
+        setPrMap(new Map());
+        setPageInfo({ endCursor: null, hasNextPage: false });
+        return;
+      }
+
+      // Reset state for a fresh fetch
+      setPrMap(new Map());
+      setIsLoading(true);
+      setIsFetchingNextPage(false);
       setError(null);
+      setPageInfo({ endCursor: null, hasNextPage: true });
 
-      try {
-        const data = await fetchQuery<SearchPRsQueryType>(
-          environment,
-          SearchPRsQuery,
-          {
-            searchQuery: query,
-            first: BATCH_SIZE,
-            after: cursor,
-          },
-        ).toPromise();
+      const controller = fetchScopes(environment, scopes, {
+        onBatch: (prs) => {
+          mergePRBatch(prs);
+        },
 
-        if (data?.search) {
-          const newPRs = (data.search.edges || [])
-            .map((edge) => transformPR(edge?.node))
-            .filter((pr): pr is PullRequest => pr !== null);
+        onScopeProgress: (progress) => {
+          scopeProgressRef.current.set(progress.scope, progress);
 
-          if (newPRs.length === 0) {
-            console.warn(`Search returned 0 PRs. Query: "${query}"`, data);
+          // Aggregate: hasNextPage if any scope is not done
+          const allDone = Array.from(scopeProgressRef.current.values()).every(
+            (p) => p.done,
+          );
+          // Only update hasNextPage — keep endCursor null (not used in scope mode)
+          if (allDone) {
+            setPageInfo({ endCursor: null, hasNextPage: false });
+            setIsFetchingNextPage(false);
+          } else {
+            // If at least one scope has delivered data, switch from initial loading
+            // to "fetching next page" so the UI shows incremental progress.
+            const anyFetched = Array.from(
+              scopeProgressRef.current.values(),
+            ).some((p) => p.fetched > 0);
+            if (anyFetched) {
+              setIsLoading(false);
+              setIsFetchingNextPage(true);
+            }
           }
+        },
 
-          updatePRs(newPRs, isNextPage);
-
-          setPageInfo({
-            hasNextPage: data.search.pageInfo?.hasNextPage ?? false,
-            endCursor: data.search.pageInfo?.endCursor ?? null,
-          });
-        }
-      } catch (err: unknown) {
-        console.error('Error fetching PRs:', err);
-        // Capture error for display
-        setError(
-          err instanceof Error ? err : new Error('Unknown error occurred'),
-        );
-      } finally {
-        if (isNextPage) {
-          setIsFetchingNextPage(false);
-        } else {
+        onComplete: (results) => {
           setIsLoading(false);
-        }
-      }
+          setIsFetchingNextPage(false);
+          setPageInfo({ endCursor: null, hasNextPage: false });
+
+          // Collect errors from failed scopes
+          const errors = results.filter((r) => r.error !== null);
+          if (errors.length > 0) {
+            const scopeNames = errors.map((e) => e.scope).join(', ');
+            setError(
+              new Error(
+                `Failed to fetch PRs for: ${scopeNames}. ${errors[0].error?.message ?? ''}`,
+              ),
+            );
+          }
+        },
+      });
+
+      abortRef.current = controller;
     },
-    [environment, updatePRs],
+    [environment, mergePRBatch],
   );
 
+  /**
+   * Convenience wrapper: accepts a single search query string.
+   * For backward compatibility with code that passes a pre-built query.
+   * This runs a single-scope fetch (no parallelism benefit).
+   */
   const setSearchQuery = useCallback(
     (query: string) => {
-      setSearchQueryState(query);
-      setPageInfo({ endCursor: null, hasNextPage: false });
-      fetchPRs(query, null, false);
+      // Extract just the scope from "is:pr <scope>" if present
+      const scope = query.replace(/^is:pr\s+/, '');
+      if (scope) {
+        setSearchScopes([scope]);
+      }
     },
-    [fetchPRs],
+    [setSearchScopes],
   );
 
+  /**
+   * Refresh: re-fetch all current scopes from scratch.
+   */
   const refresh = useCallback(() => {
-    if (searchQuery) {
-      fetchPRs(searchQuery, null, false);
+    if (scopesRef.current.length > 0) {
+      setSearchScopes([...scopesRef.current]);
     }
-  }, [searchQuery, fetchPRs]);
+  }, [setSearchScopes]);
 
+  /**
+   * loadNextPage is a no-op in scope mode (auto-pagination handles it).
+   * Kept for interface compatibility with PRList's infinite scroll sentinel.
+   */
   const loadNextPage = useCallback(() => {
-    if (
-      !isLoading &&
-      !isFetchingNextPage &&
-      pageInfo.hasNextPage &&
-      pageInfo.endCursor &&
-      searchQuery
-    ) {
-      fetchPRs(searchQuery, pageInfo.endCursor, true);
-    }
-  }, [isLoading, isFetchingNextPage, pageInfo, searchQuery, fetchPRs]);
+    // Auto-pagination handles all pages. This is intentionally a no-op.
+  }, []);
 
   const optimisticUpdate = useCallback(
     (prId: string, changes: Partial<PullRequest>) => {
       setPrMap((prev) => {
-        // O(1) Lookup by ID
         if (!prev.has(prId)) return prev;
 
         const next = new Map(prev);
@@ -155,6 +186,7 @@ export function PRProvider({ children }: PRProviderProps) {
     isFetchingNextPage,
     searchQuery,
     setSearchQuery,
+    setSearchScopes,
     loadNextPage,
     refresh,
     optimisticUpdate,
