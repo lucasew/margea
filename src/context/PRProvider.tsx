@@ -2,7 +2,10 @@ import { useState, useCallback, useRef, ReactNode } from 'react';
 import { useRelayEnvironment } from 'react-relay';
 import { PRContext } from './PRContext';
 import { PRContextType, PullRequest } from '../types';
-import { fetchScopes, ScopeProgress } from '../services/prFetchService';
+import { fetchScopes, AdaptiveFetchState } from '../services/prFetchService';
+import { INITIAL_FETCH_DAYS, LOAD_MORE_DAYS } from '../constants';
+
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 interface PRProviderProps {
   children: ReactNode;
@@ -25,10 +28,10 @@ export function PRProvider({ children }: PRProviderProps) {
   const [searchQuery, setSearchQueryState] = useState('');
   const [error, setError] = useState<Error | null>(null);
 
-  // Track active scopes and their abort controller
+  // Track active scopes, abort controller, and per-scope adaptive state
   const abortRef = useRef<AbortController | null>(null);
   const scopesRef = useRef<string[]>([]);
-  const scopeProgressRef = useRef<Map<string, ScopeProgress>>(new Map());
+  const adaptiveStatesRef = useRef<Map<string, AdaptiveFetchState>>(new Map());
 
   const mergePRBatch = useCallback((newPRs: PullRequest[]) => {
     setPrMap((prev) => {
@@ -39,20 +42,89 @@ export function PRProvider({ children }: PRProviderProps) {
   }, []);
 
   /**
-   * Primary fetch method: fetches PRs for multiple scopes in parallel.
-   * Each scope gets its own 1000-result window and auto-paginates.
+   * Internal: runs the parallel adaptive fetch for all scopes.
+   * Handles both initial fetch and load-more.
    */
-  const setSearchScopes = useCallback(
-    (scopes: string[]) => {
+  const startFetch = useCallback(
+    (
+      scopes: string[],
+      endDate: Date,
+      startDate: Date,
+      savedStates: Map<string, AdaptiveFetchState> | null,
+      isLoadMore: boolean,
+    ) => {
       // Cancel any in-flight fetch
       if (abortRef.current) {
         abortRef.current.abort();
       }
 
-      scopesRef.current = scopes;
-      scopeProgressRef.current = new Map();
+      if (!isLoadMore) {
+        setPrMap(new Map());
+        adaptiveStatesRef.current = new Map();
+        setIsLoading(true);
+      } else {
+        setIsFetchingNextPage(true);
+      }
+      setError(null);
 
-      // Build a synthetic searchQuery for display/compat
+      const controller = fetchScopes(
+        environment,
+        scopes,
+        endDate,
+        startDate,
+        savedStates,
+        {
+          onBatch: mergePRBatch,
+
+          onScopeProgress: (progress) => {
+            // Once first results arrive, switch from "loading" to "fetching more"
+            if (!isLoadMore && progress.fetched > 0) {
+              setIsLoading(false);
+              setIsFetchingNextPage(true);
+            }
+          },
+
+          onComplete: (results, states) => {
+            // Persist adaptive states for the next "load more"
+            states.forEach((state, scope) => {
+              adaptiveStatesRef.current.set(scope, state);
+            });
+
+            setIsLoading(false);
+            setIsFetchingNextPage(false);
+
+            // If load-more yielded 0 PRs across all scopes, stop offering more
+            const totalNewPRs = results.reduce((sum, r) => sum + r.fetched, 0);
+            const hasMore = isLoadMore ? totalNewPRs > 0 : true;
+            setPageInfo({ endCursor: null, hasNextPage: hasMore });
+
+            // Collect errors from failed scopes
+            const errors = results.filter((r) => r.error !== null);
+            if (errors.length > 0) {
+              const scopeNames = errors.map((e) => e.scope).join(', ');
+              setError(
+                new Error(
+                  `Failed to fetch PRs for: ${scopeNames}. ${errors[0].error?.message ?? ''}`,
+                ),
+              );
+            }
+          },
+        },
+      );
+
+      abortRef.current = controller;
+    },
+    [environment, mergePRBatch],
+  );
+
+  /**
+   * Primary entry point: starts fetching the last 7 days for all scopes in parallel.
+   * Each scope auto-paginates with adaptive time windows.
+   */
+  const setSearchScopes = useCallback(
+    (scopes: string[]) => {
+      scopesRef.current = scopes;
+
       const syntheticQuery =
         scopes.length > 0 ? `is:pr ${scopes.join(' or ')}` : '';
       setSearchQueryState(syntheticQuery);
@@ -63,73 +135,18 @@ export function PRProvider({ children }: PRProviderProps) {
         return;
       }
 
-      // Reset state for a fresh fetch
-      setPrMap(new Map());
-      setIsLoading(true);
-      setIsFetchingNextPage(false);
-      setError(null);
-      setPageInfo({ endCursor: null, hasNextPage: true });
-
-      const controller = fetchScopes(environment, scopes, {
-        onBatch: (prs) => {
-          mergePRBatch(prs);
-        },
-
-        onScopeProgress: (progress) => {
-          scopeProgressRef.current.set(progress.scope, progress);
-
-          // Aggregate: hasNextPage if any scope is not done
-          const allDone = Array.from(scopeProgressRef.current.values()).every(
-            (p) => p.done,
-          );
-          // Only update hasNextPage — keep endCursor null (not used in scope mode)
-          if (allDone) {
-            setPageInfo({ endCursor: null, hasNextPage: false });
-            setIsFetchingNextPage(false);
-          } else {
-            // If at least one scope has delivered data, switch from initial loading
-            // to "fetching next page" so the UI shows incremental progress.
-            const anyFetched = Array.from(
-              scopeProgressRef.current.values(),
-            ).some((p) => p.fetched > 0);
-            if (anyFetched) {
-              setIsLoading(false);
-              setIsFetchingNextPage(true);
-            }
-          }
-        },
-
-        onComplete: (results) => {
-          setIsLoading(false);
-          setIsFetchingNextPage(false);
-          setPageInfo({ endCursor: null, hasNextPage: false });
-
-          // Collect errors from failed scopes
-          const errors = results.filter((r) => r.error !== null);
-          if (errors.length > 0) {
-            const scopeNames = errors.map((e) => e.scope).join(', ');
-            setError(
-              new Error(
-                `Failed to fetch PRs for: ${scopeNames}. ${errors[0].error?.message ?? ''}`,
-              ),
-            );
-          }
-        },
-      });
-
-      abortRef.current = controller;
+      const now = new Date();
+      const startDate = new Date(now.getTime() - INITIAL_FETCH_DAYS * DAY_MS);
+      startFetch(scopes, now, startDate, null, false);
     },
-    [environment, mergePRBatch],
+    [startFetch],
   );
 
   /**
-   * Convenience wrapper: accepts a single search query string.
-   * For backward compatibility with code that passes a pre-built query.
-   * This runs a single-scope fetch (no parallelism benefit).
+   * Convenience wrapper for backward compatibility.
    */
   const setSearchQuery = useCallback(
     (query: string) => {
-      // Extract just the scope from "is:pr <scope>" if present
       const scope = query.replace(/^is:pr\s+/, '');
       if (scope) {
         setSearchScopes([scope]);
@@ -148,12 +165,34 @@ export function PRProvider({ children }: PRProviderProps) {
   }, [setSearchScopes]);
 
   /**
-   * loadNextPage is a no-op in scope mode (auto-pagination handles it).
-   * Kept for interface compatibility with PRList's infinite scroll sentinel.
+   * Load more: extends each scope backwards from where it stopped.
+   * Each scope resumes with its tuned adaptive interval.
    */
   const loadNextPage = useCallback(() => {
-    // Auto-pagination handles all pages. This is intentionally a no-op.
-  }, []);
+    if (isLoading || isFetchingNextPage || scopesRef.current.length === 0) {
+      return;
+    }
+
+    const states = adaptiveStatesRef.current;
+    if (states.size === 0) return;
+
+    // Find the earliest point any scope reached, then go further back
+    const oldestDates = Array.from(states.values()).map((s) =>
+      s.oldestFetchedDate.getTime(),
+    );
+    const minOldest = new Date(Math.min(...oldestDates));
+    const newStartDate = new Date(
+      minOldest.getTime() - LOAD_MORE_DAYS * DAY_MS,
+    );
+
+    startFetch(
+      scopesRef.current,
+      new Date(), // default endDate (unused — each scope uses its saved state)
+      newStartDate,
+      states,
+      true,
+    );
+  }, [isLoading, isFetchingNextPage, startFetch]);
 
   const optimisticUpdate = useCallback(
     (prId: string, changes: Partial<PullRequest>) => {
