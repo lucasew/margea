@@ -19,7 +19,7 @@
 - Use only Tailwind and DaisyUI components for styling. Prefer using DaisyUI directly.
 - If the task is related to layout or styling, only do it with the aid of Playwright MCP.
 - Do not just say it's beautiful, responsive, or functional; prove it in a way that cannot be contested.
-- Prefer using Selenium (or Playwright) for taking screenshots to avoid issues.
+- Prefer using Playwright for taking screenshots to avoid issues.
 
 ## Dev Server
 
