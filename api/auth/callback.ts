@@ -94,7 +94,18 @@ export default async function handler(req: Request) {
     .setExpirationTime('7d')
     .sign(secret);
 
-  const baseUrl = new URL(req.url).origin;
+  const callbackUrl = process.env.GITHUB_CALLBACK_URL;
+  if (!callbackUrl) {
+    return new Response(
+      'Server configuration error: GITHUB_CALLBACK_URL missing',
+      { status: 500 },
+    );
+  }
+
+  // 🛡️ SENTINEL: Prevent Host Header Injection.
+  // We must derive the redirect base URL from the static configuration (GITHUB_CALLBACK_URL)
+  // rather than from `req.url` or the `Host` header, which can be spoofed by an attacker.
+  const baseUrl = new URL(callbackUrl).origin;
 
   // Set the session cookie and clear the state cookie
   const sessionCookie = `session=${session}; HttpOnly; Secure; SameSite=Strict; Max-Age=${
