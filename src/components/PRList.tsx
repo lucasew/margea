@@ -5,7 +5,8 @@ import {
   ErrorBoundary as ReactErrorBoundary,
   FallbackProps,
 } from 'react-error-boundary';
-import { filterPullRequests, calculateStats } from '../services/prGrouping';
+import { filterPullRequests } from '../services/prFilter';
+import { calculateStats } from '../services/prStats';
 import { PRGroupCard } from './PRGroupCard';
 import { PRGroupDetail } from './PRGroupDetail';
 import { InfoIcon } from './icons/InfoIcon';
