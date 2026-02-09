@@ -8,7 +8,11 @@ const NARROW_THRESHOLD = 500;
 const GITHUB_SEARCH_LIMIT = 1000;
 
 function formatDate(date: Date): string {
-  return date.toISOString().split('T')[0];
+  return [
+    date.getUTCFullYear(),
+    (date.getUTCMonth() + 1).toString().padStart(2, '0'),
+    date.getUTCDate().toString().padStart(2, '0'),
+  ].join('-');
 }
 
 export interface ScopeProgress {
