@@ -61,8 +61,7 @@ test.describe('executeWithRetry', () => {
         maxRetries: 3,
         initialDelayMs: 10,
         // Only retry if error message is NOT 'fatal'
-        shouldRetry: (err) =>
-          err instanceof Error && err.message !== 'fatal',
+        shouldRetry: (err) => err instanceof Error && err.message !== 'fatal',
       }),
     ).rejects.toThrow('fatal');
 
