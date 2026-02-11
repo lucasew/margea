@@ -54,7 +54,3 @@ jobs:
       - name: CI
         if: steps.git-check.outputs.changes != 'true'
         run: mise run ci
-
-      - name: Build
-        if: steps.git-check.outputs.changes != 'true' && github.event_name == 'workflow_dispatch'
-        run: mise run build
