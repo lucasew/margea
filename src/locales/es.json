@@ -1,114 +1,114 @@
 {
-    "search": {
-        "title": "Buscar Pull Requests",
-        "description": "Ingrese la URL de un repositorio de GitHub para comenzar.",
-        "placeholder": "Ingrese la URL del repositorio",
-        "button": "Buscar",
-        "owner_organization": "Propietario/Organización",
-        "all_organizations": "Todas las organizaciones",
-        "leave_blank_all_orgs": "Deje en blanco para buscar en todas sus organizaciones",
-        "leave_blank_all_public_orgs": "Deje en blanco para buscar en todas las organizaciones públicas",
-        "repository": "Repositorio",
-        "optional_specify_repository": "Opcional: especifique un único repositorio",
-        "search_pull_requests": "Buscar Pull Requests",
-        "login_required": "Se requiere iniciar sesión para buscar",
-        "prsGoal": "Meta de PRs",
-        "prsGoalDescription": "El sistema buscará automáticamente hasta alcanzar esta meta (por defecto: 100)"
-    },
-    "header": {
-        "login": "Iniciar sesión",
-        "logout": "Cerrar sesión"
-    },
-    "footer": {
-        "text": "Margea es un proyecto experimental para explorar nuevas formas de agrupar pull requests.",
-        "description": "Una herramienta para analizar y agrupar Pull Requests de GitHub, con un enfoque en las actualizaciones de Renovate Bot.",
-        "resources": "Recursos",
-        "how_to_generate_token": "Cómo generar un token de GitHub",
-        "about_renovate": "Sobre Renovate Bot",
-        "technologies": "Tecnologías",
-        "made_with": "Hecho con",
-        "using": "usando React y la API de GitHub",
-        "rights_reserved": "Todos los derechos reservados."
-    },
-    "homepage": {
-        "title": "Margea",
-        "subtitle": "Encuentre y agrupe Pull Requests de forma inteligente.",
-        "login_prompt": "Inicie sesión para una mejor experiencia y para evitar los límites de velocidad de la API.",
-        "intelligent_grouping": "Agrupación Inteligente",
-        "intelligent_grouping_description": "Los PR se agrupan automáticamente por dependencia y tipo de actualización.",
-        "easy_export": "Exportación Fácil",
-        "easy_export_description": "Exporte grupos de PR en formato JSON para un análisis posterior."
-    },
-    "repositoryPage": {
-        "allPRs": "Todos los PRs",
-        "pullRequests": "Pull Requests",
-        "loginRequired": "Se requiere iniciar sesión",
-        "loginRequiredMessage": "Necesita estar autenticado para buscar pull requests. La API de GitHub no permite búsquedas adecuadas sin autenticación.",
-        "login": "Iniciar sesión"
-    },
-    "mainPage": {
-        "search": "Buscar",
-        "performSearch": "Realice una búsqueda",
-        "useFormToSearch": "Utilice el formulario del lado para encontrar los Pull Requests."
-    },
-    "prGroupCard": {
-        "base": "Base",
-        "prStatus": "Estado de los PRs",
-        "repos": "repos",
-        "open": "Abiertos",
-        "merged": "Fusionados",
-        "closed": "Cerrados"
-    },
-    "bulkActionModal": {
-        "pending": "Pendiente",
-        "processing": "Procesando..."
-    },
-    "errorBoundary": {
-        "title": "Algo salió mal",
-        "message": "Ocurrió un error inesperado en la aplicación.",
-        "errorDetails": "Detalles del error",
-        "tryAgain": "Intentar de nuevo",
-        "reloadPage": "Recargar página"
-    },
-    "loginPage": {
-        "subtitle": "Analizador de Pull Requests de GitHub",
-        "reauthorizingMessage": "Está cambiando de <strong>{{currentMode}}</strong> a un nuevo nivel de acceso.",
-        "chooseNewAccessLevel": "Elija el nuevo nivel de acceso:",
-        "chooseAccessLevel": "Elija el nivel de acceso:",
-        "readOnly": "Solo Lectura",
-        "readOnlyDescription": "Ver PRs • Sin permiso para fusionar/cerrar",
-        "readWrite": "Lectura y Escritura",
-        "readWriteDescription": "Ver PRs • Fusionar y cerrar PRs en lote",
-        "continueWithoutAuth": "Continuar sin autenticación",
-        "noAuthWarning": "Sin autenticación: límite de 60 solicitudes/hora",
-        "howItWorks": "¿Cómo funciona?",
-        "step1": "• Elija el nivel de acceso deseado",
-        "step2": "• Inicie sesión con su cuenta de GitHub",
-        "step3": "• Autorice la aplicación según el nivel elegido",
-        "step4": "• Busque, filtre y gestione PRs fácilmente"
-    },
-    "prGroupDetail": {
-        "backToGroups": "Volver a grupos",
-        "selectedPRs_0": "{{count}} PR seleccionado",
-        "selectedPRs_1": "{{count}} PRs seleccionados",
-        "selectedPRs_2": "",
-        "selectAll": "Seleccionar todos",
-        "readWrite": "Lectura y Escritura",
-        "readOnly": "Solo Lectura",
-        "merge_0": "Fusionar {{count}} PR",
-        "merge_1": "Fusionar {{count}} PRs",
-        "merge_2": "",
-        "close_0": "Cerrar {{count}} PR",
-        "close_1": "Cerrar {{count}} PRs",
-        "close_2": "",
-        "writePermissionRequired": "Necesita permiso de escritura para fusionar/cerrar PRs",
-        "branch": "Rama",
-        "total": "Total",
-        "labels": "Etiquetas",
-        "createdAt": "Creado",
-        "updatedAt": "Actualizado",
-        "mergedAt": "Fusionado",
-        "closedAt": "Cerrado",
-        "openInGitHub": "Abrir en GitHub"
-    }
+  "search": {
+    "title": "Buscar Pull Requests",
+    "description": "Ingrese la URL de un repositorio de GitHub para comenzar.",
+    "placeholder": "Ingrese la URL del repositorio",
+    "button": "Buscar",
+    "owner_organization": "Propietario/Organización",
+    "all_organizations": "Todas las organizaciones",
+    "leave_blank_all_orgs": "Deje en blanco para buscar en todas sus organizaciones",
+    "leave_blank_all_public_orgs": "Deje en blanco para buscar en todas las organizaciones públicas",
+    "repository": "Repositorio",
+    "optional_specify_repository": "Opcional: especifique un único repositorio",
+    "search_pull_requests": "Buscar Pull Requests",
+    "login_required": "Se requiere iniciar sesión para buscar",
+    "prsGoal": "Meta de PRs",
+    "prsGoalDescription": "El sistema buscará automáticamente hasta alcanzar esta meta (por defecto: 100)"
+  },
+  "header": {
+    "login": "Iniciar sesión",
+    "logout": "Cerrar sesión"
+  },
+  "footer": {
+    "text": "Margea es un proyecto experimental para explorar nuevas formas de agrupar pull requests.",
+    "description": "Una herramienta para analizar y agrupar Pull Requests de GitHub, con un enfoque en las actualizaciones de Renovate Bot.",
+    "resources": "Recursos",
+    "how_to_generate_token": "Cómo generar un token de GitHub",
+    "about_renovate": "Sobre Renovate Bot",
+    "technologies": "Tecnologías",
+    "made_with": "Hecho con",
+    "using": "usando React y la API de GitHub",
+    "rights_reserved": "Todos los derechos reservados."
+  },
+  "homepage": {
+    "title": "Margea",
+    "subtitle": "Encuentre y agrupe Pull Requests de forma inteligente.",
+    "login_prompt": "Inicie sesión para una mejor experiencia y para evitar los límites de velocidad de la API.",
+    "intelligent_grouping": "Agrupación Inteligente",
+    "intelligent_grouping_description": "Los PR se agrupan automáticamente por dependencia y tipo de actualización.",
+    "easy_export": "Exportación Fácil",
+    "easy_export_description": "Exporte grupos de PR en formato JSON para un análisis posterior."
+  },
+  "repositoryPage": {
+    "allPRs": "Todos los PRs",
+    "pullRequests": "Pull Requests",
+    "loginRequired": "Se requiere iniciar sesión",
+    "loginRequiredMessage": "Necesita estar autenticado para buscar pull requests. La API de GitHub no permite búsquedas adecuadas sin autenticación.",
+    "login": "Iniciar sesión"
+  },
+  "mainPage": {
+    "search": "Buscar",
+    "performSearch": "Realice una búsqueda",
+    "useFormToSearch": "Utilice el formulario del lado para encontrar los Pull Requests."
+  },
+  "prGroupCard": {
+    "base": "Base",
+    "prStatus": "Estado de los PRs",
+    "repos": "repos",
+    "open": "Abiertos",
+    "merged": "Fusionados",
+    "closed": "Cerrados"
+  },
+  "bulkActionModal": {
+    "pending": "Pendiente",
+    "processing": "Procesando..."
+  },
+  "errorBoundary": {
+    "title": "Algo salió mal",
+    "message": "Ocurrió un error inesperado en la aplicación.",
+    "errorDetails": "Detalles del error",
+    "tryAgain": "Intentar de nuevo",
+    "reloadPage": "Recargar página"
+  },
+  "loginPage": {
+    "subtitle": "Analizador de Pull Requests de GitHub",
+    "reauthorizingMessage": "Está cambiando de <strong>{{currentMode}}</strong> a un nuevo nivel de acceso.",
+    "chooseNewAccessLevel": "Elija el nuevo nivel de acceso:",
+    "chooseAccessLevel": "Elija el nivel de acceso:",
+    "readOnly": "Solo Lectura",
+    "readOnlyDescription": "Ver PRs • Sin permiso para fusionar/cerrar",
+    "readWrite": "Lectura y Escritura",
+    "readWriteDescription": "Ver PRs • Fusionar y cerrar PRs en lote",
+    "continueWithoutAuth": "Continuar sin autenticación",
+    "noAuthWarning": "Sin autenticación: límite de 60 solicitudes/hora",
+    "howItWorks": "¿Cómo funciona?",
+    "step1": "• Elija el nivel de acceso deseado",
+    "step2": "• Inicie sesión con su cuenta de GitHub",
+    "step3": "• Autorice la aplicación según el nivel elegido",
+    "step4": "• Busque, filtre y gestione PRs fácilmente"
+  },
+  "prGroupDetail": {
+    "backToGroups": "Volver a grupos",
+    "selectedPRs_0": "{{count}} PR seleccionado",
+    "selectedPRs_1": "{{count}} PRs seleccionados",
+    "selectedPRs_2": "",
+    "selectAll": "Seleccionar todos",
+    "readWrite": "Lectura y Escritura",
+    "readOnly": "Solo Lectura",
+    "merge_0": "Fusionar {{count}} PR",
+    "merge_1": "Fusionar {{count}} PRs",
+    "merge_2": "",
+    "close_0": "Cerrar {{count}} PR",
+    "close_1": "Cerrar {{count}} PRs",
+    "close_2": "",
+    "writePermissionRequired": "Necesita permiso de escritura para fusionar/cerrar PRs",
+    "branch": "Rama",
+    "total": "Total",
+    "labels": "Etiquetas",
+    "createdAt": "Creado",
+    "updatedAt": "Actualizado",
+    "mergedAt": "Fusionado",
+    "closedAt": "Cerrado",
+    "openInGitHub": "Abrir en GitHub"
+  }
 }
