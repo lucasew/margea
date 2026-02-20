@@ -21,14 +21,15 @@
 **- Pattern:** Adding `gh release create` or artifact upload steps to `.github/workflows/autorelease.yml` when the project is deployed on Vercel.
 **- Justification:** Vercel manages deployments automatically; manual release steps in CI are redundant or conflict with the platform's workflow.
 **- Files Affected:** `.github/workflows/autorelease.yml`.
-## IGNORE: Committing Binary Files
 
-**- Pattern:** Committing the `mise` binary or other executables.
-**- Justification:** Binaries bloat the repository and are platform-specific. Observed in PR #228.
-**- Files Affected:** `mise`, `*/mise`, other binaries.
+## IGNORE: Unrelated Trivial Changes
 
-## IGNORE: Out-of-Scope Changes
+**- Pattern:** Including unrelated formatting tweaks (e.g., whitespace, ternary operator formatting) or minor logic adjustments in a PR focused on a different task (e.g., Refactoring).
+**- Justification:** Creates noise, distracts reviewers, and violates the Single Responsibility Principle.
+**- Files Affected:** Any source file (e.g., `src/pages/HomePage.tsx`).
 
-**- Pattern:** Modifying files unrelated to the agent's specific persona/mission (e.g., Janitor modifying CI config, Arrumador modifying source code).
-**- Justification:** Agents must strictly adhere to their scope. Mixing concerns increases rejection risk. Observed in PRs #210 and #221.
-**- Files Affected:** `src/**/*`, `.github/**/*`, `mise.toml`, `.jules/*.md`.
+## IGNORE: Redundant CI Build Steps
+
+**- Pattern:** Adding explicit `build` steps to the `ci` task or GitHub Actions workflow when the project is deployed on Vercel.
+**- Justification:** Vercel handles the build process. Adding it to CI increases pipeline duration and may fail due to environment differences (e.g., missing API keys).
+**- Files Affected:** `mise.toml`, `.github/workflows/*.yml`.
