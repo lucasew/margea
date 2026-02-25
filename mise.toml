@@ -1,5 +1,5 @@
 [tools]
-node = "25.4.0"
+node = "25.7.0"
 
 [tasks.dev]
 run = "npm run dev"
