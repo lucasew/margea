@@ -1201,6 +1201,40 @@
               "children": [
                 {
                   "type": "frame",
+                  "id": "geCyZ",
+                  "name": "Checkbox",
+                  "width": 18,
+                  "height": 18,
+                  "fill": "#FFFFFF",
+                  "cornerRadius": 4,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "PQWJw",
+                      "name": "Inner",
+                      "enabled": false,
+                      "width": 14,
+                      "height": 14,
+                      "fill": "#FFFFFF",
+                      "cornerRadius": 3
+                    },
+                    {
+                      "type": "text",
+                      "id": "Uarfh",
+                      "name": "Check",
+                      "enabled": false,
+                      "fill": "#2A2408",
+                      "content": "✓",
+                      "fontFamily": "IBM Plex Mono",
+                      "fontSize": 11,
+                      "fontWeight": "700"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
                   "id": "k2Ab2",
                   "name": "Left",
                   "width": "fill_container",
@@ -1363,6 +1397,116 @@
                       "fontFamily": "IBM Plex Mono",
                       "fontSize": 11,
                       "fontWeight": "700"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "TEg5z",
+              "name": "Overlay/Toast Stack",
+              "reusable": true,
+              "width": 420,
+              "layout": "vertical",
+              "gap": 8,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "YIFJg",
+                  "name": "Toast/Running",
+                  "width": "fill_container",
+                  "fill": "#FFF4DF",
+                  "cornerRadius": 10,
+                  "layout": "vertical",
+                  "gap": 4,
+                  "padding": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "U0HUZ",
+                      "name": "toastRunTitle",
+                      "fill": "#5F3E00",
+                      "content": "Batch merge em andamento",
+                      "fontFamily": "Space Grotesk",
+                      "fontSize": 12,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "iCG3L",
+                      "name": "toastRunBody",
+                      "fill": "#7A5B1D",
+                      "content": "Grupo react v19.1.0 · 6/12 concluídos",
+                      "fontFamily": "IBM Plex Mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "zz2ok",
+                  "name": "Toast/Done",
+                  "width": "fill_container",
+                  "fill": "#E8F7EE",
+                  "cornerRadius": 10,
+                  "layout": "vertical",
+                  "gap": 4,
+                  "padding": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Io010",
+                      "name": "toastDoneTitle",
+                      "fill": "#1F5B34",
+                      "content": "Batch finalizado",
+                      "fontFamily": "Space Grotesk",
+                      "fontSize": 12,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "XKU2Z",
+                      "name": "toastDoneBody",
+                      "fill": "#2A6B45",
+                      "content": "Close em 3 PRs concluído com sucesso",
+                      "fontFamily": "IBM Plex Mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "eUlQi",
+                  "name": "Toast/Error",
+                  "width": "fill_container",
+                  "fill": "#FDECEF",
+                  "cornerRadius": 10,
+                  "layout": "vertical",
+                  "gap": 4,
+                  "padding": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "qPukE",
+                      "name": "toastErrTitle",
+                      "fill": "#7D1F33",
+                      "content": "1 PR com falha",
+                      "fontFamily": "Space Grotesk",
+                      "fontSize": 12,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "RULw0",
+                      "name": "toastErrBody",
+                      "fill": "#8B2C40",
+                      "content": "#4234 bloqueado por branch protection",
+                      "fontFamily": "IBM Plex Mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
                     }
                   ]
                 }
@@ -1703,8 +1847,8 @@
     {
       "type": "frame",
       "id": "bTf5Q",
-      "x": 1360,
-      "y": 520,
+      "x": 1446,
+      "y": -1366,
       "name": "Screen - Auth Panel",
       "width": 1280,
       "fill": "#F6F4EE",
@@ -2104,12 +2248,24 @@
               "fontWeight": "700"
             },
             {
-              "id": "vhrBF",
+              "id": "dQgnS",
               "type": "ref",
               "ref": "s2vqY",
               "width": "fill_container",
-              "name": "r1",
+              "name": "rowA",
               "descendants": {
+                "geCyZ": {
+                  "fill": "#FFD43B",
+                  "stroke": {}
+                },
+                "PQWJw": {
+                  "enabled": false,
+                  "fill": "#FFD43B"
+                },
+                "Uarfh": {
+                  "enabled": true,
+                  "fill": "#2A2408"
+                },
                 "OM0co": {
                   "content": "#4281 chore(deps): update dependency react to v19.1.0"
                 },
@@ -2125,14 +2281,26 @@
               }
             },
             {
-              "id": "63zBp",
+              "id": "F4X9d",
               "type": "ref",
               "ref": "s2vqY",
               "width": "fill_container",
-              "name": "r2",
+              "name": "rowB",
               "descendants": {
+                "geCyZ": {
+                  "fill": "#FFD43B",
+                  "stroke": {}
+                },
+                "PQWJw": {
+                  "enabled": false,
+                  "fill": "#FFD43B"
+                },
+                "Uarfh": {
+                  "enabled": true,
+                  "fill": "#2A2408"
+                },
                 "OM0co": {
-                  "content": "#4279 chore(deps): update dependency react to v19.1.0"
+                  "content": "#4279 chore(deps): update dependency react-dom to v19.1.0"
                 },
                 "OiSVY": {
                   "content": "acme/mobile · OPEN · CI PENDING"
@@ -2146,14 +2314,25 @@
               }
             },
             {
-              "id": "HhyBf",
+              "id": "RUO9f",
               "type": "ref",
               "ref": "s2vqY",
               "width": "fill_container",
-              "name": "r3",
+              "name": "rowC",
               "descendants": {
+                "geCyZ": {
+                  "fill": "#FFFFFF",
+                  "stroke": {}
+                },
+                "PQWJw": {
+                  "enabled": false,
+                  "fill": "#FFFFFF"
+                },
+                "Uarfh": {
+                  "enabled": false
+                },
                 "OM0co": {
-                  "content": "#4258 chore(deps): update dependency react-dom to v19.1.0"
+                  "content": "#4258 chore(deps): update dependency vite to v7.1.2"
                 },
                 "OiSVY": {
                   "content": "acme/admin · MERGED · CI SUCCESS"
@@ -2167,14 +2346,25 @@
               }
             },
             {
-              "id": "SeJ6l",
+              "id": "O8DG1",
               "type": "ref",
               "ref": "s2vqY",
               "width": "fill_container",
-              "name": "r4",
+              "name": "rowD",
               "descendants": {
+                "geCyZ": {
+                  "fill": "#FFFFFF",
+                  "stroke": {}
+                },
+                "PQWJw": {
+                  "enabled": false,
+                  "fill": "#FFFFFF"
+                },
+                "Uarfh": {
+                  "enabled": false
+                },
                 "OM0co": {
-                  "content": "#4234 chore(deps): update dependency react to v19.1.0"
+                  "content": "#4234 chore(deps): update dependency @types/react to v19.0.4"
                 },
                 "OiSVY": {
                   "content": "acme/api-gateway · CLOSED · CI FAILURE"
@@ -2188,14 +2378,25 @@
               }
             },
             {
-              "id": "K5uDE",
+              "id": "J9JpM",
               "type": "ref",
               "ref": "s2vqY",
               "width": "fill_container",
-              "name": "r5",
+              "name": "rowE",
               "descendants": {
+                "geCyZ": {
+                  "fill": "#FFFFFF",
+                  "stroke": {}
+                },
+                "PQWJw": {
+                  "enabled": false,
+                  "fill": "#FFFFFF"
+                },
+                "Uarfh": {
+                  "enabled": false
+                },
                 "OM0co": {
-                  "content": "#4210 chore(deps): update dependency react to v19.1.0"
+                  "content": "#4210 chore(deps): update dependency eslint to v9.37.0"
                 },
                 "OiSVY": {
                   "content": "acme/web · OPEN · CI SUCCESS"
@@ -2215,6 +2416,21 @@
               "width": "fill_container",
               "name": "stressRow",
               "descendants": {
+                "geCyZ": {
+                  "fill": "#FFFFFF",
+                  "stroke": {}
+                },
+                "PQWJw": {
+                  "x": 2,
+                  "y": 2,
+                  "enabled": false,
+                  "fill": "#FFFFFF"
+                },
+                "Uarfh": {
+                  "enabled": false,
+                  "x": 0,
+                  "y": 0
+                },
                 "OM0co": {
                   "content": "#4201 chore(deps): update dependency @typescript-eslint/eslint-plugin and @typescript-eslint/parser to v8.47.0 in /packages/frontend-app"
                 },
@@ -2230,147 +2446,6 @@
               }
             }
           ]
-        },
-        {
-          "type": "frame",
-          "id": "vENtu",
-          "name": "Batch Queue Panel",
-          "width": "fill_container",
-          "fill": "#FFFFFF",
-          "cornerRadius": 12,
-          "layout": "vertical",
-          "gap": 8,
-          "padding": 16,
-          "children": [
-            {
-              "type": "text",
-              "id": "xdVrg",
-              "name": "progressTitle",
-              "fill": "#1D1C19",
-              "content": "BATCH QUEUE (BACKGROUND)",
-              "fontFamily": "Space Grotesk",
-              "fontSize": 14,
-              "fontWeight": "700"
-            },
-            {
-              "type": "frame",
-              "id": "i1vbw",
-              "name": "progressRow1",
-              "width": "fill_container",
-              "fill": "#F8F6F0",
-              "cornerRadius": 8,
-              "padding": [
-                8,
-                10
-              ],
-              "justifyContent": "space_between",
-              "alignItems": "center",
-              "children": [
-                {
-                  "type": "text",
-                  "id": "Sd7Mq",
-                  "name": "progressRow1L",
-                  "fill": "#2F2B22",
-                  "content": "#4281 react v19.1.0",
-                  "fontFamily": "IBM Plex Mono",
-                  "fontSize": 12,
-                  "fontWeight": "normal"
-                },
-                {
-                  "type": "text",
-                  "id": "Ftxq9",
-                  "name": "progressRow1R",
-                  "fill": "#1B7A43",
-                  "content": "SUCCESS",
-                  "fontFamily": "IBM Plex Mono",
-                  "fontSize": 11,
-                  "fontWeight": "700"
-                }
-              ]
-            },
-            {
-              "type": "frame",
-              "id": "PGt5K",
-              "name": "progressRow2",
-              "width": "fill_container",
-              "fill": "#F8F6F0",
-              "cornerRadius": 8,
-              "padding": [
-                8,
-                10
-              ],
-              "justifyContent": "space_between",
-              "alignItems": "center",
-              "children": [
-                {
-                  "type": "text",
-                  "id": "ZP9LJ",
-                  "name": "progressRow2L",
-                  "fill": "#2F2B22",
-                  "content": "#4279 react v19.1.0",
-                  "fontFamily": "IBM Plex Mono",
-                  "fontSize": 12,
-                  "fontWeight": "normal"
-                },
-                {
-                  "type": "text",
-                  "id": "mT3dC",
-                  "name": "progressRow2R",
-                  "fill": "#B25B1B",
-                  "content": "PROCESSING",
-                  "fontFamily": "IBM Plex Mono",
-                  "fontSize": 11,
-                  "fontWeight": "700"
-                }
-              ]
-            },
-            {
-              "type": "frame",
-              "id": "wrtXd",
-              "name": "progressRow3",
-              "width": "fill_container",
-              "fill": "#F8F6F0",
-              "cornerRadius": 8,
-              "padding": [
-                8,
-                10
-              ],
-              "justifyContent": "space_between",
-              "alignItems": "center",
-              "children": [
-                {
-                  "type": "text",
-                  "id": "JfQdd",
-                  "name": "progressRow3L",
-                  "fill": "#2F2B22",
-                  "content": "#4234 react v19.1.0",
-                  "fontFamily": "IBM Plex Mono",
-                  "fontSize": 12,
-                  "fontWeight": "normal"
-                },
-                {
-                  "type": "text",
-                  "id": "4umXR",
-                  "name": "progressRow3R",
-                  "fill": "#A62A45",
-                  "content": "ERROR · branch protection",
-                  "fontFamily": "IBM Plex Mono",
-                  "fontSize": 11,
-                  "fontWeight": "700"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "type": "text",
-          "id": "DFBAm",
-          "name": "stabilityHint",
-          "fill": "#7A7362",
-          "content": "As operações seguem em segundo plano; você pode continuar filtrando, navegando e abrindo grupos.",
-          "fontFamily": "IBM Plex Mono",
-          "fontSize": 11,
-          "fontWeight": "normal"
         }
       ]
     },
@@ -2881,33 +2956,6 @@
               }
             }
           ]
-        },
-        {
-          "id": "fVmCp",
-          "type": "ref",
-          "ref": "xlKAG",
-          "width": "fill_container",
-          "name": "homeQueue",
-          "descendants": {
-            "Mj5xC": {
-              "content": "BATCH QUEUE (BACKGROUND)"
-            },
-            "aSWV1": {
-              "content": "Operações seguem em segundo plano durante navegação, filtros e paginação."
-            },
-            "n4LL2": {
-              "content": "MERGE · react v19.1.0 · 12 PRs"
-            },
-            "52gMV": {
-              "content": "RUNNING 6/12"
-            },
-            "95tHl": {
-              "content": "CLOSE · @types/react v19.0.4 · 3 PRs"
-            },
-            "igpfB": {
-              "content": "QUEUED"
-            }
-          }
         },
         {
           "type": "text",
