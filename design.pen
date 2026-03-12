@@ -4,7 +4,7 @@
     {
       "type": "frame",
       "id": "bi8Au",
-      "x": -1973,
+      "x": -1956,
       "y": -1366,
       "name": "Margea Design System",
       "width": 1280,
@@ -1514,7 +1514,7 @@
               "gap": 8,
               "padding": [
                 4,
-                10
+                8
               ],
               "alignItems": "center",
               "children": [
@@ -1529,20 +1529,28 @@
                   "layout": "none",
                   "children": [
                     {
-                      "type": "frame",
-                      "id": "Va8sq",
+                      "type": "ellipse",
+                      "id": "PkdoP",
                       "x": 0,
                       "y": 0,
-                      "name": "Pie Back",
+                      "name": "Quota Track",
+                      "innerRadius": 0.72,
+                      "fill": "#D2C39B",
                       "width": 32,
-                      "height": 32,
-                      "fill": {
-                        "type": "image",
-                        "enabled": true,
-                        "url": "./images/generated-1773340138244.png",
-                        "mode": "fill"
-                      },
-                      "cornerRadius": 999
+                      "height": 32
+                    },
+                    {
+                      "type": "ellipse",
+                      "id": "sT3LN",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Quota Progress",
+                      "innerRadius": 0.72,
+                      "startAngle": 90,
+                      "sweepAngle": -288,
+                      "fill": "#4E3C14",
+                      "width": 32,
+                      "height": 32
                     },
                     {
                       "type": "frame",
@@ -1582,6 +1590,7 @@
                   "type": "frame",
                   "id": "9HhiU",
                   "name": "Mode",
+                  "enabled": false,
                   "height": 22,
                   "fill": "#F3EFE3",
                   "cornerRadius": 999,
@@ -1605,79 +1614,234 @@
                   ]
                 }
               ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "frame",
-      "id": "J3bqA",
-      "x": 0,
-      "y": -536,
-      "name": "Screen - Filters Panel",
-      "width": 1280,
-      "fill": "#F6F4EE",
-      "layout": "vertical",
-      "gap": 16,
-      "padding": 24,
-      "children": [
-        {
-          "type": "frame",
-          "id": "XhbTq",
-          "name": "filtersCopy",
-          "width": "fill_container",
-          "fill": "#FFFFFF",
-          "cornerRadius": 10,
-          "layout": "vertical",
-          "gap": 10,
-          "padding": 14,
-          "children": [
-            {
-              "id": "ZFALF",
-              "type": "ref",
-              "ref": "Fuzal",
-              "name": "filtersPanelIsolated",
-              "descendants": {
-                "xjMkf": {
-                  "content": "FILTROS E AÇÕES"
-                },
-                "6sCy3": {
-                  "content": "Repositório, owner, autor, status e agrupamento com atualização manual e exportação."
-                }
-              }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "frame",
-      "id": "Qg53U",
-      "x": 0,
-      "y": 0,
-      "name": "Screen - Header Panel",
-      "width": 1280,
-      "fill": "#F6F4EE",
-      "layout": "vertical",
-      "gap": 16,
-      "padding": 24,
-      "children": [
-        {
-          "type": "frame",
-          "id": "RIjdz",
-          "name": "headerCopy",
-          "width": "fill_container",
-          "fill": "#FFFFFF",
-          "cornerRadius": 10,
-          "layout": "vertical",
-          "gap": 10,
-          "padding": 14,
-          "children": [
+            },
             {
               "type": "frame",
-              "id": "PKm9g",
-              "name": "headerPanelCopy",
+              "id": "fudUQ",
+              "name": "Overlay/User Menu",
+              "reusable": true,
+              "width": 280,
+              "fill": "#FFFFFF",
+              "cornerRadius": 12,
+              "effect": {
+                "type": "shadow",
+                "shadowType": "outer",
+                "color": "#1D1C1924",
+                "offset": {
+                  "x": 0,
+                  "y": 8
+                },
+                "blur": 24
+              },
+              "layout": "vertical",
+              "gap": 4,
+              "padding": 8,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "jwlrh",
+                  "name": "menuHead",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 2,
+                  "padding": [
+                    8,
+                    10
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "u0M3C",
+                      "name": "menuUser",
+                      "fill": "#1D1C19",
+                      "content": "@lucasew",
+                      "fontFamily": "IBM Plex Mono",
+                      "fontSize": 12,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "SsA6i",
+                      "name": "menuSub",
+                      "fill": "#6B6454",
+                      "content": "Session active · quota 80% available",
+                      "fontFamily": "IBM Plex Mono",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "bEVCF",
+                  "name": "menuDiv1",
+                  "width": "fill_container",
+                  "height": 1,
+                  "fill": "#EEE8D9"
+                },
+                {
+                  "type": "frame",
+                  "id": "yjWye",
+                  "name": "menuItemProfile",
+                  "width": "fill_container",
+                  "height": 36,
+                  "fill": "#FFFFFF",
+                  "cornerRadius": 8,
+                  "padding": [
+                    0,
+                    10
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "HNnNB",
+                      "fill": "#2F2B22",
+                      "content": "Open profile",
+                      "fontFamily": "IBM Plex Mono",
+                      "fontSize": 12,
+                      "fontWeight": "700"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "CGQdF",
+                  "name": "menuItemPerm",
+                  "width": "fill_container",
+                  "height": 36,
+                  "fill": "#FFFFFF",
+                  "cornerRadius": 8,
+                  "padding": [
+                    0,
+                    10
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "YPZEQ",
+                      "fill": "#2F2B22",
+                      "content": "Permissions: Read Only",
+                      "fontFamily": "IBM Plex Mono",
+                      "fontSize": 12,
+                      "fontWeight": "700"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "T0QzV",
+                  "name": "menuItemQuota",
+                  "width": "fill_container",
+                  "height": 52,
+                  "fill": "#F8F6F0",
+                  "cornerRadius": 8,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "padding": [
+                    8,
+                    10
+                  ],
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "szBnf",
+                      "fill": "#2F2B22",
+                      "content": "Quota: 80% available",
+                      "fontFamily": "IBM Plex Mono",
+                      "fontSize": 12,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "3kPpO",
+                      "name": "quotaMeta",
+                      "fill": "#6B6454",
+                      "content": "Remaining: 240/300 requests · resets in 18m",
+                      "fontFamily": "IBM Plex Mono",
+                      "fontSize": 10,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "UEiCp",
+                  "name": "menuDiv2",
+                  "width": "fill_container",
+                  "height": 1,
+                  "fill": "#EEE8D9"
+                },
+                {
+                  "type": "frame",
+                  "id": "VaAdR",
+                  "name": "menuItemSignout",
+                  "width": "fill_container",
+                  "height": 36,
+                  "fill": "#FFFFFF",
+                  "cornerRadius": 8,
+                  "padding": [
+                    0,
+                    10
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "hciOr",
+                      "fill": "#8B2C40",
+                      "content": "Disconnect session",
+                      "fontFamily": "IBM Plex Mono",
+                      "fontSize": 12,
+                      "fontWeight": "700"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "5Ldmu",
+              "type": "ref",
+              "reusable": true,
+              "ref": "lHKGf",
+              "name": "User/Badge Read",
+              "descendants": {
+                "PkdoP": {
+                  "fill": "#D2C39B"
+                },
+                "sT3LN": {
+                  "fill": "#4E3C14"
+                },
+                "9HhiU": {
+                  "enabled": false
+                }
+              }
+            },
+            {
+              "id": "ZkeTR",
+              "type": "ref",
+              "reusable": true,
+              "ref": "lHKGf",
+              "name": "User/Badge Write",
+              "descendants": {
+                "PkdoP": {
+                  "fill": "#B6D1C1"
+                },
+                "sT3LN": {
+                  "fill": "#1F4E38"
+                },
+                "9HhiU": {
+                  "enabled": false
+                }
+              }
+            },
+            {
+              "type": "frame",
+              "id": "zHRSR",
+              "name": "Header/Home DS",
+              "reusable": true,
               "width": "fill_container",
               "height": 72,
               "fill": "#FFFFFF",
@@ -1691,69 +1855,51 @@
               "children": [
                 {
                   "type": "frame",
-                  "id": "zjlar",
-                  "name": "brandBlock",
+                  "id": "lUWAi",
+                  "name": "homeTopL",
                   "layout": "vertical",
-                  "gap": 2,
+                  "gap": 4,
                   "children": [
                     {
                       "type": "text",
-                      "id": "FnOYb",
-                      "name": "brandTitle",
+                      "id": "Y7mHu",
+                      "name": "homeTitle",
                       "fill": "#1D1C19",
-                      "content": "MARGEA",
+                      "content": "MARGEA · GROUPS VIEW",
                       "fontFamily": "Space Grotesk",
-                      "fontSize": 20,
+                      "fontSize": 22,
                       "fontWeight": "700"
                     },
                     {
                       "type": "text",
-                      "id": "FaKt3",
-                      "name": "brandSub",
-                      "fill": "#776F5B",
-                      "content": "PR ANALYTICS WORKSPACE",
+                      "id": "5Z5Yn",
+                      "name": "homeSub",
+                      "fill": "#6F6858",
+                      "content": "Busca automática por scopes: org:* + user:*",
                       "fontFamily": "IBM Plex Mono",
-                      "fontSize": 11,
+                      "fontSize": 12,
                       "fontWeight": "normal"
                     }
                   ]
                 },
                 {
                   "type": "frame",
-                  "id": "dcF1O",
-                  "name": "headerActions",
+                  "id": "yvgRV",
+                  "name": "homeTopR",
                   "gap": 10,
                   "alignItems": "center",
                   "children": [
                     {
-                      "id": "xguyv",
+                      "id": "bnNum",
                       "type": "ref",
-                      "ref": "lHKGf",
-                      "name": "panelUserNew",
-                      "descendants": {
-                        "MBEco": {
-                          "stroke": {},
-                          "fill": "#F8F4E7"
-                        },
-                        "yyN5i": {
-                          "x": 6,
-                          "y": 6
-                        },
-                        "9HhiU": {
-                          "fill": "#E9E1CD",
-                          "stroke": {}
-                        },
-                        "3l49r": {
-                          "content": "READ ONLY",
-                          "fill": "#3A2D00"
-                        }
-                      }
+                      "ref": "5Ldmu",
+                      "name": "homeUserNew"
                     },
                     {
-                      "id": "bsp9n",
+                      "id": "manfQ",
                       "type": "ref",
                       "ref": "o7f7S",
-                      "name": "headerRefreshBtn",
+                      "name": "refreshBtn",
                       "width": "fit_content",
                       "height": 36,
                       "descendants": {
@@ -1772,385 +1918,8 @@
     },
     {
       "type": "frame",
-      "id": "LCFbl",
-      "x": 1360,
-      "y": 0,
-      "name": "Screen - Stats Panel",
-      "width": 1280,
-      "fill": "#F6F4EE",
-      "layout": "vertical",
-      "gap": 16,
-      "padding": 24,
-      "children": [
-        {
-          "type": "frame",
-          "id": "EBE86",
-          "name": "statsCopy",
-          "width": "fill_container",
-          "fill": "#FFFFFF",
-          "cornerRadius": 10,
-          "layout": "vertical",
-          "gap": 10,
-          "padding": 14,
-          "children": [
-            {
-              "type": "frame",
-              "id": "O6JsR",
-              "name": "statsRowIsolated",
-              "width": "fill_container",
-              "gap": 10,
-              "children": [
-                {
-                  "id": "QEmhP",
-                  "type": "ref",
-                  "ref": "xbRF1",
-                  "width": "fill_container",
-                  "name": "statsA",
-                  "descendants": {
-                    "xdtJ2": {
-                      "content": "TOTAL PRs"
-                    },
-                    "SngRb": {
-                      "content": "184"
-                    },
-                    "jvjdO": {
-                      "content": "+12 semana"
-                    }
-                  }
-                },
-                {
-                  "id": "j0mjg",
-                  "type": "ref",
-                  "ref": "xbRF1",
-                  "width": "fill_container",
-                  "name": "statsB",
-                  "descendants": {
-                    "xdtJ2": {
-                      "content": "ABERTOS"
-                    },
-                    "SngRb": {
-                      "content": "72"
-                    },
-                    "jvjdO": {
-                      "content": "39% do total"
-                    }
-                  }
-                },
-                {
-                  "id": "dnYy5",
-                  "type": "ref",
-                  "ref": "xbRF1",
-                  "width": "fill_container",
-                  "name": "statsC",
-                  "descendants": {
-                    "xdtJ2": {
-                      "content": "MERGED"
-                    },
-                    "SngRb": {
-                      "content": "96"
-                    },
-                    "jvjdO": {
-                      "content": "52% do total"
-                    }
-                  }
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "frame",
-      "id": "J6Ijn",
-      "x": 1360,
-      "y": 260,
-      "name": "Screen - Group Panel",
-      "width": 1280,
-      "fill": "#F6F4EE",
-      "layout": "vertical",
-      "gap": 16,
-      "padding": 24,
-      "children": [
-        {
-          "type": "frame",
-          "id": "ZvaK0",
-          "name": "groupCopy",
-          "width": "fill_container",
-          "fill": "#FFFFFF",
-          "cornerRadius": 10,
-          "layout": "vertical",
-          "gap": 10,
-          "padding": 14,
-          "children": [
-            {
-              "id": "KqJir",
-              "type": "ref",
-              "ref": "Fuzal",
-              "name": "groupPanelIsolated",
-              "descendants": {
-                "xjMkf": {
-                  "content": "GROUP / REACT"
-                },
-                "6sCy3": {
-                  "content": "24 PRs · base: main · CI misto · click abre detalhes"
-                }
-              }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "frame",
-      "id": "Ray4A",
-      "x": 0,
-      "y": 520,
-      "name": "Screen - Group Detail Panel",
-      "width": 1280,
-      "fill": "#F6F4EE",
-      "layout": "vertical",
-      "gap": 16,
-      "padding": 24,
-      "children": [
-        {
-          "type": "frame",
-          "id": "MXm6l",
-          "name": "detailCopy",
-          "width": "fill_container",
-          "fill": "#FFFFFF",
-          "cornerRadius": 10,
-          "layout": "vertical",
-          "gap": 10,
-          "padding": 14,
-          "children": [
-            {
-              "id": "obQQg",
-              "type": "ref",
-              "ref": "Fuzal",
-              "name": "detailPanelIsolated",
-              "descendants": {
-                "xjMkf": {
-                  "content": "DETALHE DO GRUPO"
-                },
-                "6sCy3": {
-                  "content": "Lista de PRs, estado CI, autor e ações em lote para close/merge."
-                }
-              }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "frame",
-      "id": "bTf5Q",
-      "x": 1446,
-      "y": -1366,
-      "name": "Screen - Auth Panel",
-      "width": 1280,
-      "fill": "#F6F4EE",
-      "layout": "vertical",
-      "gap": 16,
-      "padding": 24,
-      "children": [
-        {
-          "type": "frame",
-          "id": "DT8sW",
-          "name": "authCopy",
-          "width": "fill_container",
-          "fill": "#FFFFFF",
-          "cornerRadius": 10,
-          "layout": "vertical",
-          "gap": 10,
-          "padding": 14,
-          "children": [
-            {
-              "type": "frame",
-              "id": "gU15m",
-              "name": "authPanelRow",
-              "width": "fill_container",
-              "justifyContent": "center",
-              "children": [
-                {
-                  "type": "frame",
-                  "id": "jejKO",
-                  "name": "authPanelCopy",
-                  "width": 520,
-                  "fill": "#FFFFFF",
-                  "cornerRadius": 12,
-                  "layout": "vertical",
-                  "gap": 14,
-                  "padding": 20,
-                  "children": [
-                    {
-                      "type": "text",
-                      "id": "XDV03",
-                      "name": "loginBrand",
-                      "fill": "#1D1C19",
-                      "content": "MARGEA",
-                      "fontFamily": "Space Grotesk",
-                      "fontSize": 30,
-                      "fontWeight": "700"
-                    },
-                    {
-                      "type": "text",
-                      "id": "oX5hg",
-                      "name": "loginText",
-                      "fill": "#4E493D",
-                      "content": "Acompanhe PRs do Renovate com agrupamento inteligente e ações em lote.",
-                      "fontFamily": "IBM Plex Mono",
-                      "fontSize": 13,
-                      "fontWeight": "normal"
-                    },
-                    {
-                      "id": "zRPFr",
-                      "type": "ref",
-                      "ref": "Fuzal",
-                      "name": "modePanel",
-                      "descendants": {
-                        "xjMkf": {
-                          "content": "ACCESS MODE"
-                        },
-                        "6sCy3": {
-                          "content": "Read: visualiza dados. Write: habilita merge/close em lote."
-                        }
-                      }
-                    },
-                    {
-                      "type": "frame",
-                      "id": "YZcrV",
-                      "name": "modeActions",
-                      "width": "fill_container",
-                      "gap": 10,
-                      "children": [
-                        {
-                          "id": "Jr1Bk",
-                          "type": "ref",
-                          "ref": "jfNYE",
-                          "width": "fill_container",
-                          "name": "modeRead",
-                          "descendants": {
-                            "128Wn": {
-                              "content": "READ ONLY"
-                            }
-                          }
-                        },
-                        {
-                          "id": "00v7l",
-                          "type": "ref",
-                          "ref": "o7f7S",
-                          "width": "fill_container",
-                          "name": "modeWrite",
-                          "descendants": {
-                            "Ui8uj": {
-                              "content": "READ + WRITE"
-                            }
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "id": "H7gJn",
-                      "type": "ref",
-                      "ref": "8sl3P",
-                      "width": "fill_container",
-                      "name": "patField",
-                      "descendants": {
-                        "SMPgG": {
-                          "content": "PERSONAL ACCESS TOKEN"
-                        },
-                        "QGYxC": {
-                          "content": "ghp_xxxxxxxxxxxxx"
-                        }
-                      }
-                    },
-                    {
-                      "type": "frame",
-                      "id": "xRlkj",
-                      "name": "ctaRow",
-                      "width": "fill_container",
-                      "gap": 10,
-                      "children": [
-                        {
-                          "id": "xldVT",
-                          "type": "ref",
-                          "ref": "o7f7S",
-                          "width": "fill_container",
-                          "name": "ctaOauth",
-                          "descendants": {
-                            "Ui8uj": {
-                              "content": "ENTRAR COM GITHUB"
-                            }
-                          }
-                        },
-                        {
-                          "id": "fSNb7",
-                          "type": "ref",
-                          "ref": "jfNYE",
-                          "width": "fill_container",
-                          "name": "ctaPat",
-                          "descendants": {
-                            "128Wn": {
-                              "content": "CONTINUAR COM PAT"
-                            }
-                          }
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "frame",
-      "id": "SzxI6",
-      "x": 0,
-      "y": 1060,
-      "name": "Screen - How It Works Panel",
-      "width": 1280,
-      "fill": "#F6F4EE",
-      "layout": "vertical",
-      "gap": 16,
-      "padding": 24,
-      "children": [
-        {
-          "type": "frame",
-          "id": "eRVQX",
-          "name": "howCopy",
-          "width": "fill_container",
-          "fill": "#FFFFFF",
-          "cornerRadius": 10,
-          "layout": "vertical",
-          "gap": 10,
-          "padding": 14,
-          "children": [
-            {
-              "id": "1zXHZ",
-              "type": "ref",
-              "ref": "Fuzal",
-              "name": "helpPanelIsolated",
-              "descendants": {
-                "xjMkf": {
-                  "content": "HOW IT WORKS"
-                },
-                "6sCy3": {
-                  "content": "1) Escolha modo  2) Autorize no GitHub  3) Retorne ao app com sessão ativa e segura."
-                }
-              }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "frame",
       "id": "HLSiy",
-      "x": 4240,
+      "x": 896,
       "y": -1366,
       "name": "Screen - PR Group Detail",
       "width": 1360,
@@ -2160,95 +1929,41 @@
       "padding": 24,
       "children": [
         {
-          "type": "frame",
-          "id": "QhOj9",
+          "id": "L0yUV",
+          "type": "ref",
+          "ref": "zHRSR",
           "name": "detailTop",
           "width": "fill_container",
           "height": 72,
-          "fill": "#FFFFFF",
-          "cornerRadius": 10,
-          "padding": [
-            0,
-            16
-          ],
-          "justifyContent": "space_between",
-          "alignItems": "center",
-          "children": [
-            {
-              "type": "frame",
-              "id": "bQsOA",
-              "name": "detailTopL",
-              "layout": "vertical",
-              "gap": 4,
-              "children": [
-                {
-                  "type": "text",
-                  "id": "Poxdj",
-                  "name": "detailTitle",
-                  "fill": "#1D1C19",
-                  "content": "GROUP DETAIL · react v19.1.0",
-                  "fontFamily": "Space Grotesk",
-                  "fontSize": 22,
-                  "fontWeight": "700"
-                },
-                {
-                  "type": "text",
-                  "id": "Wz4Pg",
-                  "name": "detailSub",
-                  "fill": "#6F6858",
-                  "content": "base: main · labels: dependencies, frontend · 24 PRs",
-                  "fontFamily": "IBM Plex Mono",
-                  "fontSize": 12,
-                  "fontWeight": "normal"
-                }
-              ]
+          "x": 24,
+          "y": 24,
+          "descendants": {
+            "Y7mHu": {
+              "content": "MARGEA · GROUP DETAIL"
             },
-            {
-              "type": "frame",
-              "id": "5nR6n",
-              "name": "detailTopR",
-              "gap": 10,
-              "alignItems": "center",
-              "children": [
-                {
-                  "id": "qFC2a",
-                  "type": "ref",
-                  "ref": "lHKGf",
-                  "name": "detailUserNew",
-                  "descendants": {
-                    "MBEco": {
-                      "stroke": {},
-                      "fill": "#E7F0E9"
-                    },
-                    "yyN5i": {
-                      "x": 6,
-                      "y": 6
-                    },
-                    "9HhiU": {
-                      "fill": "#DDEDE4",
-                      "stroke": {},
-                      "enabled": false
-                    },
-                    "3l49r": {
-                      "content": "READ + WRITE",
-                      "fill": "#123521"
-                    }
-                  }
-                },
-                {
-                  "id": "8YaM2",
-                  "type": "ref",
-                  "ref": "jfNYE",
-                  "name": "detailBack",
-                  "descendants": {
-                    "128Wn": {
-                      "content": "BACK TO GROUPS"
-                    }
-                  }
+            "5Z5Yn": {
+              "content": "GROUP DETAIL · react v19.1.0 · base: main · labels: dependencies, frontend · 24 PRs",
+              "enabled": false
+            },
+            "bnNum": {
+              "id": "bN9oq",
+              "type": "ref",
+              "ref": "ZkeTR",
+              "name": "detailUserNew"
+            },
+            "manfQ": {
+              "id": "7IPeu",
+              "type": "ref",
+              "ref": "jfNYE",
+              "name": "detailBack",
+              "enabled": false,
+              "descendants": {
+                "128Wn": {
+                  "content": "BACK TO GROUPS"
                 }
-              ]
+              }
             }
-          ]
+          }
         },
         {
           "type": "frame",
@@ -2564,7 +2279,7 @@
     {
       "type": "frame",
       "id": "V9eVa",
-      "x": 2760,
+      "x": -572,
       "y": -1366,
       "name": "Screen - Home Authenticated",
       "width": 1360,
@@ -2574,97 +2289,23 @@
       "padding": 24,
       "children": [
         {
-          "type": "frame",
-          "id": "wH4Hm",
+          "id": "3hgsW",
+          "type": "ref",
+          "ref": "zHRSR",
           "name": "homeTop",
           "width": "fill_container",
           "height": 72,
-          "fill": "#FFFFFF",
-          "cornerRadius": 10,
-          "padding": [
-            0,
-            16
-          ],
-          "justifyContent": "space_between",
-          "alignItems": "center",
-          "children": [
-            {
-              "type": "frame",
-              "id": "fc94Q",
-              "name": "homeTopL",
-              "layout": "vertical",
-              "gap": 4,
-              "children": [
-                {
-                  "type": "text",
-                  "id": "c8Tw1",
-                  "name": "homeTitle",
-                  "fill": "#1D1C19",
-                  "content": "MARGEA · GROUPS VIEW",
-                  "fontFamily": "Space Grotesk",
-                  "fontSize": 22,
-                  "fontWeight": "700"
-                },
-                {
-                  "type": "text",
-                  "id": "hqcQj",
-                  "name": "homeSub",
-                  "fill": "#6F6858",
-                  "content": "Busca automática por scopes: org:* + user:*",
-                  "fontFamily": "IBM Plex Mono",
-                  "fontSize": 12,
-                  "fontWeight": "normal"
-                }
-              ]
+          "x": 24,
+          "y": 24,
+          "descendants": {
+            "manfQ": {
+              "enabled": false
             },
-            {
-              "type": "frame",
-              "id": "F6bLt",
-              "name": "homeTopR",
-              "gap": 10,
-              "alignItems": "center",
-              "children": [
-                {
-                  "id": "EOQX2",
-                  "type": "ref",
-                  "ref": "lHKGf",
-                  "name": "homeUserNew",
-                  "descendants": {
-                    "MBEco": {
-                      "stroke": {},
-                      "fill": "#F8F4E7"
-                    },
-                    "yyN5i": {
-                      "x": 6,
-                      "y": 6
-                    },
-                    "9HhiU": {
-                      "fill": "#E9E1CD",
-                      "stroke": {},
-                      "enabled": false
-                    },
-                    "3l49r": {
-                      "content": "READ ONLY",
-                      "fill": "#3A2D00"
-                    }
-                  }
-                },
-                {
-                  "id": "c6iPF",
-                  "type": "ref",
-                  "ref": "o7f7S",
-                  "name": "refreshBtn",
-                  "width": "fit_content",
-                  "height": 36,
-                  "descendants": {
-                    "Ui8uj": {
-                      "content": "ATUALIZAR"
-                    }
-                  }
-                }
-              ]
+            "manfQ/Ui8uj": {
+              "x": 16,
+              "y": 9.5
             }
-          ]
+          }
         },
         {
           "type": "frame",
@@ -3074,6 +2715,343 @@
           "fontFamily": "IBM Plex Mono",
           "fontSize": 11,
           "fontWeight": "normal"
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "XXvZ4",
+      "x": 2345,
+      "y": -1366,
+      "name": "Landing - Stop Repetitive PRs",
+      "width": 1440,
+      "fill": "#F2F2F2",
+      "layout": "vertical",
+      "gap": 20,
+      "padding": [
+        20,
+        24
+      ],
+      "children": [
+        {
+          "type": "frame",
+          "id": "gXLxo",
+          "name": "Landing/Header",
+          "width": "fill_container",
+          "height": 72,
+          "fill": "#FFFFFF",
+          "cornerRadius": 10,
+          "padding": [
+            0,
+            16
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "d0UUq",
+              "name": "brand",
+              "fill": "#111111",
+              "content": "MARGEA",
+              "fontFamily": "Space Grotesk",
+              "fontSize": 24,
+              "fontWeight": "700"
+            },
+            {
+              "type": "frame",
+              "id": "bhcWo",
+              "name": "nav",
+              "gap": 16,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "tQioS",
+                  "fill": "#4D4A40",
+                  "content": "How it works",
+                  "fontFamily": "IBM Plex Mono",
+                  "fontSize": 12,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "oCmOb",
+                  "fill": "#4D4A40",
+                  "content": "Results",
+                  "fontFamily": "IBM Plex Mono",
+                  "fontSize": 12,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "Jh5rC",
+                  "fill": "#4D4A40",
+                  "content": "FAQ",
+                  "fontFamily": "IBM Plex Mono",
+                  "fontSize": 12,
+                  "fontWeight": "700"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "xxHZW",
+              "name": "actions",
+              "gap": 10,
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "EF7UR",
+                  "type": "ref",
+                  "ref": "jfNYE",
+                  "descendants": {
+                    "128Wn": {
+                      "content": "View Demo"
+                    }
+                  }
+                },
+                {
+                  "id": "KRPJI",
+                  "type": "ref",
+                  "ref": "o7f7S",
+                  "descendants": {
+                    "Ui8uj": {
+                      "content": "Start Free"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "aGzhr",
+          "name": "Landing/Hero",
+          "metadata": {
+            "type": "unsplash",
+            "username": "erwinbosman",
+            "link": "https://unsplash.com/@erwinbosman",
+            "author": "Erwin Bosman"
+          },
+          "width": "fill_container",
+          "fill": {
+            "type": "image",
+            "enabled": true,
+            "url": "https://images.unsplash.com/photo-1770045450464-42416380cbba?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NzMzNDExNzh8&ixlib=rb-4.1.0&q=80&w=1080",
+            "mode": "fill"
+          },
+          "cornerRadius": 14,
+          "gap": 20,
+          "padding": 24,
+          "children": [
+            {
+              "type": "frame",
+              "id": "QmYsK",
+              "name": "heroLeft",
+              "width": "fill_container",
+              "fill": "#FFFFFFE6",
+              "cornerRadius": 12,
+              "layout": "vertical",
+              "gap": 14,
+              "padding": 16,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "uwei3",
+                  "name": "pill",
+                  "fill": "#FFE8DA",
+                  "cornerRadius": 999,
+                  "padding": [
+                    4,
+                    10
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "He39l",
+                      "fill": "#9A3D0A",
+                      "content": "FOR TEAMS DROWNING IN BOT PRs",
+                      "fontFamily": "IBM Plex Mono",
+                      "fontSize": 11,
+                      "fontWeight": "700"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "eW8Cm",
+                  "name": "h1",
+                  "fill": "#111111",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Stop wasting hours triaging repetitive pull requests.",
+                  "fontFamily": "Space Grotesk",
+                  "fontSize": 54,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "1WJzH",
+                  "name": "heroBody",
+                  "fill": "#4D4A40",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Margea groups similar dependency PRs, runs safe batch actions in background, and keeps your team focused on real code review.",
+                  "fontFamily": "IBM Plex Mono",
+                  "fontSize": 15,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "XgBEz",
+                  "name": "heroCtas",
+                  "gap": 10,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "id": "txmAj",
+                      "type": "ref",
+                      "ref": "o7f7S",
+                      "descendants": {
+                        "Ui8uj": {
+                          "content": "Automate My Queue"
+                        }
+                      }
+                    },
+                    {
+                      "id": "CzGvM",
+                      "type": "ref",
+                      "ref": "jfNYE",
+                      "descendants": {
+                        "128Wn": {
+                          "content": "See Live Workflow"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "LHXMW",
+              "name": "heroRight",
+              "width": 520,
+              "fill": "#FFFFFFE0",
+              "cornerRadius": 12,
+              "layout": "vertical",
+              "gap": 10,
+              "padding": 10,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "Lcwvr",
+                  "name": "heroVisual",
+                  "metadata": {
+                    "type": "unsplash",
+                    "username": "zoshuacolah",
+                    "link": "https://unsplash.com/@zoshuacolah",
+                    "author": "Zoshua Colah"
+                  },
+                  "width": "fill_container",
+                  "height": 320,
+                  "fill": {
+                    "type": "image",
+                    "enabled": true,
+                    "url": "https://images.unsplash.com/photo-1751200065697-4461cc2b43cb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NzMzNDExNTh8&ixlib=rb-4.1.0&q=80&w=1080",
+                    "mode": "fill"
+                  },
+                  "cornerRadius": 12
+                },
+                {
+                  "type": "text",
+                  "id": "AYMXg",
+                  "fill": "#6B6454",
+                  "content": "Real-time grouped queue, quota-aware batching, toast notifications.",
+                  "fontFamily": "IBM Plex Mono",
+                  "fontSize": 11,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "QDrVC",
+          "name": "Landing/Problem",
+          "width": "fill_container",
+          "height": "fit_content(0)",
+          "fill": "#FFFFFF",
+          "cornerRadius": 14,
+          "layout": "vertical",
+          "gap": 14,
+          "padding": 20
+        },
+        {
+          "type": "frame",
+          "id": "dkgEq",
+          "name": "Landing/Flow",
+          "width": "fill_container",
+          "height": "fit_content(0)",
+          "fill": "#FFFFFF",
+          "cornerRadius": 14,
+          "layout": "vertical",
+          "gap": 14,
+          "padding": 20
+        },
+        {
+          "type": "frame",
+          "id": "aCdxy",
+          "name": "Landing/Proof",
+          "width": "fill_container",
+          "height": "fit_content(0)",
+          "fill": "#FFFFFF",
+          "cornerRadius": 14,
+          "layout": "vertical",
+          "gap": 14,
+          "padding": 20
+        },
+        {
+          "type": "frame",
+          "id": "4HjsU",
+          "name": "Landing/FAQ",
+          "width": "fill_container",
+          "height": "fit_content(0)",
+          "fill": "#FFFFFF",
+          "cornerRadius": 14,
+          "layout": "vertical",
+          "gap": 10,
+          "padding": 20
+        },
+        {
+          "type": "frame",
+          "id": "I8cfZ",
+          "name": "Landing/Final CTA",
+          "width": "fill_container",
+          "height": "fit_content(0)",
+          "fill": "#111111",
+          "cornerRadius": 14,
+          "padding": 24,
+          "justifyContent": "space_between",
+          "alignItems": "center"
+        },
+        {
+          "type": "frame",
+          "id": "9jMtx",
+          "name": "Landing/Footer",
+          "width": "fill_container",
+          "height": "fit_content(0)",
+          "fill": "#F2F2F2",
+          "padding": [
+            12,
+            4
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center"
         }
       ]
     }
