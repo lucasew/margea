@@ -1,4 +1,5 @@
-import { Eye, Edit } from 'react-feather';
+import { useState } from 'react';
+import { Eye, Edit, Key } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import { Logo } from './Logo';
 import { Footer } from './Footer';
@@ -10,19 +11,65 @@ interface LoginPageProps {
 
 export function LoginPage({ onSkip, currentMode }: LoginPageProps) {
   const { t } = useTranslation();
-  const handleGitHubLogin = async (mode: 'read' | 'write') => {
-    // Se já está autenticado, fazer logout primeiro para limpar o cookie antigo
-    if (currentMode) {
-      try {
-        await fetch('/api/auth/logout', {
-          method: 'POST',
-          credentials: 'include',
-        });
-      } catch (error) {
-        console.error('Error logging out before re-auth:', error);
-      }
+  const [patToken, setPatToken] = useState('');
+  const [patMode, setPatMode] = useState<'read' | 'write'>('read');
+  const [patError, setPatError] = useState<string | null>(null);
+  const [isPATLoading, setIsPATLoading] = useState(false);
+
+  const clearSessionIfNeeded = async () => {
+    if (!currentMode) return;
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch (error) {
+      console.error('Error logging out before re-auth:', error);
     }
+  };
+
+  const handleGitHubLogin = async (mode: 'read' | 'write') => {
+    await clearSessionIfNeeded();
     window.location.href = `/api/auth/github?mode=${mode}`;
+  };
+
+  const handlePATLogin = async () => {
+    const token = patToken.trim();
+    if (!token) {
+      setPatError(t('loginPage.patTokenRequired'));
+      return;
+    }
+
+    setIsPATLoading(true);
+    setPatError(null);
+
+    try {
+      await clearSessionIfNeeded();
+      const response = await fetch('/api/auth/pat', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          token,
+          mode: patMode,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        setPatError(errorText || t('loginPage.patLoginFailed'));
+        return;
+      }
+
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Error authenticating with PAT:', error);
+      setPatError(t('loginPage.patLoginFailed'));
+    } finally {
+      setIsPATLoading(false);
+    }
   };
 
   const isReauthorizing = !!currentMode;
@@ -98,6 +145,61 @@ export function LoginPage({ onSkip, currentMode }: LoginPageProps) {
                 </span>
               </button>
             </div>
+          </div>
+
+          <div className="divider">{t('loginPage.orUsePAT')}</div>
+
+          <div className="space-y-3 mb-6">
+            <label className="form-control w-full">
+              <span className="label-text mb-1">{t('loginPage.patLabel')}</span>
+              <input
+                type="password"
+                value={patToken}
+                onChange={(e) => setPatToken(e.target.value)}
+                placeholder={t('loginPage.patPlaceholder')}
+                className="input input-bordered w-full"
+                autoComplete="off"
+              />
+            </label>
+
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setPatMode('read')}
+                className={`btn btn-sm flex-1 ${
+                  patMode === 'read' ? 'btn-outline btn-primary' : 'btn-ghost'
+                }`}
+              >
+                {t('loginPage.readOnly')}
+              </button>
+              <button
+                type="button"
+                onClick={() => setPatMode('write')}
+                className={`btn btn-sm flex-1 ${
+                  patMode === 'write' ? 'btn-outline btn-primary' : 'btn-ghost'
+                }`}
+              >
+                {t('loginPage.readWrite')}
+              </button>
+            </div>
+
+            <button
+              type="button"
+              onClick={handlePATLogin}
+              disabled={isPATLoading}
+              className="btn btn-secondary w-full gap-2"
+            >
+              <Key size={16} />
+              {isPATLoading
+                ? t('loginPage.patSubmitting')
+                : t('loginPage.continueWithPAT')}
+            </button>
+
+            {patError && (
+              <div role="alert" className="alert alert-error">
+                <span className="text-sm">{patError}</span>
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col gap-3">

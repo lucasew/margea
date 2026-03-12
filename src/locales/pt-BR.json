@@ -105,7 +105,14 @@
         "reauthorizingMessage": "",
         "readWriteDescription": "",
         "subtitle": "",
-        "howItWorks": ""
+        "howItWorks": "",
+        "orUsePAT": "ou use PAT",
+        "patLabel": "Personal Access Token (PAT)",
+        "patPlaceholder": "Cole seu token do GitHub",
+        "patSubmitting": "Autenticando...",
+        "continueWithPAT": "Continuar com PAT",
+        "patTokenRequired": "Informe um token PAT válido.",
+        "patLoginFailed": "Falha ao autenticar com PAT."
     },
     "bulkActionModal": {
         "pending": "",

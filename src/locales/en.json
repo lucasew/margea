@@ -85,7 +85,14 @@
     "step1": "• Choose the desired access level",
     "step2": "• Log in with your GitHub account",
     "step3": "• Authorize the app according to the chosen level",
-    "step4": "• Search, filter, and manage PRs easily"
+    "step4": "• Search, filter, and manage PRs easily",
+    "orUsePAT": "or use PAT",
+    "patLabel": "Personal Access Token (PAT)",
+    "patPlaceholder": "Paste your GitHub token",
+    "patSubmitting": "Authenticating...",
+    "continueWithPAT": "Continue with PAT",
+    "patTokenRequired": "Provide a valid PAT token.",
+    "patLoginFailed": "Failed to authenticate with PAT."
   },
   "prGroupDetail": {
     "backToGroups": "Back to groups",
