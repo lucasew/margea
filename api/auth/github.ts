@@ -19,14 +19,18 @@ export const config = { runtime: 'edge' };
  */
 export default async function handler(req: Request) {
   const clientId = process.env.GITHUB_CLIENT_ID;
-  const callbackUrl = process.env.GITHUB_CALLBACK_URL;
   const sessionSecret = process.env.SESSION_SECRET;
+  const requestUrl = new URL(req.url);
+  const dynamicCallbackUrl = `${requestUrl.origin}/api/auth/callback`;
+  const callbackUrl =
+    process.env.VERCEL_ENV === 'production' && process.env.GITHUB_CALLBACK_URL
+      ? process.env.GITHUB_CALLBACK_URL
+      : dynamicCallbackUrl;
 
-  if (!clientId || !callbackUrl || !sessionSecret) {
+  if (!clientId || !sessionSecret) {
     return new Response('Missing environment variables', { status: 500 });
   }
 
-  const requestUrl = new URL(req.url);
   const mode = requestUrl.searchParams.get('mode') || 'read';
 
   // 🛡️ SENTINEL: Generate a random nonce to embed in signed state.

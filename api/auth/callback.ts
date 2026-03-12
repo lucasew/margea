@@ -19,6 +19,7 @@ export const config = { runtime: 'edge' };
  * @returns A 302 Redirect response to the application root with the new session.
  */
 export default async function handler(req: Request) {
+  const requestUrl = new URL(req.url);
   const { searchParams } = new URL(req.url);
   const code = searchParams.get('code');
   const stateTokenFromParam = searchParams.get('state');
@@ -80,7 +81,7 @@ export default async function handler(req: Request) {
       client_id: process.env.GITHUB_CLIENT_ID,
       client_secret: process.env.GITHUB_CLIENT_SECRET,
       code,
-      redirect_uri: process.env.GITHUB_CALLBACK_URL,
+      redirect_uri: `${requestUrl.origin}/api/auth/callback`,
     }),
   });
 
@@ -104,7 +105,7 @@ export default async function handler(req: Request) {
     .setExpirationTime('7d')
     .sign(secret);
 
-  const baseUrl = new URL(req.url).origin;
+  const baseUrl = requestUrl.origin;
 
   // Set the session cookie and clear the state cookie
   const sessionCookie = `session=${session}; HttpOnly; Secure; SameSite=Strict; Max-Age=${
