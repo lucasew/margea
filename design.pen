@@ -1138,20 +1138,11 @@
                           "type": "ref",
                           "ref": "o7f7S",
                           "name": "filtersRefresh",
+                          "width": "fit_content",
+                          "height": 36,
                           "descendants": {
                             "Ui8uj": {
                               "content": "ATUALIZAR"
-                            }
-                          }
-                        },
-                        {
-                          "id": "bD1CF",
-                          "type": "ref",
-                          "ref": "jfNYE",
-                          "name": "filtersExport",
-                          "descendants": {
-                            "128Wn": {
-                              "content": "EXPORTAR JSON"
                             }
                           }
                         }
@@ -1203,9 +1194,9 @@
                   "type": "frame",
                   "id": "geCyZ",
                   "name": "Checkbox",
-                  "width": 18,
-                  "height": 18,
-                  "fill": "#FFFFFF",
+                  "width": 20,
+                  "height": 20,
+                  "fill": "#E5DDCC",
                   "cornerRadius": 4,
                   "justifyContent": "center",
                   "alignItems": "center",
@@ -1225,10 +1216,10 @@
                       "id": "Uarfh",
                       "name": "Check",
                       "enabled": false,
-                      "fill": "#2A2408",
+                      "fill": "#FFFFFF",
                       "content": "✓",
                       "fontFamily": "IBM Plex Mono",
-                      "fontSize": 11,
+                      "fontSize": 12,
                       "fontWeight": "700"
                     }
                   ]
@@ -1511,6 +1502,109 @@
                   ]
                 }
               ]
+            },
+            {
+              "type": "frame",
+              "id": "lHKGf",
+              "name": "User/Badge",
+              "reusable": true,
+              "height": 36,
+              "fill": "#FFFFFF",
+              "cornerRadius": 999,
+              "gap": 8,
+              "padding": [
+                4,
+                10
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "MBEco",
+                  "name": "Avatar Ring",
+                  "width": 32,
+                  "height": 32,
+                  "fill": "#F8F4E7",
+                  "cornerRadius": 999,
+                  "layout": "none",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "Va8sq",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Pie Back",
+                      "width": 32,
+                      "height": 32,
+                      "fill": {
+                        "type": "image",
+                        "enabled": true,
+                        "url": "./images/generated-1773340138244.png",
+                        "mode": "fill"
+                      },
+                      "cornerRadius": 999
+                    },
+                    {
+                      "type": "frame",
+                      "id": "yyN5i",
+                      "x": 6,
+                      "y": 6,
+                      "name": "Avatar",
+                      "metadata": {
+                        "type": "unsplash",
+                        "username": "jawfox_photography",
+                        "link": "https://unsplash.com/@jawfox_photography",
+                        "author": "Alexander Jawfox"
+                      },
+                      "width": 20,
+                      "height": 20,
+                      "fill": {
+                        "type": "image",
+                        "enabled": true,
+                        "url": "https://images.unsplash.com/photo-1642456074142-92f75cb84533?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NzMzMzkxMjF8&ixlib=rb-4.1.0&q=80&w=1080",
+                        "mode": "fill"
+                      },
+                      "cornerRadius": 999
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "fNfHw",
+                  "name": "Username",
+                  "fill": "#2F2B22",
+                  "content": "@lucasew",
+                  "fontFamily": "IBM Plex Mono",
+                  "fontSize": 11,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "frame",
+                  "id": "9HhiU",
+                  "name": "Mode",
+                  "height": 22,
+                  "fill": "#F3EFE3",
+                  "cornerRadius": 999,
+                  "padding": [
+                    0,
+                    10
+                  ],
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "3l49r",
+                      "name": "Mode Text",
+                      "fill": "#5E5442",
+                      "content": "READ ONLY",
+                      "fontFamily": "IBM Plex Mono",
+                      "fontSize": 10,
+                      "fontWeight": "700"
+                    }
+                  ]
+                }
+              ]
             }
           ]
         }
@@ -1632,13 +1726,26 @@
                   "alignItems": "center",
                   "children": [
                     {
-                      "id": "BZnQP",
+                      "id": "xguyv",
                       "type": "ref",
-                      "ref": "9MRGg",
-                      "name": "headerModeBadge",
+                      "ref": "lHKGf",
+                      "name": "panelUserNew",
                       "descendants": {
-                        "6rKLl": {
-                          "content": "READ MODE"
+                        "MBEco": {
+                          "stroke": {},
+                          "fill": "#F8F4E7"
+                        },
+                        "yyN5i": {
+                          "x": 6,
+                          "y": 6
+                        },
+                        "9HhiU": {
+                          "fill": "#E9E1CD",
+                          "stroke": {}
+                        },
+                        "3l49r": {
+                          "content": "READ ONLY",
+                          "fill": "#3A2D00"
                         }
                       }
                     },
@@ -1647,20 +1754,11 @@
                       "type": "ref",
                       "ref": "o7f7S",
                       "name": "headerRefreshBtn",
+                      "width": "fit_content",
+                      "height": 36,
                       "descendants": {
                         "Ui8uj": {
                           "content": "ATUALIZAR"
-                        }
-                      }
-                    },
-                    {
-                      "id": "T2EzO",
-                      "type": "ref",
-                      "ref": "jfNYE",
-                      "name": "headerExportBtn",
-                      "descendants": {
-                        "128Wn": {
-                          "content": "EXPORTAR"
                         }
                       }
                     }
@@ -2113,6 +2211,31 @@
               "alignItems": "center",
               "children": [
                 {
+                  "id": "qFC2a",
+                  "type": "ref",
+                  "ref": "lHKGf",
+                  "name": "detailUserNew",
+                  "descendants": {
+                    "MBEco": {
+                      "stroke": {},
+                      "fill": "#E7F0E9"
+                    },
+                    "yyN5i": {
+                      "x": 6,
+                      "y": 6
+                    },
+                    "9HhiU": {
+                      "fill": "#DDEDE4",
+                      "stroke": {},
+                      "enabled": false
+                    },
+                    "3l49r": {
+                      "content": "READ + WRITE",
+                      "fill": "#123521"
+                    }
+                  }
+                },
+                {
                   "id": "8YaM2",
                   "type": "ref",
                   "ref": "jfNYE",
@@ -2120,17 +2243,6 @@
                   "descendants": {
                     "128Wn": {
                       "content": "BACK TO GROUPS"
-                    }
-                  }
-                },
-                {
-                  "id": "a6irn",
-                  "type": "ref",
-                  "ref": "9MRGg",
-                  "name": "detailMode",
-                  "descendants": {
-                    "6rKLl": {
-                      "content": "WRITE MODE"
                     }
                   }
                 }
@@ -2255,7 +2367,7 @@
               "name": "rowA",
               "descendants": {
                 "geCyZ": {
-                  "fill": "#FFD43B",
+                  "fill": "#1F1A13",
                   "stroke": {}
                 },
                 "PQWJw": {
@@ -2264,7 +2376,7 @@
                 },
                 "Uarfh": {
                   "enabled": true,
-                  "fill": "#2A2408"
+                  "fill": "#FFFFFF"
                 },
                 "OM0co": {
                   "content": "#4281 chore(deps): update dependency react to v19.1.0"
@@ -2288,7 +2400,7 @@
               "name": "rowB",
               "descendants": {
                 "geCyZ": {
-                  "fill": "#FFD43B",
+                  "fill": "#1F1A13",
                   "stroke": {}
                 },
                 "PQWJw": {
@@ -2297,7 +2409,7 @@
                 },
                 "Uarfh": {
                   "enabled": true,
-                  "fill": "#2A2408"
+                  "fill": "#FFFFFF"
                 },
                 "OM0co": {
                   "content": "#4279 chore(deps): update dependency react-dom to v19.1.0"
@@ -2321,7 +2433,7 @@
               "name": "rowC",
               "descendants": {
                 "geCyZ": {
-                  "fill": "#FFFFFF",
+                  "fill": "#E5DDCC",
                   "stroke": {}
                 },
                 "PQWJw": {
@@ -2353,7 +2465,7 @@
               "name": "rowD",
               "descendants": {
                 "geCyZ": {
-                  "fill": "#FFFFFF",
+                  "fill": "#E5DDCC",
                   "stroke": {}
                 },
                 "PQWJw": {
@@ -2385,7 +2497,7 @@
               "name": "rowE",
               "descendants": {
                 "geCyZ": {
-                  "fill": "#FFFFFF",
+                  "fill": "#E5DDCC",
                   "stroke": {}
                 },
                 "PQWJw": {
@@ -2417,7 +2529,7 @@
               "name": "stressRow",
               "descendants": {
                 "geCyZ": {
-                  "fill": "#FFFFFF",
+                  "fill": "#E5DDCC",
                   "stroke": {}
                 },
                 "PQWJw": {
@@ -2513,13 +2625,27 @@
               "alignItems": "center",
               "children": [
                 {
-                  "id": "mfm4X",
+                  "id": "EOQX2",
                   "type": "ref",
-                  "ref": "9MRGg",
-                  "name": "modeBadge",
+                  "ref": "lHKGf",
+                  "name": "homeUserNew",
                   "descendants": {
-                    "6rKLl": {
-                      "content": "READ MODE"
+                    "MBEco": {
+                      "stroke": {},
+                      "fill": "#F8F4E7"
+                    },
+                    "yyN5i": {
+                      "x": 6,
+                      "y": 6
+                    },
+                    "9HhiU": {
+                      "fill": "#E9E1CD",
+                      "stroke": {},
+                      "enabled": false
+                    },
+                    "3l49r": {
+                      "content": "READ ONLY",
+                      "fill": "#3A2D00"
                     }
                   }
                 },
@@ -2528,20 +2654,11 @@
                   "type": "ref",
                   "ref": "o7f7S",
                   "name": "refreshBtn",
+                  "width": "fit_content",
+                  "height": 36,
                   "descendants": {
                     "Ui8uj": {
                       "content": "ATUALIZAR"
-                    }
-                  }
-                },
-                {
-                  "id": "uZ1eC",
-                  "type": "ref",
-                  "ref": "jfNYE",
-                  "name": "exportBtn",
-                  "descendants": {
-                    "128Wn": {
-                      "content": "EXPORTAR JSON"
                     }
                   }
                 }
@@ -2834,20 +2951,11 @@
                       "type": "ref",
                       "ref": "o7f7S",
                       "name": "filtersRefresh",
+                      "width": "fit_content",
+                      "height": 36,
                       "descendants": {
                         "Ui8uj": {
                           "content": "ATUALIZAR"
-                        }
-                      }
-                    },
-                    {
-                      "id": "fA6rL",
-                      "type": "ref",
-                      "ref": "jfNYE",
-                      "name": "filtersExport",
-                      "descendants": {
-                        "128Wn": {
-                          "content": "EXPORTAR JSON"
                         }
                       }
                     }
