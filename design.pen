@@ -512,19 +512,40 @@
                       "id": "rNkOR",
                       "type": "ref",
                       "ref": "o7f7S",
-                      "name": "previewBtnPrimary"
+                      "name": "previewBtnPrimary",
+                      "descendants": {
+                        "Ui8uj": {
+                          "x": 56.5,
+                          "y": 13.5
+                        }
+                      }
                     },
                     {
                       "id": "jLJeQ",
                       "type": "ref",
                       "ref": "jfNYE",
-                      "name": "previewBtnSecondary"
+                      "name": "previewBtnSecondary",
+                      "x": 192,
+                      "descendants": {
+                        "128Wn": {
+                          "x": 39.5,
+                          "y": 13.5
+                        }
+                      }
                     },
                     {
                       "id": "ZqdtW",
                       "type": "ref",
                       "ref": "9MRGg",
-                      "name": "previewBadge"
+                      "name": "previewBadge",
+                      "width": "fit_content",
+                      "x": 384,
+                      "descendants": {
+                        "6rKLl": {
+                          "x": 10,
+                          "y": 7.5
+                        }
+                      }
                     }
                   ]
                 },
@@ -539,13 +560,40 @@
                       "id": "Fm11m",
                       "type": "ref",
                       "ref": "8sl3P",
-                      "name": "previewInput"
+                      "name": "previewInput",
+                      "height": "fit_content",
+                      "descendants": {
+                        "9YFLS": {
+                          "width": "fill_container",
+                          "y": 20
+                        },
+                        "QGYxC": {
+                          "x": 14,
+                          "y": 13.5
+                        }
+                      }
                     },
                     {
                       "id": "dtffI",
                       "type": "ref",
                       "ref": "xbRF1",
-                      "name": "previewStat"
+                      "name": "previewStat",
+                      "height": "fit_content",
+                      "x": 332,
+                      "descendants": {
+                        "xdtJ2": {
+                          "x": 16,
+                          "y": 16
+                        },
+                        "SngRb": {
+                          "x": 16,
+                          "y": 36
+                        },
+                        "jvjdO": {
+                          "x": 16,
+                          "y": 80
+                        }
+                      }
                     }
                   ]
                 }
@@ -968,12 +1016,19 @@
                       "ref": "8sl3P",
                       "width": "fill_container",
                       "name": "filterRepo",
+                      "height": "fit_content",
                       "descendants": {
                         "SMPgG": {
                           "content": "REPOSITORY"
                         },
+                        "9YFLS": {
+                          "width": "fill_container",
+                          "y": 20
+                        },
                         "QGYxC": {
-                          "content": "acme/web"
+                          "content": "acme/web",
+                          "x": 14,
+                          "y": 13.5
                         }
                       }
                     },
@@ -983,12 +1038,20 @@
                       "ref": "8sl3P",
                       "width": "fill_container",
                       "name": "filterOwner",
+                      "height": "fit_content",
+                      "x": 305.75,
                       "descendants": {
                         "SMPgG": {
                           "content": "OWNER"
                         },
+                        "9YFLS": {
+                          "width": "fill_container",
+                          "y": 20
+                        },
                         "QGYxC": {
-                          "content": "acme"
+                          "content": "acme",
+                          "x": 14,
+                          "y": 13.5
                         }
                       }
                     },
@@ -998,12 +1061,20 @@
                       "ref": "8sl3P",
                       "width": "fill_container",
                       "name": "filterAuthor",
+                      "height": "fit_content",
+                      "x": 611.5,
                       "descendants": {
                         "SMPgG": {
                           "content": "AUTHOR"
                         },
+                        "9YFLS": {
+                          "width": "fill_container",
+                          "y": 20
+                        },
                         "QGYxC": {
-                          "content": "renovate[bot]"
+                          "content": "renovate[bot]",
+                          "x": 14,
+                          "y": 13.5
                         }
                       }
                     },
@@ -1013,12 +1084,20 @@
                       "ref": "8sl3P",
                       "width": "fill_container",
                       "name": "filterState",
+                      "height": "fit_content",
+                      "x": 917.25,
                       "descendants": {
                         "SMPgG": {
                           "content": "STATE"
                         },
+                        "9YFLS": {
+                          "width": "fill_container",
+                          "y": 20
+                        },
                         "QGYxC": {
-                          "content": "OPEN"
+                          "content": "OPEN",
+                          "x": 14,
+                          "y": 13.5
                         }
                       }
                     }
@@ -1142,7 +1221,9 @@
                           "height": 36,
                           "descendants": {
                             "Ui8uj": {
-                              "content": "ATUALIZAR"
+                              "content": "ATUALIZAR",
+                              "x": 16,
+                              "y": 9.5
                             }
                           }
                         }
@@ -1807,12 +1888,23 @@
               "reusable": true,
               "ref": "lHKGf",
               "name": "User/Badge Read",
+              "width": "fit_content",
+              "x": 20,
+              "y": 1227,
               "descendants": {
+                "MBEco": {
+                  "x": 8,
+                  "y": 2
+                },
                 "PkdoP": {
                   "fill": "#D2C39B"
                 },
                 "sT3LN": {
                   "fill": "#4E3C14"
+                },
+                "fNfHw": {
+                  "x": 48,
+                  "y": 11
                 },
                 "9HhiU": {
                   "enabled": false
@@ -1825,12 +1917,23 @@
               "reusable": true,
               "ref": "lHKGf",
               "name": "User/Badge Write",
+              "width": "fit_content",
+              "x": 20,
+              "y": 1275,
               "descendants": {
+                "MBEco": {
+                  "x": 8,
+                  "y": 2
+                },
                 "PkdoP": {
                   "fill": "#B6D1C1"
                 },
                 "sT3LN": {
                   "fill": "#1F4E38"
+                },
+                "fNfHw": {
+                  "x": 48,
+                  "y": 11
                 },
                 "9HhiU": {
                   "enabled": false
@@ -1893,7 +1996,18 @@
                       "id": "bnNum",
                       "type": "ref",
                       "ref": "5Ldmu",
-                      "name": "homeUserNew"
+                      "name": "homeUserNew",
+                      "width": "fit_content",
+                      "descendants": {
+                        "MBEco": {
+                          "x": 8,
+                          "y": 2
+                        },
+                        "fNfHw": {
+                          "x": 48,
+                          "y": 11
+                        }
+                      }
                     },
                     {
                       "id": "manfQ",
@@ -1902,9 +2016,12 @@
                       "name": "refreshBtn",
                       "width": "fit_content",
                       "height": 36,
+                      "x": 119,
                       "descendants": {
                         "Ui8uj": {
-                          "content": "ATUALIZAR"
+                          "content": "ATUALIZAR",
+                          "x": 16,
+                          "y": 9.5
                         }
                       }
                     }
@@ -1938,6 +2055,12 @@
           "x": 24,
           "y": 24,
           "descendants": {
+            "lUWAi": {
+              "width": "fit_content",
+              "height": "fit_content",
+              "x": 16,
+              "y": 22
+            },
             "Y7mHu": {
               "content": "MARGEA · GROUP DETAIL"
             },
@@ -1945,11 +2068,28 @@
               "content": "GROUP DETAIL · react v19.1.0 · base: main · owner: acme/web · 24 PRs",
               "enabled": false
             },
+            "yvgRV": {
+              "width": "fit_content",
+              "height": "fit_content",
+              "x": 1187,
+              "y": 18
+            },
             "bnNum": {
               "id": "bN9oq",
               "type": "ref",
               "ref": "ZkeTR",
-              "name": "detailUserNew"
+              "name": "detailUserNew",
+              "width": "fit_content",
+              "descendants": {
+                "MBEco": {
+                  "x": 8,
+                  "y": 2
+                },
+                "fNfHw": {
+                  "x": 48,
+                  "y": 11
+                }
+              }
             },
             "manfQ": {
               "id": "7IPeu",
@@ -2018,7 +2158,9 @@
                   "name": "bulkMerge",
                   "descendants": {
                     "Ui8uj": {
-                      "content": "MERGE 12 PRs"
+                      "content": "MERGE 12 PRs",
+                      "x": 47,
+                      "y": 13.5
                     }
                   }
                 },
@@ -2080,10 +2222,15 @@
               "ref": "s2vqY",
               "width": "fill_container",
               "name": "rowA",
+              "height": "fit_content",
+              "x": 16,
+              "y": 42,
               "descendants": {
                 "geCyZ": {
                   "fill": "#1F1A13",
-                  "stroke": {}
+                  "stroke": {},
+                  "x": 12,
+                  "y": 10
                 },
                 "PQWJw": {
                   "enabled": false,
@@ -2091,19 +2238,36 @@
                 },
                 "Uarfh": {
                   "enabled": true,
-                  "fill": "#FFFFFF"
+                  "fill": "#FFFFFF",
+                  "x": 6,
+                  "y": 2
+                },
+                "k2Ab2": {
+                  "width": "fill_container",
+                  "height": "fit_content",
+                  "x": 44,
+                  "y": 10
                 },
                 "OM0co": {
                   "content": "#4281 chore(deps): update dependency react to v19.1.0"
                 },
                 "OiSVY": {
-                  "content": "acme/web · OPEN · CI SUCCESS"
+                  "content": "acme/web · OPEN · CI SUCCESS",
+                  "y": 20
+                },
+                "PUlsp": {
+                  "height": "fit_content",
+                  "x": 1058,
+                  "y": 10
                 },
                 "O9ze9": {
-                  "content": "+128 / -37"
+                  "content": "+128 / -37",
+                  "x": 144
                 },
                 "1hAme": {
-                  "content": "updated 2026-03-12"
+                  "content": "updated 2026-03-12",
+                  "x": 91,
+                  "y": 18
                 }
               }
             },
@@ -2113,10 +2277,15 @@
               "ref": "s2vqY",
               "width": "fill_container",
               "name": "rowB",
+              "height": "fit_content",
+              "x": 16,
+              "y": 104,
               "descendants": {
                 "geCyZ": {
                   "fill": "#1F1A13",
-                  "stroke": {}
+                  "stroke": {},
+                  "x": 12,
+                  "y": 10
                 },
                 "PQWJw": {
                   "enabled": false,
@@ -2124,19 +2293,36 @@
                 },
                 "Uarfh": {
                   "enabled": true,
-                  "fill": "#FFFFFF"
+                  "fill": "#FFFFFF",
+                  "x": 6,
+                  "y": 2
+                },
+                "k2Ab2": {
+                  "width": "fill_container",
+                  "height": "fit_content",
+                  "x": 44,
+                  "y": 10
                 },
                 "OM0co": {
                   "content": "#4279 chore(deps): update dependency react-dom to v19.1.0"
                 },
                 "OiSVY": {
-                  "content": "acme/mobile · OPEN · CI PENDING"
+                  "content": "acme/mobile · OPEN · CI PENDING",
+                  "y": 20
+                },
+                "PUlsp": {
+                  "height": "fit_content",
+                  "x": 1058,
+                  "y": 10
                 },
                 "O9ze9": {
-                  "content": "+89 / -21"
+                  "content": "+89 / -21",
+                  "x": 150
                 },
                 "1hAme": {
-                  "content": "updated 2026-03-11"
+                  "content": "updated 2026-03-11",
+                  "x": 91,
+                  "y": 18
                 }
               }
             },
@@ -2146,10 +2332,15 @@
               "ref": "s2vqY",
               "width": "fill_container",
               "name": "rowC",
+              "height": "fit_content",
+              "x": 16,
+              "y": 166,
               "descendants": {
                 "geCyZ": {
                   "fill": "#E5DDCC",
-                  "stroke": {}
+                  "stroke": {},
+                  "x": 12,
+                  "y": 10
                 },
                 "PQWJw": {
                   "enabled": false,
@@ -2158,17 +2349,32 @@
                 "Uarfh": {
                   "enabled": false
                 },
+                "k2Ab2": {
+                  "width": "fill_container",
+                  "height": "fit_content",
+                  "x": 44,
+                  "y": 10
+                },
                 "OM0co": {
                   "content": "#4258 chore(deps): update dependency vite to v7.1.2"
                 },
                 "OiSVY": {
-                  "content": "acme/admin · MERGED · CI SUCCESS"
+                  "content": "acme/admin · MERGED · CI SUCCESS",
+                  "y": 20
+                },
+                "PUlsp": {
+                  "height": "fit_content",
+                  "x": 1058,
+                  "y": 10
                 },
                 "O9ze9": {
-                  "content": "+44 / -12"
+                  "content": "+44 / -12",
+                  "x": 150
                 },
                 "1hAme": {
-                  "content": "updated 2026-03-10"
+                  "content": "updated 2026-03-10",
+                  "x": 91,
+                  "y": 18
                 }
               }
             },
@@ -2178,10 +2384,15 @@
               "ref": "s2vqY",
               "width": "fill_container",
               "name": "rowD",
+              "height": "fit_content",
+              "x": 16,
+              "y": 228,
               "descendants": {
                 "geCyZ": {
                   "fill": "#E5DDCC",
-                  "stroke": {}
+                  "stroke": {},
+                  "x": 12,
+                  "y": 10
                 },
                 "PQWJw": {
                   "enabled": false,
@@ -2190,17 +2401,32 @@
                 "Uarfh": {
                   "enabled": false
                 },
+                "k2Ab2": {
+                  "width": "fill_container",
+                  "height": "fit_content",
+                  "x": 44,
+                  "y": 10
+                },
                 "OM0co": {
                   "content": "#4234 chore(deps): update dependency @types/react to v19.0.4"
                 },
                 "OiSVY": {
-                  "content": "acme/api-gateway · CLOSED · CI FAILURE"
+                  "content": "acme/api-gateway · CLOSED · CI FAILURE",
+                  "y": 20
+                },
+                "PUlsp": {
+                  "height": "fit_content",
+                  "x": 1058,
+                  "y": 10
                 },
                 "O9ze9": {
-                  "content": "+17 / -48"
+                  "content": "+17 / -48",
+                  "x": 150
                 },
                 "1hAme": {
-                  "content": "updated 2026-03-09"
+                  "content": "updated 2026-03-09",
+                  "x": 91,
+                  "y": 18
                 }
               }
             },
@@ -2210,10 +2436,15 @@
               "ref": "s2vqY",
               "width": "fill_container",
               "name": "rowE",
+              "height": "fit_content",
+              "x": 16,
+              "y": 290,
               "descendants": {
                 "geCyZ": {
                   "fill": "#E5DDCC",
-                  "stroke": {}
+                  "stroke": {},
+                  "x": 12,
+                  "y": 10
                 },
                 "PQWJw": {
                   "enabled": false,
@@ -2222,17 +2453,32 @@
                 "Uarfh": {
                   "enabled": false
                 },
+                "k2Ab2": {
+                  "width": "fill_container",
+                  "height": "fit_content",
+                  "x": 44,
+                  "y": 10
+                },
                 "OM0co": {
                   "content": "#4210 chore(deps): update dependency eslint to v9.37.0"
                 },
                 "OiSVY": {
-                  "content": "acme/web · OPEN · CI SUCCESS"
+                  "content": "acme/web · OPEN · CI SUCCESS",
+                  "y": 20
+                },
+                "PUlsp": {
+                  "height": "fit_content",
+                  "x": 1058,
+                  "y": 10
                 },
                 "O9ze9": {
-                  "content": "+203 / -96"
+                  "content": "+203 / -96",
+                  "x": 144
                 },
                 "1hAme": {
-                  "content": "updated 2026-03-08"
+                  "content": "updated 2026-03-08",
+                  "x": 91,
+                  "y": 18
                 }
               }
             },
@@ -2242,10 +2488,15 @@
               "ref": "s2vqY",
               "width": "fill_container",
               "name": "stressRow",
+              "height": "fit_content",
+              "x": 16,
+              "y": 352,
               "descendants": {
                 "geCyZ": {
                   "fill": "#E5DDCC",
-                  "stroke": {}
+                  "stroke": {},
+                  "x": 12,
+                  "y": 10
                 },
                 "PQWJw": {
                   "x": 2,
@@ -2258,17 +2509,32 @@
                   "x": 0,
                   "y": 0
                 },
+                "k2Ab2": {
+                  "width": "fill_container",
+                  "height": "fit_content",
+                  "x": 44,
+                  "y": 10
+                },
                 "OM0co": {
                   "content": "#4201 chore(deps): update dependency @typescript-eslint/eslint-plugin and @typescript-eslint/parser to v8.47.0 in /packages/frontend-app"
                 },
                 "OiSVY": {
-                  "content": "acme/frontend-app · OPEN · CI SUCCESS"
+                  "content": "acme/frontend-app · OPEN · CI SUCCESS",
+                  "y": 20
+                },
+                "PUlsp": {
+                  "height": "fit_content",
+                  "x": 1058,
+                  "y": 10
                 },
                 "O9ze9": {
-                  "content": "+312 / -145"
+                  "content": "+312 / -145",
+                  "x": 137
                 },
                 "1hAme": {
-                  "content": "updated 2026-03-07"
+                  "content": "updated 2026-03-07",
+                  "x": 91,
+                  "y": 18
                 }
               }
             }
@@ -2298,6 +2564,32 @@
           "x": 24,
           "y": 24,
           "descendants": {
+            "lUWAi": {
+              "width": "fit_content",
+              "height": "fit_content",
+              "x": 16,
+              "y": 12
+            },
+            "5Z5Yn": {
+              "y": 32
+            },
+            "yvgRV": {
+              "width": "fit_content",
+              "height": "fit_content",
+              "x": 1187,
+              "y": 18
+            },
+            "bnNum": {
+              "width": "fit_content"
+            },
+            "bnNum/MBEco": {
+              "x": 8,
+              "y": 2
+            },
+            "bnNum/fNfHw": {
+              "x": 48,
+              "y": 11
+            },
             "manfQ": {
               "enabled": false
             },
@@ -2320,15 +2612,22 @@
               "ref": "xbRF1",
               "width": "fill_container",
               "name": "stat1",
+              "height": "fit_content",
               "descendants": {
                 "xdtJ2": {
-                  "content": "TOTAL PRs"
+                  "content": "TOTAL PRs",
+                  "x": 16,
+                  "y": 16
                 },
                 "SngRb": {
-                  "content": "184"
+                  "content": "184",
+                  "x": 16,
+                  "y": 36
                 },
                 "jvjdO": {
-                  "content": "9 repos"
+                  "content": "9 repos",
+                  "x": 16,
+                  "y": 80
                 }
               }
             },
@@ -2338,15 +2637,23 @@
               "ref": "xbRF1",
               "width": "fill_container",
               "name": "stat2",
+              "height": "fit_content",
+              "x": 330.5,
               "descendants": {
                 "xdtJ2": {
-                  "content": "ABERTOS"
+                  "content": "ABERTOS",
+                  "x": 16,
+                  "y": 16
                 },
                 "SngRb": {
-                  "content": "72"
+                  "content": "72",
+                  "x": 16,
+                  "y": 36
                 },
                 "jvjdO": {
-                  "content": "39%"
+                  "content": "39%",
+                  "x": 16,
+                  "y": 80
                 }
               }
             },
@@ -2356,15 +2663,23 @@
               "ref": "xbRF1",
               "width": "fill_container",
               "name": "stat3",
+              "height": "fit_content",
+              "x": 661,
               "descendants": {
                 "xdtJ2": {
-                  "content": "MERGED"
+                  "content": "MERGED",
+                  "x": 16,
+                  "y": 16
                 },
                 "SngRb": {
-                  "content": "96"
+                  "content": "96",
+                  "x": 16,
+                  "y": 36
                 },
                 "jvjdO": {
-                  "content": "52%"
+                  "content": "52%",
+                  "x": 16,
+                  "y": 80
                 }
               }
             },
@@ -2374,15 +2689,23 @@
               "ref": "xbRF1",
               "width": "fill_container",
               "name": "stat4",
+              "height": "fit_content",
+              "x": 991.5,
               "descendants": {
                 "xdtJ2": {
-                  "content": "CLOSED"
+                  "content": "CLOSED",
+                  "x": 16,
+                  "y": 16
                 },
                 "SngRb": {
-                  "content": "16"
+                  "content": "16",
+                  "x": 16,
+                  "y": 36
                 },
                 "jvjdO": {
-                  "content": "9%"
+                  "content": "9%",
+                  "x": 16,
+                  "y": 80
                 }
               }
             }
@@ -2422,12 +2745,19 @@
                   "ref": "8sl3P",
                   "width": "fill_container",
                   "name": "filterRepo",
+                  "height": "fit_content",
                   "descendants": {
                     "SMPgG": {
                       "content": "REPOSITÓRIO"
                     },
+                    "9YFLS": {
+                      "width": "fill_container",
+                      "y": 20
+                    },
                     "QGYxC": {
-                      "content": "acme/web"
+                      "content": "acme/web",
+                      "x": 14,
+                      "y": 13.5
                     }
                   }
                 },
@@ -2437,12 +2767,20 @@
                   "ref": "8sl3P",
                   "width": "fill_container",
                   "name": "filterOwner",
+                  "height": "fit_content",
+                  "x": 322.5,
                   "descendants": {
                     "SMPgG": {
                       "content": "OWNER/ORG"
                     },
+                    "9YFLS": {
+                      "width": "fill_container",
+                      "y": 20
+                    },
                     "QGYxC": {
-                      "content": "acme"
+                      "content": "acme",
+                      "x": 14,
+                      "y": 13.5
                     }
                   }
                 },
@@ -2452,12 +2790,20 @@
                   "ref": "8sl3P",
                   "width": "fill_container",
                   "name": "filterAuthor",
+                  "height": "fit_content",
+                  "x": 645,
                   "descendants": {
                     "SMPgG": {
                       "content": "AUTOR"
                     },
+                    "9YFLS": {
+                      "width": "fill_container",
+                      "y": 20
+                    },
                     "QGYxC": {
-                      "content": "renovate[bot]"
+                      "content": "renovate[bot]",
+                      "x": 14,
+                      "y": 13.5
                     }
                   }
                 },
@@ -2467,12 +2813,20 @@
                   "ref": "8sl3P",
                   "width": "fill_container",
                   "name": "filterState",
+                  "height": "fit_content",
+                  "x": 967.5,
                   "descendants": {
                     "SMPgG": {
                       "content": "STATUS"
                     },
+                    "9YFLS": {
+                      "width": "fill_container",
+                      "y": 20
+                    },
                     "QGYxC": {
-                      "content": "ALL"
+                      "content": "ALL",
+                      "x": 14,
+                      "y": 13.5
                     }
                   }
                 }
@@ -2596,7 +2950,9 @@
                       "height": 36,
                       "descendants": {
                         "Ui8uj": {
-                          "content": "ATUALIZAR"
+                          "content": "ATUALIZAR",
+                          "x": 16,
+                          "y": 9.5
                         }
                       }
                     }
@@ -2665,12 +3021,17 @@
               "ref": "Fuzal",
               "width": "fill_container",
               "name": "g1",
+              "height": "fit_content",
               "descendants": {
                 "xjMkf": {
-                  "content": "react v19.1.0"
+                  "content": "react v19.1.0",
+                  "x": 16,
+                  "y": 16
                 },
                 "6sCy3": {
-                  "content": "24 PRs · base: main · owner: acme/web"
+                  "content": "24 PRs · base: main · owner: acme/web",
+                  "x": 16,
+                  "y": 44
                 }
               }
             },
@@ -2680,12 +3041,18 @@
               "ref": "Fuzal",
               "width": "fill_container",
               "name": "g2",
+              "height": "fit_content",
+              "x": 440.6666666666667,
               "descendants": {
                 "xjMkf": {
-                  "content": "typescript-eslint v8.47.0"
+                  "content": "typescript-eslint v8.47.0",
+                  "x": 16,
+                  "y": 16
                 },
                 "6sCy3": {
-                  "content": "18 PRs · base: develop · author: renovate[bot]"
+                  "content": "18 PRs · base: develop · author: renovate[bot]",
+                  "x": 16,
+                  "y": 44
                 }
               }
             },
@@ -2695,12 +3062,18 @@
               "ref": "Fuzal",
               "width": "fill_container",
               "name": "g3",
+              "height": "fit_content",
+              "x": 881.3333333333334,
               "descendants": {
                 "xjMkf": {
-                  "content": "vite v7.1.2"
+                  "content": "vite v7.1.2",
+                  "x": 16,
+                  "y": 16
                 },
                 "6sCy3": {
-                  "content": "12 PRs · base: main · state: OPEN"
+                  "content": "12 PRs · base: main · state: OPEN",
+                  "x": 16,
+                  "y": 44
                 }
               }
             }
@@ -2803,7 +3176,7 @@
                       "type": "text",
                       "id": "uPeeD",
                       "fill": "#9A3D0A",
-                      "content": "PARE DE MERGEAR NO PILOTO AUTOMÁTICO",
+                      "content": "AUTOMATIZE PRs REPETITIVOS",
                       "fontFamily": "IBM Plex Mono",
                       "fontSize": 11,
                       "fontWeight": "700"
@@ -2816,9 +3189,9 @@
                   "fill": "#111111",
                   "textGrowth": "fixed-width",
                   "width": "fill_container",
-                  "content": "Seu time não foi contratado para clicar em 200 PRs iguais.",
+                  "content": "Menos clique repetido. Mais tempo de engenharia.",
                   "fontFamily": "Space Grotesk",
-                  "fontSize": 64,
+                  "fontSize": 56,
                   "fontWeight": "700"
                 },
                 {
@@ -2827,7 +3200,7 @@
                   "fill": "#4D4A40",
                   "textGrowth": "fixed-width",
                   "width": "fill_container",
-                  "content": "Conecte com OAuth, puxe os PRs repetitivos (como actions/checkout) e resolva tudo em lote em minutos.",
+                  "content": "Agrupe PRs por critério (ex: actions/checkout), selecione todos e enfileire merge em lote em segundos.",
                   "fontFamily": "IBM Plex Mono",
                   "fontSize": 15,
                   "fontWeight": "normal"
@@ -2845,7 +3218,9 @@
                       "ref": "o7f7S",
                       "descendants": {
                         "Ui8uj": {
-                          "content": "Quero ganhar horas"
+                          "content": "Testar com meus PRs",
+                          "x": 23.5,
+                          "y": 13.5
                         }
                       }
                     },
@@ -2853,9 +3228,12 @@
                       "id": "908yQ",
                       "type": "ref",
                       "ref": "jfNYE",
+                      "x": 190,
                       "descendants": {
                         "128Wn": {
-                          "content": "Ver demo em 60s"
+                          "content": "Ver como funciona",
+                          "x": 31,
+                          "y": 13.5
                         }
                       }
                     }
@@ -2877,16 +3255,16 @@
                   "name": "img1",
                   "metadata": {
                     "type": "unsplash",
-                    "username": "chrispanas",
-                    "link": "https://unsplash.com/@chrispanas",
-                    "author": "chris panas"
+                    "username": "agforl24",
+                    "link": "https://unsplash.com/@agforl24",
+                    "author": "Tai Bui"
                   },
                   "width": "fill_container",
                   "height": 460,
                   "fill": {
                     "type": "image",
                     "enabled": true,
-                    "url": "https://images.unsplash.com/photo-1652800558955-9fbb18c2449e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NzMzNDE1NjJ8&ixlib=rb-4.1.0&q=80&w=1080",
+                    "url": "https://images.unsplash.com/photo-1635179855998-64e20b4db417?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NzMzNDIyODF8&ixlib=rb-4.1.0&q=80&w=1080",
                     "mode": "fill"
                   },
                   "cornerRadius": 12
@@ -2895,7 +3273,7 @@
                   "type": "text",
                   "id": "s6Q1C",
                   "fill": "#6B6454",
-                  "content": "Fluxo: OAuth → Listar PRs → Agrupar por critério → Ver CI/autor/diff → Selecionar tudo → Enfileirar merge",
+                  "content": "OAuth, filtros reais, grupo acionável e fila em background.",
                   "fontFamily": "IBM Plex Mono",
                   "fontSize": 11,
                   "fontWeight": "700"
@@ -2959,12 +3337,17 @@
                   "type": "ref",
                   "ref": "Fuzal",
                   "width": "fill_container",
+                  "height": "fit_content",
                   "descendants": {
                     "xjMkf": {
-                      "content": "actions/checkout v5"
+                      "content": "actions/checkout v5",
+                      "x": 16,
+                      "y": 16
                     },
                     "6sCy3": {
-                      "content": "24 PRs · base: main · owner: acme/web"
+                      "content": "24 PRs · base: main · owner: acme/web",
+                      "x": 16,
+                      "y": 44
                     }
                   }
                 },
@@ -2973,12 +3356,18 @@
                   "type": "ref",
                   "ref": "Fuzal",
                   "width": "fill_container",
+                  "height": "fit_content",
+                  "x": 448.6666666666667,
                   "descendants": {
                     "xjMkf": {
-                      "content": "actions/setup-node v4"
+                      "content": "actions/setup-node v4",
+                      "x": 16,
+                      "y": 16
                     },
                     "6sCy3": {
-                      "content": "18 PRs · base: develop · author: renovate[bot]"
+                      "content": "18 PRs · base: develop · author: renovate[bot]",
+                      "x": 16,
+                      "y": 44
                     }
                   }
                 },
@@ -2987,12 +3376,18 @@
                   "type": "ref",
                   "ref": "Fuzal",
                   "width": "fill_container",
+                  "height": "fit_content",
+                  "x": 897.3333333333334,
                   "descendants": {
                     "xjMkf": {
-                      "content": "actions/cache v4"
+                      "content": "actions/cache v4",
+                      "x": 16,
+                      "y": 16
                     },
                     "6sCy3": {
-                      "content": "12 PRs · base: main · state: OPEN"
+                      "content": "12 PRs · base: main · state: OPEN",
+                      "x": 16,
+                      "y": 44
                     }
                   }
                 }
@@ -3047,12 +3442,96 @@
               "id": "kiimm",
               "type": "ref",
               "ref": "xlKAG",
-              "width": "fill_container"
+              "width": "fill_container",
+              "height": "fit_content",
+              "x": 24,
+              "y": 240,
+              "descendants": {
+                "Mj5xC": {
+                  "x": 14,
+                  "y": 14
+                },
+                "aSWV1": {
+                  "x": 14,
+                  "y": 39
+                },
+                "BZe8x": {
+                  "width": "fill_container",
+                  "height": "fit_content",
+                  "x": 14,
+                  "y": 61
+                },
+                "n4LL2": {
+                  "x": 10,
+                  "y": 8
+                },
+                "52gMV": {
+                  "x": 1218,
+                  "y": 8
+                },
+                "CxUzF": {
+                  "width": "fill_container",
+                  "height": "fit_content",
+                  "x": 14,
+                  "y": 99
+                },
+                "95tHl": {
+                  "x": 10,
+                  "y": 8
+                },
+                "igpfB": {
+                  "x": 1271,
+                  "y": 8
+                }
+              }
             },
             {
               "id": "2OJNO",
               "type": "ref",
-              "ref": "TEg5z"
+              "ref": "TEg5z",
+              "height": "fit_content",
+              "x": 24,
+              "y": 399,
+              "descendants": {
+                "YIFJg": {
+                  "width": "fill_container",
+                  "height": "fit_content"
+                },
+                "U0HUZ": {
+                  "x": 12,
+                  "y": 12
+                },
+                "iCG3L": {
+                  "x": 12,
+                  "y": 31
+                },
+                "zz2ok": {
+                  "width": "fill_container",
+                  "height": "fit_content",
+                  "y": 65
+                },
+                "Io010": {
+                  "x": 12,
+                  "y": 12
+                },
+                "XKU2Z": {
+                  "x": 12,
+                  "y": 31
+                },
+                "eUlQi": {
+                  "width": "fill_container",
+                  "height": "fit_content",
+                  "y": 130
+                },
+                "qPukE": {
+                  "x": 12,
+                  "y": 12
+                },
+                "RULw0": {
+                  "x": 12,
+                  "y": 31
+                }
+              }
             }
           ]
         },
@@ -3112,7 +3591,9 @@
                   "ref": "o7f7S",
                   "descendants": {
                     "Ui8uj": {
-                      "content": "Conectar GitHub"
+                      "content": "Conectar GitHub",
+                      "x": 38,
+                      "y": 13.5
                     }
                   }
                 },
@@ -3120,9 +3601,12 @@
                   "id": "JORHd",
                   "type": "ref",
                   "ref": "jfNYE",
+                  "x": 190,
                   "descendants": {
                     "128Wn": {
-                      "content": "Criar meu 1º grupo"
+                      "content": "Criar meu 1º grupo",
+                      "x": 32,
+                      "y": 13.5
                     }
                   }
                 }
