@@ -2,21 +2,6 @@ import { SignJWT } from 'jose';
 
 export const config = { runtime: 'edge' };
 
-function getRequestOrigin(req: Request): string {
-  const requestUrl = new URL(req.url);
-  const forwardedHost = req.headers.get('x-forwarded-host');
-  const host = forwardedHost || req.headers.get('host');
-  const forwardedProto = req.headers.get('x-forwarded-proto');
-  const protocol =
-    forwardedProto || (requestUrl.protocol === 'https:' ? 'https' : 'http');
-
-  if (!host) {
-    return requestUrl.origin;
-  }
-
-  return `${protocol}://${host}`;
-}
-
 /**
  * Initiates the GitHub OAuth 2.0 authorization flow.
  *
@@ -34,12 +19,11 @@ function getRequestOrigin(req: Request): string {
  */
 export default async function handler(req: Request) {
   const clientId = process.env.GITHUB_CLIENT_ID;
+  const callbackUrl = process.env.GITHUB_CALLBACK_URL;
   const sessionSecret = process.env.SESSION_SECRET;
   const requestUrl = new URL(req.url);
-  const origin = getRequestOrigin(req);
-  const callbackUrl = `${origin}/api/auth/callback`;
 
-  if (!clientId || !sessionSecret) {
+  if (!clientId || !callbackUrl || !sessionSecret) {
     return new Response('Missing environment variables', { status: 500 });
   }
 

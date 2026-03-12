@@ -3,21 +3,6 @@ import { parse } from 'cookie';
 
 export const config = { runtime: 'edge' };
 
-function getRequestOrigin(req: Request): string {
-  const requestUrl = new URL(req.url);
-  const forwardedHost = req.headers.get('x-forwarded-host');
-  const host = forwardedHost || req.headers.get('host');
-  const forwardedProto = req.headers.get('x-forwarded-proto');
-  const protocol =
-    forwardedProto || (requestUrl.protocol === 'https:' ? 'https' : 'http');
-
-  if (!host) {
-    return requestUrl.origin;
-  }
-
-  return `${protocol}://${host}`;
-}
-
 /**
  * Handles the GitHub OAuth 2.0 callback.
  *
@@ -35,10 +20,14 @@ function getRequestOrigin(req: Request): string {
  */
 export default async function handler(req: Request) {
   const requestUrl = new URL(req.url);
-  const origin = getRequestOrigin(req);
+  const callbackUrl = process.env.GITHUB_CALLBACK_URL;
   const { searchParams } = new URL(req.url);
   const code = searchParams.get('code');
   const stateTokenFromParam = searchParams.get('state');
+
+  if (!callbackUrl) {
+    return new Response('Missing environment variables', { status: 500 });
+  }
 
   // Optional cookie channel (can be absent in preview host changes).
   const cookieHeader = req.headers.get('Cookie') || '';
@@ -97,7 +86,7 @@ export default async function handler(req: Request) {
       client_id: process.env.GITHUB_CLIENT_ID,
       client_secret: process.env.GITHUB_CLIENT_SECRET,
       code,
-      redirect_uri: `${origin}/api/auth/callback`,
+      redirect_uri: callbackUrl,
     }),
   });
 
@@ -121,7 +110,7 @@ export default async function handler(req: Request) {
     .setExpirationTime('7d')
     .sign(secret);
 
-  const baseUrl = origin;
+  const baseUrl = requestUrl.origin;
 
   // Set the session cookie and clear the state cookie
   const sessionCookie = `session=${session}; HttpOnly; Secure; SameSite=Strict; Max-Age=${
