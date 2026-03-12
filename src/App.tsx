@@ -78,8 +78,8 @@ function App() {
   return (
     <ErrorBoundary>
       <RelayEnvironmentProvider environment={relayEnvironment}>
-        <BulkActionProvider>
-          <PRProvider>
+        <PRProvider>
+          <BulkActionProvider>
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<MainLayout {...mainLayoutProps} />}>
@@ -99,8 +99,8 @@ function App() {
               <BulkActionToast />
               <GlobalBulkActionModal />
             </BrowserRouter>
-          </PRProvider>
-        </BulkActionProvider>
+          </BulkActionProvider>
+        </PRProvider>
       </RelayEnvironmentProvider>
     </ErrorBoundary>
   );

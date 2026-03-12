@@ -4,7 +4,13 @@ import { MergePullRequestMutation } from '../queries/MergePullRequestMutation';
 import { ClosePullRequestMutation } from '../queries/ClosePullRequestMutation';
 import { executeWithRetry } from '../utils/retry';
 import type { PullRequest, BulkActionProgress } from '../types';
-import type { GraphQLTaggedNode } from 'relay-runtime';
+import type {
+  MergePullRequestMutation$data,
+} from '../queries/__generated__/MergePullRequestMutation.graphql';
+import type {
+  ClosePullRequestMutation$data,
+} from '../queries/__generated__/ClosePullRequestMutation.graphql';
+import type { RecordSourceSelectorProxy } from 'relay-runtime';
 
 /**
  * Represents the result of a single bulk action operation on a Pull Request.
@@ -14,35 +20,137 @@ export interface BulkActionResult {
   success: boolean;
   /** The ID of the Pull Request involved. */
   prId: string;
+  /** Fields confirmed by backend and suitable for local state update. */
+  updatedFields?: Partial<PullRequest>;
   /** Error message if the operation failed. */
   error?: string;
 }
 
-/**
- * Helper function to perform a Relay mutation and normalize the result.
- *
- * It wraps `commitMutation` in a Promise to allow async/await usage and standardized error handling.
- *
- * @param mutation - The GraphQL mutation to execute.
- * @param prId - The ID of the Pull Request to mutate.
- * @returns A promise that resolves to a `BulkActionResult`.
- */
-const performMutation = (
-  mutation: GraphQLTaggedNode,
+function updatePullRequestRecord(
+  store: RecordSourceSelectorProxy,
   prId: string,
-): Promise<BulkActionResult> => {
+  fields: Partial<PullRequest>,
+) {
+  const prRecord = store.get(prId);
+  if (!prRecord) return;
+
+  if (fields.state) prRecord.setValue(fields.state, 'state');
+  if (typeof fields.mergedAt !== 'undefined') {
+    prRecord.setValue(fields.mergedAt, 'mergedAt');
+  }
+  if (typeof fields.closedAt !== 'undefined') {
+    prRecord.setValue(fields.closedAt, 'closedAt');
+  }
+  if (fields.updatedAt) prRecord.setValue(fields.updatedAt, 'updatedAt');
+}
+
+function toMergeFields(
+  data?: MergePullRequestMutation$data | null,
+): Partial<PullRequest> {
+  const mergedPR = data?.mergePullRequest?.pullRequest;
+  if (!mergedPR) return { state: 'MERGED', updatedAt: new Date().toISOString() };
+
+  const updatedAt = mergedPR.mergedAt ?? new Date().toISOString();
+  return {
+    state: 'MERGED',
+    mergedAt: mergedPR.mergedAt ?? null,
+    updatedAt,
+  };
+}
+
+function toCloseFields(
+  data?: ClosePullRequestMutation$data | null,
+): Partial<PullRequest> {
+  const closedPR = data?.closePullRequest?.pullRequest;
+  if (!closedPR) return { state: 'CLOSED', updatedAt: new Date().toISOString() };
+
+  const updatedAt = closedPR.closedAt ?? new Date().toISOString();
+  return {
+    state: 'CLOSED',
+    closedAt: closedPR.closedAt ?? null,
+    updatedAt,
+  };
+}
+
+const performMergeMutation = (prId: string): Promise<BulkActionResult> => {
+  const optimisticNow = new Date().toISOString();
+  const optimisticFields: Partial<PullRequest> = {
+    state: 'MERGED',
+    mergedAt: optimisticNow,
+    updatedAt: optimisticNow,
+  };
+
   return new Promise((resolve) => {
     commitMutation(relayEnvironment, {
-      mutation,
+      mutation: MergePullRequestMutation,
       variables: {
         input: {
           pullRequestId: prId,
         },
       },
-      onCompleted: () => {
+      optimisticUpdater: (store) => {
+        updatePullRequestRecord(store, prId, optimisticFields);
+      },
+      updater: (store, data) => {
+        const fields = toMergeFields(
+          data as MergePullRequestMutation$data | null | undefined,
+        );
+        updatePullRequestRecord(store, prId, fields);
+      },
+      onCompleted: (response) => {
+        const updatedFields = toMergeFields(
+          response as MergePullRequestMutation$data | null | undefined,
+        );
         resolve({
           success: true,
           prId,
+          updatedFields,
+        });
+      },
+      onError: (error: Error) => {
+        resolve({
+          success: false,
+          prId,
+          error: error.message,
+        });
+      },
+    });
+  });
+};
+
+const performCloseMutation = (prId: string): Promise<BulkActionResult> => {
+  const optimisticNow = new Date().toISOString();
+  const optimisticFields: Partial<PullRequest> = {
+    state: 'CLOSED',
+    closedAt: optimisticNow,
+    updatedAt: optimisticNow,
+  };
+
+  return new Promise((resolve) => {
+    commitMutation(relayEnvironment, {
+      mutation: ClosePullRequestMutation,
+      variables: {
+        input: {
+          pullRequestId: prId,
+        },
+      },
+      optimisticUpdater: (store) => {
+        updatePullRequestRecord(store, prId, optimisticFields);
+      },
+      updater: (store, data) => {
+        const fields = toCloseFields(
+          data as ClosePullRequestMutation$data | null | undefined,
+        );
+        updatePullRequestRecord(store, prId, fields);
+      },
+      onCompleted: (response) => {
+        const updatedFields = toCloseFields(
+          response as ClosePullRequestMutation$data | null | undefined,
+        );
+        resolve({
+          success: true,
+          prId,
+          updatedFields,
         });
       },
       onError: (error: Error) => {
@@ -64,7 +172,7 @@ export const BulkActionsService = {
    * @returns The result of the merge operation.
    */
   async mergePullRequest(prId: string): Promise<BulkActionResult> {
-    return performMutation(MergePullRequestMutation, prId);
+    return performMergeMutation(prId);
   },
 
   /**
@@ -74,7 +182,7 @@ export const BulkActionsService = {
    * @returns The result of the close operation.
    */
   async closePullRequest(prId: string): Promise<BulkActionResult> {
-    return performMutation(ClosePullRequestMutation, prId);
+    return performCloseMutation(prId);
   },
 
   /**
@@ -94,6 +202,7 @@ export const BulkActionsService = {
     prs: PullRequest[],
     actionType: 'merge' | 'close',
     onProgress: (progress: BulkActionProgress[]) => void,
+    onResult?: (result: BulkActionResult) => void,
   ): Promise<void> {
     const progressMap = new Map<string, BulkActionProgress>();
 
@@ -193,6 +302,10 @@ export const BulkActionsService = {
           status: 'error',
           error: result.error,
         });
+      }
+
+      if (onResult) {
+        onResult(result);
       }
 
       onProgress(Array.from(progressMap.values()));

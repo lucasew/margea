@@ -2,8 +2,10 @@ import { useState, useCallback, ReactNode } from 'react';
 import { PullRequest, BulkActionType, BulkActionOperation } from '../types';
 import { BulkActionsService } from '../services/bulkActions';
 import { BulkActionContext } from './BulkActionContext';
+import { usePRContext } from './PRContext';
 
 export function BulkActionProvider({ children }: { children: ReactNode }) {
+  const { optimisticUpdate } = usePRContext();
   const [operations, setOperations] = useState<BulkActionOperation[]>([]);
   const [isGlobalModalOpen, setIsGlobalModalOpen] = useState(false);
   const [activeModalOperationId, setActiveModalOperationId] = useState<
@@ -33,13 +35,22 @@ export function BulkActionProvider({ children }: { children: ReactNode }) {
       // We keep modal closed by default to support the toast workflow
       setIsGlobalModalOpen(false);
 
-      await BulkActionsService.executeBulkAction(prs, type, (newProgress) => {
-        setOperations((prev) =>
-          prev.map((op) =>
-            op.id === operationId ? { ...op, progress: newProgress } : op,
-          ),
-        );
-      });
+      await BulkActionsService.executeBulkAction(
+        prs,
+        type,
+        (newProgress) => {
+          setOperations((prev) =>
+            prev.map((op) =>
+              op.id === operationId ? { ...op, progress: newProgress } : op,
+            ),
+          );
+        },
+        (result) => {
+          if (result.success && result.updatedFields) {
+            optimisticUpdate(result.prId, result.updatedFields);
+          }
+        },
+      );
 
       setOperations((prev) =>
         prev.map((op) =>
@@ -47,7 +58,7 @@ export function BulkActionProvider({ children }: { children: ReactNode }) {
         ),
       );
     },
-    [],
+    [optimisticUpdate],
   );
 
   const openGlobalModal = (operationId?: string) => {
