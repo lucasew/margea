@@ -7,8 +7,8 @@
       "x": -1956,
       "y": -1366,
       "name": "Margea Design System",
-      "width": 1280,
-      "height": 2400,
+      "width": 1349,
+      "height": 2915,
       "fill": "#F6F4EE",
       "layout": "vertical",
       "gap": 24,
@@ -1942,7 +1942,7 @@
               "content": "MARGEA · GROUP DETAIL"
             },
             "5Z5Yn": {
-              "content": "GROUP DETAIL · react v19.1.0 · base: main · labels: dependencies, frontend · 24 PRs",
+              "content": "GROUP DETAIL · react v19.1.0 · base: main · owner: acme/web · 24 PRs",
               "enabled": false
             },
             "bnNum": {
@@ -2670,7 +2670,7 @@
                   "content": "react v19.1.0"
                 },
                 "6sCy3": {
-                  "content": "24 PRs · base: main · labels: dependencies, frontend"
+                  "content": "24 PRs · base: main · owner: acme/web"
                 }
               }
             },
@@ -2685,7 +2685,7 @@
                   "content": "typescript-eslint v8.47.0"
                 },
                 "6sCy3": {
-                  "content": "18 PRs · base: develop · labels: dependencies"
+                  "content": "18 PRs · base: develop · author: renovate[bot]"
                 }
               }
             },
@@ -2700,7 +2700,7 @@
                   "content": "vite v7.1.2"
                 },
                 "6sCy3": {
-                  "content": "12 PRs · base: main · labels: tooling"
+                  "content": "12 PRs · base: main · state: OPEN"
                 }
               }
             }
@@ -2720,23 +2720,23 @@
     },
     {
       "type": "frame",
-      "id": "XXvZ4",
-      "x": 2345,
+      "id": "dOiz6",
+      "x": 2385,
       "y": -1366,
-      "name": "Landing - Stop Repetitive PRs",
+      "name": "Landing - PRs Repetitivos (Snap)",
       "width": 1440,
-      "fill": "#F2F2F2",
+      "fill": "#F4F1E8",
       "layout": "vertical",
       "gap": 20,
       "padding": [
-        20,
-        24
+        24,
+        28
       ],
       "children": [
         {
           "type": "frame",
-          "id": "gXLxo",
-          "name": "Landing/Header",
+          "id": "Jf8R1",
+          "name": "Header",
           "width": "fill_container",
           "height": 72,
           "fill": "#FFFFFF",
@@ -2750,8 +2750,7 @@
           "children": [
             {
               "type": "text",
-              "id": "d0UUq",
-              "name": "brand",
+              "id": "QQl35",
               "fill": "#111111",
               "content": "MARGEA",
               "fontFamily": "Space Grotesk",
@@ -2759,121 +2758,52 @@
               "fontWeight": "700"
             },
             {
-              "type": "frame",
-              "id": "bhcWo",
-              "name": "nav",
-              "gap": 16,
-              "alignItems": "center",
-              "children": [
-                {
-                  "type": "text",
-                  "id": "tQioS",
-                  "fill": "#4D4A40",
-                  "content": "How it works",
-                  "fontFamily": "IBM Plex Mono",
-                  "fontSize": 12,
-                  "fontWeight": "700"
-                },
-                {
-                  "type": "text",
-                  "id": "oCmOb",
-                  "fill": "#4D4A40",
-                  "content": "Results",
-                  "fontFamily": "IBM Plex Mono",
-                  "fontSize": 12,
-                  "fontWeight": "700"
-                },
-                {
-                  "type": "text",
-                  "id": "Jh5rC",
-                  "fill": "#4D4A40",
-                  "content": "FAQ",
-                  "fontFamily": "IBM Plex Mono",
-                  "fontSize": 12,
-                  "fontWeight": "700"
-                }
-              ]
-            },
-            {
-              "type": "frame",
-              "id": "xxHZW",
-              "name": "actions",
-              "gap": 10,
-              "alignItems": "center",
-              "children": [
-                {
-                  "id": "EF7UR",
-                  "type": "ref",
-                  "ref": "jfNYE",
-                  "descendants": {
-                    "128Wn": {
-                      "content": "View Demo"
-                    }
-                  }
-                },
-                {
-                  "id": "KRPJI",
-                  "type": "ref",
-                  "ref": "o7f7S",
-                  "descendants": {
-                    "Ui8uj": {
-                      "content": "Start Free"
-                    }
-                  }
-                }
-              ]
+              "type": "text",
+              "id": "30guH",
+              "fill": "#7A7362",
+              "content": "FASE 1/4 · A DOR",
+              "fontFamily": "IBM Plex Mono",
+              "fontSize": 12,
+              "fontWeight": "700"
             }
           ]
         },
         {
           "type": "frame",
-          "id": "aGzhr",
-          "name": "Landing/Hero",
-          "metadata": {
-            "type": "unsplash",
-            "username": "erwinbosman",
-            "link": "https://unsplash.com/@erwinbosman",
-            "author": "Erwin Bosman"
-          },
+          "id": "6YSnO",
+          "name": "Hero",
           "width": "fill_container",
-          "fill": {
-            "type": "image",
-            "enabled": true,
-            "url": "https://images.unsplash.com/photo-1770045450464-42416380cbba?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NzMzNDExNzh8&ixlib=rb-4.1.0&q=80&w=1080",
-            "mode": "fill"
-          },
-          "cornerRadius": 14,
-          "gap": 20,
-          "padding": 24,
+          "height": 900,
+          "gap": 16,
           "children": [
             {
               "type": "frame",
-              "id": "QmYsK",
-              "name": "heroLeft",
+              "id": "pOhho",
+              "name": "Left",
               "width": "fill_container",
-              "fill": "#FFFFFFE6",
-              "cornerRadius": 12,
               "layout": "vertical",
               "gap": 14,
-              "padding": 16,
+              "padding": [
+                20,
+                8
+              ],
+              "justifyContent": "center",
               "children": [
                 {
                   "type": "frame",
-                  "id": "uwei3",
-                  "name": "pill",
+                  "id": "e1nbD",
                   "fill": "#FFE8DA",
                   "cornerRadius": 999,
                   "padding": [
                     4,
                     10
                   ],
-                  "alignItems": "center",
                   "children": [
                     {
                       "type": "text",
-                      "id": "He39l",
+                      "id": "uPeeD",
                       "fill": "#9A3D0A",
-                      "content": "FOR TEAMS DROWNING IN BOT PRs",
+                      "content": "PARE DE MERGEAR NO PILOTO AUTOMÁTICO",
                       "fontFamily": "IBM Plex Mono",
                       "fontSize": 11,
                       "fontWeight": "700"
@@ -2882,52 +2812,50 @@
                 },
                 {
                   "type": "text",
-                  "id": "eW8Cm",
-                  "name": "h1",
+                  "id": "TEuh3",
                   "fill": "#111111",
                   "textGrowth": "fixed-width",
                   "width": "fill_container",
-                  "content": "Stop wasting hours triaging repetitive pull requests.",
+                  "content": "Seu time não foi contratado para clicar em 200 PRs iguais.",
                   "fontFamily": "Space Grotesk",
-                  "fontSize": 54,
+                  "fontSize": 64,
                   "fontWeight": "700"
                 },
                 {
                   "type": "text",
-                  "id": "1WJzH",
-                  "name": "heroBody",
+                  "id": "xnTXc",
                   "fill": "#4D4A40",
                   "textGrowth": "fixed-width",
                   "width": "fill_container",
-                  "content": "Margea groups similar dependency PRs, runs safe batch actions in background, and keeps your team focused on real code review.",
+                  "content": "Conecte com OAuth, puxe os PRs repetitivos (como actions/checkout) e resolva tudo em lote em minutos.",
                   "fontFamily": "IBM Plex Mono",
                   "fontSize": 15,
                   "fontWeight": "normal"
                 },
                 {
                   "type": "frame",
-                  "id": "XgBEz",
-                  "name": "heroCtas",
+                  "id": "7InmW",
+                  "name": "cta1",
                   "gap": 10,
                   "alignItems": "center",
                   "children": [
                     {
-                      "id": "txmAj",
+                      "id": "z4Cgj",
                       "type": "ref",
                       "ref": "o7f7S",
                       "descendants": {
                         "Ui8uj": {
-                          "content": "Automate My Queue"
+                          "content": "Quero ganhar horas"
                         }
                       }
                     },
                     {
-                      "id": "CzGvM",
+                      "id": "908yQ",
                       "type": "ref",
                       "ref": "jfNYE",
                       "descendants": {
                         "128Wn": {
-                          "content": "See Live Workflow"
+                          "content": "Ver demo em 60s"
                         }
                       }
                     }
@@ -2937,43 +2865,40 @@
             },
             {
               "type": "frame",
-              "id": "LHXMW",
-              "name": "heroRight",
+              "id": "jGYti",
+              "name": "Right",
               "width": 520,
-              "fill": "#FFFFFFE0",
-              "cornerRadius": 12,
               "layout": "vertical",
               "gap": 10,
-              "padding": 10,
               "children": [
                 {
                   "type": "frame",
-                  "id": "Lcwvr",
-                  "name": "heroVisual",
+                  "id": "Jqsdo",
+                  "name": "img1",
                   "metadata": {
                     "type": "unsplash",
-                    "username": "zoshuacolah",
-                    "link": "https://unsplash.com/@zoshuacolah",
-                    "author": "Zoshua Colah"
+                    "username": "chrispanas",
+                    "link": "https://unsplash.com/@chrispanas",
+                    "author": "chris panas"
                   },
                   "width": "fill_container",
-                  "height": 320,
+                  "height": 460,
                   "fill": {
                     "type": "image",
                     "enabled": true,
-                    "url": "https://images.unsplash.com/photo-1751200065697-4461cc2b43cb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NzMzNDExNTh8&ixlib=rb-4.1.0&q=80&w=1080",
+                    "url": "https://images.unsplash.com/photo-1652800558955-9fbb18c2449e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NzMzNDE1NjJ8&ixlib=rb-4.1.0&q=80&w=1080",
                     "mode": "fill"
                   },
                   "cornerRadius": 12
                 },
                 {
                   "type": "text",
-                  "id": "AYMXg",
+                  "id": "s6Q1C",
                   "fill": "#6B6454",
-                  "content": "Real-time grouped queue, quota-aware batching, toast notifications.",
+                  "content": "Fluxo: OAuth → Listar PRs → Agrupar por critério → Ver CI/autor/diff → Selecionar tudo → Enfileirar merge",
                   "fontFamily": "IBM Plex Mono",
                   "fontSize": 11,
-                  "fontWeight": "normal"
+                  "fontWeight": "700"
                 }
               ]
             }
@@ -2981,77 +2906,229 @@
         },
         {
           "type": "frame",
-          "id": "QDrVC",
-          "name": "Landing/Problem",
+          "id": "JAXTm",
+          "name": "Snap/Phase 2 - Agrupar",
           "width": "fill_container",
-          "height": "fit_content(0)",
+          "height": 900,
           "fill": "#FFFFFF",
-          "cornerRadius": 14,
+          "cornerRadius": 12,
           "layout": "vertical",
-          "gap": 14,
-          "padding": 20
-        },
-        {
-          "type": "frame",
-          "id": "dkgEq",
-          "name": "Landing/Flow",
-          "width": "fill_container",
-          "height": "fit_content(0)",
-          "fill": "#FFFFFF",
-          "cornerRadius": 14,
-          "layout": "vertical",
-          "gap": 14,
-          "padding": 20
-        },
-        {
-          "type": "frame",
-          "id": "aCdxy",
-          "name": "Landing/Proof",
-          "width": "fill_container",
-          "height": "fit_content(0)",
-          "fill": "#FFFFFF",
-          "cornerRadius": 14,
-          "layout": "vertical",
-          "gap": 14,
-          "padding": 20
-        },
-        {
-          "type": "frame",
-          "id": "4HjsU",
-          "name": "Landing/FAQ",
-          "width": "fill_container",
-          "height": "fit_content(0)",
-          "fill": "#FFFFFF",
-          "cornerRadius": 14,
-          "layout": "vertical",
-          "gap": 10,
-          "padding": 20
-        },
-        {
-          "type": "frame",
-          "id": "I8cfZ",
-          "name": "Landing/Final CTA",
-          "width": "fill_container",
-          "height": "fit_content(0)",
-          "fill": "#111111",
-          "cornerRadius": 14,
+          "gap": 16,
           "padding": 24,
-          "justifyContent": "space_between",
-          "alignItems": "center"
+          "children": [
+            {
+              "type": "text",
+              "id": "ilU8I",
+              "fill": "#7A7362",
+              "content": "FASE 2/4 · AGRUPAR",
+              "fontFamily": "IBM Plex Mono",
+              "fontSize": 12,
+              "fontWeight": "700"
+            },
+            {
+              "type": "text",
+              "id": "gxolN",
+              "fill": "#111111",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Transforme filtro em grupo acionável.",
+              "fontFamily": "Space Grotesk",
+              "fontSize": 52,
+              "fontWeight": "700"
+            },
+            {
+              "type": "text",
+              "id": "71H64",
+              "fill": "#4D4A40",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Defina o critério uma vez. Margea reúne PRs parecidos e exibe CI, autor e tamanho da diff para decisão rápida.",
+              "fontFamily": "IBM Plex Mono",
+              "fontSize": 15,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "NVmic",
+              "name": "grp",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "id": "j5CIH",
+                  "type": "ref",
+                  "ref": "Fuzal",
+                  "width": "fill_container",
+                  "descendants": {
+                    "xjMkf": {
+                      "content": "actions/checkout v5"
+                    },
+                    "6sCy3": {
+                      "content": "24 PRs · base: main · owner: acme/web"
+                    }
+                  }
+                },
+                {
+                  "id": "LxhWk",
+                  "type": "ref",
+                  "ref": "Fuzal",
+                  "width": "fill_container",
+                  "descendants": {
+                    "xjMkf": {
+                      "content": "actions/setup-node v4"
+                    },
+                    "6sCy3": {
+                      "content": "18 PRs · base: develop · author: renovate[bot]"
+                    }
+                  }
+                },
+                {
+                  "id": "LD9ss",
+                  "type": "ref",
+                  "ref": "Fuzal",
+                  "width": "fill_container",
+                  "descendants": {
+                    "xjMkf": {
+                      "content": "actions/cache v4"
+                    },
+                    "6sCy3": {
+                      "content": "12 PRs · base: main · state: OPEN"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
         },
         {
           "type": "frame",
-          "id": "9jMtx",
-          "name": "Landing/Footer",
+          "id": "AxSLd",
+          "name": "Snap/Phase 3 - Batch",
           "width": "fill_container",
-          "height": "fit_content(0)",
-          "fill": "#F2F2F2",
-          "padding": [
-            12,
-            4
-          ],
-          "justifyContent": "space_between",
-          "alignItems": "center"
+          "height": 900,
+          "fill": "#111111",
+          "cornerRadius": 12,
+          "layout": "vertical",
+          "gap": 16,
+          "padding": 24,
+          "children": [
+            {
+              "type": "text",
+              "id": "S9EWG",
+              "fill": "#C6C0B0",
+              "content": "FASE 3/4 · BATCH EM SEGUNDO PLANO",
+              "fontFamily": "IBM Plex Mono",
+              "fontSize": 12,
+              "fontWeight": "700"
+            },
+            {
+              "type": "text",
+              "id": "xotZ2",
+              "fill": "#FFFFFF",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Um clique para enfileirar. O resto roda em segundo plano.",
+              "fontFamily": "Space Grotesk",
+              "fontSize": 52,
+              "fontWeight": "700"
+            },
+            {
+              "type": "text",
+              "id": "H2ZZZ",
+              "fill": "#D7D2C5",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Sem abrir PR por PR. Marque todos no grupo, envie merge em lote e acompanhe progresso por toasts.",
+              "fontFamily": "IBM Plex Mono",
+              "fontSize": 15,
+              "fontWeight": "normal"
+            },
+            {
+              "id": "kiimm",
+              "type": "ref",
+              "ref": "xlKAG",
+              "width": "fill_container"
+            },
+            {
+              "id": "2OJNO",
+              "type": "ref",
+              "ref": "TEg5z"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "0Tb2X",
+          "name": "Snap/Phase 4 - Decidir",
+          "width": "fill_container",
+          "height": 900,
+          "fill": "#FFFFFF",
+          "cornerRadius": 12,
+          "layout": "vertical",
+          "gap": 16,
+          "padding": 24,
+          "children": [
+            {
+              "type": "text",
+              "id": "nUO58",
+              "fill": "#7A7362",
+              "content": "FASE 4/4 · DECIDIR RÁPIDO",
+              "fontFamily": "IBM Plex Mono",
+              "fontSize": 12,
+              "fontWeight": "700"
+            },
+            {
+              "type": "text",
+              "id": "PlyQT",
+              "fill": "#111111",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Menos operação. Mais engenharia.",
+              "fontFamily": "Space Grotesk",
+              "fontSize": 52,
+              "fontWeight": "700"
+            },
+            {
+              "type": "text",
+              "id": "fiZyf",
+              "fill": "#4D4A40",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Sem score mágico de risco: só dados confiáveis (CI, autor e diff) para decisão humana rápida.",
+              "fontFamily": "IBM Plex Mono",
+              "fontSize": 15,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "0DveY",
+              "name": "cta",
+              "gap": 10,
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "vIUOJ",
+                  "type": "ref",
+                  "ref": "o7f7S",
+                  "descendants": {
+                    "Ui8uj": {
+                      "content": "Conectar GitHub"
+                    }
+                  }
+                },
+                {
+                  "id": "JORHd",
+                  "type": "ref",
+                  "ref": "jfNYE",
+                  "descendants": {
+                    "128Wn": {
+                      "content": "Criar meu 1º grupo"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
         }
       ]
     }
