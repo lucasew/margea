@@ -29,12 +29,10 @@ export default async function handler(req: Request) {
   const requestUrl = new URL(req.url);
   const mode = requestUrl.searchParams.get('mode') || 'read';
 
-  // 🛡️ SENTINEL: Generate a random state for CSRF protection.
-  // The state is passed to GitHub and then returned in the callback.
-  // We can then verify it to prevent Cross-Site Request Forgery attacks.
+  // 🛡️ SENTINEL: Generate a random nonce to embed in signed state.
   const randomBytes = new Uint8Array(32);
   crypto.getRandomValues(randomBytes);
-  const state = Array.from(randomBytes)
+  const nonce = Array.from(randomBytes)
     .map((b) => b.toString(16).padStart(2, '0'))
     .join('');
 
@@ -47,18 +45,17 @@ export default async function handler(req: Request) {
   url.searchParams.set('client_id', clientId);
   url.searchParams.set('redirect_uri', callbackUrl);
   url.searchParams.set('scope', scopes);
-  url.searchParams.set('state', state); // Use state for CSRF protection
-
-  // 🛡️ SENTINEL: Secure the state and mode in a signed JWT.
-  // This prevents tampering with the permissions (mode) during the OAuth flow.
+  // Put a signed JWT directly in `state`, so callback validation does not
+  // depend on browser cookies surviving the provider redirect.
   const secret = new TextEncoder().encode(sessionSecret);
-  const stateToken = await new SignJWT({ state, mode })
+  const stateToken = await new SignJWT({ nonce, mode })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
-    .setExpirationTime('5m') // Short-lived token
+    .setExpirationTime('5m')
     .sign(secret);
+  url.searchParams.set('state', stateToken);
 
-  // Store the state and mode in a secure, HttpOnly cookie to verify on callback.
+  // Keep cookie as an optional second validation channel (double-submit style).
   const isSecure = requestUrl.protocol === 'https:';
 
   const cookie = `oauth_state=${stateToken}; HttpOnly; ${

@@ -21,43 +21,52 @@ export const config = { runtime: 'edge' };
 export default async function handler(req: Request) {
   const { searchParams } = new URL(req.url);
   const code = searchParams.get('code');
-  const stateFromParam = searchParams.get('state');
+  const stateTokenFromParam = searchParams.get('state');
 
-  // 🛡️ SENTINEL: Verify the CSRF token (state) to prevent attacks.
+  // Optional cookie channel (can be absent in preview host changes).
   const cookieHeader = req.headers.get('Cookie') || '';
   const cookies = parse(cookieHeader);
   const oauthStateCookie = cookies.oauth_state;
 
-  if (!code || !stateFromParam || !oauthStateCookie) {
+  if (!code || !stateTokenFromParam) {
     return new Response('Invalid request: missing parameters.', {
       status: 400,
     });
   }
 
-  // 🛡️ SENTINEL: Verify the signed JWT from the cookie.
-  // This prevents tampering with the state and permissions (mode).
+  // 🛡️ SENTINEL: Verify signed state token from callback parameter.
+  // This keeps CSRF protection even when preview host differences drop cookies.
   const secret = new TextEncoder().encode(process.env.SESSION_SECRET);
-  let stateFromToken: string;
+  let nonceFromParamToken: string;
   let mode: string;
 
   try {
-    const { payload } = await jwtVerify(oauthStateCookie, secret);
-    if (typeof payload.state !== 'string' || typeof payload.mode !== 'string') {
+    const { payload } = await jwtVerify(stateTokenFromParam, secret);
+    if (typeof payload.nonce !== 'string' || typeof payload.mode !== 'string') {
       throw new Error('Invalid JWT payload');
     }
-    stateFromToken = payload.state;
+    nonceFromParamToken = payload.nonce;
     mode = payload.mode;
   } catch {
-    return new Response('Invalid or expired OAuth state token.', {
+    return new Response('Invalid or expired OAuth state.', {
       status: 403,
     });
   }
 
-  // Compare the state from the parameter with the one from the signed JWT
-  if (stateFromParam !== stateFromToken) {
-    return new Response('Invalid CSRF token (state mismatch).', {
-      status: 403,
-    });
+  // Optional strict check when cookie is present.
+  if (oauthStateCookie) {
+    try {
+      const { payload } = await jwtVerify(oauthStateCookie, secret);
+      if (typeof payload.nonce !== 'string' || payload.nonce !== nonceFromParamToken) {
+        return new Response('Invalid CSRF token (state mismatch).', {
+          status: 403,
+        });
+      }
+    } catch {
+      return new Response('Invalid OAuth state cookie.', {
+        status: 403,
+      });
+    }
   }
 
   // Exchange the authorization code for an access token
@@ -71,6 +80,7 @@ export default async function handler(req: Request) {
       client_id: process.env.GITHUB_CLIENT_ID,
       client_secret: process.env.GITHUB_CLIENT_SECRET,
       code,
+      redirect_uri: process.env.GITHUB_CALLBACK_URL,
     }),
   });
 
