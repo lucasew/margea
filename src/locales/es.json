@@ -87,6 +87,7 @@
         "step3": "• Autorice la aplicación según el nivel elegido",
         "step4": "• Busque, filtre y gestione PRs fácilmente",
         "orUsePAT": "o use PAT",
+        "enterPAT": "Ingrese su token de acceso",
         "patLabel": "Personal Access Token (PAT)",
         "patPlaceholder": "Pegue su token de GitHub",
         "patSubmitting": "Autenticando...",

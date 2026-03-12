@@ -4,7 +4,6 @@ export const config = { runtime: 'edge' };
 
 interface PATAuthRequestBody {
   token?: string;
-  mode?: 'read' | 'write';
 }
 
 export default async function handler(req: Request) {
@@ -25,7 +24,7 @@ export default async function handler(req: Request) {
   }
 
   const token = body.token?.trim();
-  const mode = body.mode === 'write' ? 'write' : 'read';
+  const mode: 'write' = 'write';
 
   if (!token) {
     return new Response('Token is required', { status: 400 });

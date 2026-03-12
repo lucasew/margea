@@ -56,13 +56,10 @@ function App() {
     );
   }
 
-  if (showLogin) {
+  if (!isAuthenticated || showLogin) {
     return (
       <ErrorBoundary>
-        <LoginPage
-          onSkip={isAuthenticated ? undefined : () => setShowLogin(false)}
-          currentMode={currentMode}
-        />
+        <LoginPage currentMode={currentMode} />
       </ErrorBoundary>
     );
   }

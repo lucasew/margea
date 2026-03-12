@@ -1,8 +1,11 @@
 [tools]
 node = "25.4.0"
 
+[env]
+_.path = ["./node_modules/.bin"]
+
 [tasks.dev]
-run = "npm run dev"
+run = "vercel dev"
 
 [tasks.install]
 run = "npm install && npx playwright install --with-deps"

@@ -5,14 +5,13 @@ import { Logo } from './Logo';
 import { Footer } from './Footer';
 
 interface LoginPageProps {
-  onSkip?: () => void;
   currentMode?: 'read' | 'write' | null;
 }
 
-export function LoginPage({ onSkip, currentMode }: LoginPageProps) {
+export function LoginPage({ currentMode }: LoginPageProps) {
   const { t } = useTranslation();
+  const [authTab, setAuthTab] = useState<'oauth' | 'pat'>('oauth');
   const [patToken, setPatToken] = useState('');
-  const [patMode, setPatMode] = useState<'read' | 'write'>('read');
   const [patError, setPatError] = useState<string | null>(null);
   const [isPATLoading, setIsPATLoading] = useState(false);
 
@@ -53,7 +52,7 @@ export function LoginPage({ onSkip, currentMode }: LoginPageProps) {
         },
         body: JSON.stringify({
           token,
-          mode: patMode,
+          mode: 'write',
         }),
       });
 
@@ -113,121 +112,97 @@ export function LoginPage({ onSkip, currentMode }: LoginPageProps) {
           )}
 
           <div className="mb-6">
-            <h2 className="font-semibold text-lg mb-3 text-center">
-              {isReauthorizing
-                ? t('loginPage.chooseNewAccessLevel')
-                : t('loginPage.chooseAccessLevel')}
-            </h2>
-            <div className="flex flex-col gap-3">
+            <div role="tablist" className="tabs tabs-box mb-4">
               <button
-                onClick={() => handleGitHubLogin('read')}
-                className="btn btn-outline btn-lg gap-2 flex-col h-auto py-4"
-              >
-                <div className="flex items-center gap-2">
-                  <Eye size={24} />
-                  <span className="font-bold">{t('loginPage.readOnly')}</span>
-                </div>
-                <span className="text-xs opacity-70 normal-case font-normal">
-                  {t('loginPage.readOnlyDescription')}
-                </span>
-              </button>
-
-              <button
-                onClick={() => handleGitHubLogin('write')}
-                className="btn btn-primary btn-lg gap-2 flex-col h-auto py-4"
-              >
-                <div className="flex items-center gap-2">
-                  <Edit size={24} />
-                  <span className="font-bold">{t('loginPage.readWrite')}</span>
-                </div>
-                <span className="text-xs opacity-90 normal-case font-normal">
-                  {t('loginPage.readWriteDescription')}
-                </span>
-              </button>
-            </div>
-          </div>
-
-          <div className="divider">{t('loginPage.orUsePAT')}</div>
-
-          <div className="space-y-3 mb-6">
-            <label className="form-control w-full">
-              <span className="label-text mb-1">{t('loginPage.patLabel')}</span>
-              <input
-                type="password"
-                value={patToken}
-                onChange={(e) => setPatToken(e.target.value)}
-                placeholder={t('loginPage.patPlaceholder')}
-                className="input input-bordered w-full"
-                autoComplete="off"
-              />
-            </label>
-
-            <div className="flex gap-2">
-              <button
+                role="tab"
                 type="button"
-                onClick={() => setPatMode('read')}
-                className={`btn btn-sm flex-1 ${
-                  patMode === 'read' ? 'btn-outline btn-primary' : 'btn-ghost'
-                }`}
+                className={`tab flex-1 ${authTab === 'oauth' ? 'tab-active' : ''}`}
+                onClick={() => setAuthTab('oauth')}
               >
-                {t('loginPage.readOnly')}
+                OAuth
               </button>
               <button
+                role="tab"
                 type="button"
-                onClick={() => setPatMode('write')}
-                className={`btn btn-sm flex-1 ${
-                  patMode === 'write' ? 'btn-outline btn-primary' : 'btn-ghost'
-                }`}
+                className={`tab flex-1 ${authTab === 'pat' ? 'tab-active' : ''}`}
+                onClick={() => setAuthTab('pat')}
               >
-                {t('loginPage.readWrite')}
+                {t('loginPage.patLabel')}
               </button>
             </div>
 
-            <button
-              type="button"
-              onClick={handlePATLogin}
-              disabled={isPATLoading}
-              className="btn btn-secondary w-full gap-2"
-            >
-              <Key size={16} />
-              {isPATLoading
-                ? t('loginPage.patSubmitting')
-                : t('loginPage.continueWithPAT')}
-            </button>
+            {authTab === 'oauth' ? (
+              <>
+                <h2 className="font-semibold text-lg mb-3 text-center">
+                  {isReauthorizing
+                    ? t('loginPage.chooseNewAccessLevel')
+                    : t('loginPage.chooseAccessLevel')}
+                </h2>
+                <div className="flex flex-col gap-3">
+                  <button
+                    onClick={() => handleGitHubLogin('read')}
+                    className="btn btn-outline btn-lg gap-2 flex-col h-auto py-4"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Eye size={24} />
+                      <span className="font-bold">{t('loginPage.readOnly')}</span>
+                    </div>
+                    <span className="text-xs opacity-70 normal-case font-normal">
+                      {t('loginPage.readOnlyDescription')}
+                    </span>
+                  </button>
 
-            {patError && (
-              <div role="alert" className="alert alert-error">
-                <span className="text-sm">{patError}</span>
+                  <button
+                    onClick={() => handleGitHubLogin('write')}
+                    className="btn btn-primary btn-lg gap-2 flex-col h-auto py-4"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Edit size={24} />
+                      <span className="font-bold">{t('loginPage.readWrite')}</span>
+                    </div>
+                    <span className="text-xs opacity-90 normal-case font-normal">
+                      {t('loginPage.readWriteDescription')}
+                    </span>
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="space-y-3">
+                <h2 className="font-semibold text-lg mb-1 text-center">
+                  {t('loginPage.enterPAT')}
+                </h2>
+                <label className="form-control w-full">
+                  <span className="label-text mb-1">{t('loginPage.patLabel')}</span>
+                  <input
+                    type="password"
+                    value={patToken}
+                    onChange={(e) => setPatToken(e.target.value)}
+                    placeholder={t('loginPage.patPlaceholder')}
+                    className="input input-bordered w-full"
+                    autoComplete="off"
+                  />
+                </label>
+
+                <button
+                  type="button"
+                  onClick={handlePATLogin}
+                  disabled={isPATLoading}
+                  className="btn btn-secondary w-full gap-2"
+                >
+                  <Key size={16} />
+                  {isPATLoading
+                    ? t('loginPage.patSubmitting')
+                    : t('loginPage.continueWithPAT')}
+                </button>
+
+                {patError && (
+                  <div role="alert" className="alert alert-error">
+                    <span className="text-sm">{patError}</span>
+                  </div>
+                )}
               </div>
             )}
           </div>
-
-          <div className="flex flex-col gap-3">
-            {onSkip && (
-              <button onClick={onSkip} className="btn btn-ghost">
-                {t('loginPage.continueWithoutAuth')}
-              </button>
-            )}
-          </div>
-
-          {onSkip && (
-            <div className="alert alert-warning mt-6">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="stroke-current shrink-0 h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                />
-              </svg>
-              <span className="text-sm">{t('loginPage.noAuthWarning')}</span>
-            </div>
-          )}
 
           <div className="divider mt-8">{t('loginPage.howItWorks')}</div>
 

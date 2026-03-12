@@ -107,6 +107,7 @@
         "subtitle": "",
         "howItWorks": "",
         "orUsePAT": "ou use PAT",
+        "enterPAT": "Informe seu token de acesso",
         "patLabel": "Personal Access Token (PAT)",
         "patPlaceholder": "Cole seu token do GitHub",
         "patSubmitting": "Autenticando...",

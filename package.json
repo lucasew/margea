@@ -51,6 +51,7 @@
     "tailwindcss": "^4.0.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.53.1",
+    "vercel": "^48.1.6",
     "vite": "^7.0.0",
     "vite-plugin-relay": "^2.1.0"
   }
