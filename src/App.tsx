@@ -56,14 +56,6 @@ function App() {
     );
   }
 
-  if (!isAuthenticated || showLogin) {
-    return (
-      <ErrorBoundary>
-        <LoginPage currentMode={currentMode} />
-      </ErrorBoundary>
-    );
-  }
-
   const mainLayoutProps = {
     onLogout: handleLogout,
     onLogin: handleShowLogin,
@@ -71,6 +63,21 @@ function App() {
     isAuthenticated,
     currentMode,
   };
+
+  if (!isAuthenticated || showLogin) {
+    return (
+      <ErrorBoundary>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<MainLayout {...mainLayoutProps} />}>
+              <Route index element={showLogin ? <LoginPage currentMode={currentMode} /> : <HomePage />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </ErrorBoundary>
+    );
+  }
 
   return (
     <ErrorBoundary>
