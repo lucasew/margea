@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
         with:
           fetch-depth: 0
 
@@ -54,7 +54,3 @@ jobs:
       - name: CI
         if: steps.git-check.outputs.changes != 'true'
         run: mise run ci
-
-      - name: Build
-        if: steps.git-check.outputs.changes != 'true' && github.event_name == 'workflow_dispatch'
-        run: mise run build

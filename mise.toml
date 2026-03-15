@@ -1,5 +1,6 @@
 [tools]
 node = "25.4.0"
+"ubi:lucasew/workspaced" = "latest"
 
 [env]
 _.path = ["./node_modules/.bin"]
@@ -7,31 +8,31 @@ _.path = ["./node_modules/.bin"]
 [tasks.dev]
 run = "vercel dev"
 
-[tasks.install]
-run = "npm install && npx playwright install --with-deps"
-
-[tasks.codegen]
-run = "npm run relay"
-
 [tasks.build]
 run = "npm run build"
 
+[tasks.install]
+depends = ["install:*"]
+
+[tasks."install:npm"]
+run = "npm install && npx playwright install --with-deps"
+
+[tasks.codegen]
+depends = ["codegen:*"]
+
+[tasks."codegen:relay"]
+run = "npm run relay"
+
 [tasks.lint]
-depends = ["lint:*"]
-
-[tasks."lint:eslint"]
-run = "npx eslint ."
-
-[tasks."lint:prettier"]
-run = "npx prettier --check ."
+run = "workspaced codebase lint"
 
 [tasks.fmt]
-depends = ["fmt:*"]
-
-[tasks."fmt:prettier"]
-run = "npx prettier --write ."
+run = "workspaced codebase format"
 
 [tasks.test]
+depends = ["test:*"]
+
+[tasks."test:playwright"]
 run = "npx playwright test"
 
 [tasks.ci]
