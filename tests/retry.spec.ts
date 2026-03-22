@@ -2,6 +2,19 @@ import { test, expect } from '@playwright/test';
 import { executeWithRetry } from '../src/utils/retry';
 
 test.describe('executeWithRetry', () => {
+  let originalConsoleError: typeof console.error;
+
+  test.beforeEach(() => {
+    // Suppress console.error in tests to prevent Playwright from failing on intentional test errors
+    originalConsoleError = console.error;
+    console.error = () => {};
+  });
+
+  test.afterEach(() => {
+    // Restore console.error after each test
+    console.error = originalConsoleError;
+  });
+
   test('should execute operation successfully without retries', async () => {
     await test.step('Success', async () => {
       const operation = async () => 'success';
