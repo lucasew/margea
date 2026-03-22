@@ -72,8 +72,11 @@ function App() {
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<MainLayout {...mainLayoutProps} />}>
-                  {(!isAuthenticated || showLogin) ? (
-                    <Route index element={<LoginPage currentMode={currentMode} />} />
+                  {!isAuthenticated || showLogin ? (
+                    <Route
+                      index
+                      element={<LoginPage currentMode={currentMode} />}
+                    />
                   ) : (
                     <Route index element={<HomePage />} />
                   )}
