@@ -17,6 +17,19 @@ const INITIAL_INTERVAL_MS = 24 * 60 * 60 * 1000; // DAY_MS
 // Re-export types used by consumers
 export type { AdaptiveFetchState, ScopeProgress };
 
+/**
+ * Fetches a single page of Pull Requests from GitHub via Relay.
+ *
+ * This function serves as the `PageFetcher` implementation for `AdaptiveScopeFetcher`.
+ * It wraps the generic `fetchQuery` from Relay, standardizes the GraphQL variables,
+ * and transforms the raw GraphQL response into the uniform `PageResult` expected
+ * by the adaptive time-window algorithm.
+ *
+ * @param environment - The Relay Environment to execute the query against.
+ * @param query - The full search query string (including `is:pr`, scope, and `created:start..end`).
+ * @param cursor - The pagination cursor for fetching subsequent pages, or null for the first page.
+ * @returns A promise resolving to the extracted Pull Requests and pagination metadata.
+ */
 async function fetchPage(
   environment: Environment,
   query: string,
