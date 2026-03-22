@@ -3,7 +3,9 @@ import { MainLayoutContextType } from '../types';
 import { Header } from './Header';
 import { Footer } from './Footer';
 
-export const MainLayout = (props: MainLayoutContextType & { children?: React.ReactNode }) => {
+export const MainLayout = (
+  props: MainLayoutContextType & { children?: React.ReactNode },
+) => {
   return (
     <div className="min-h-screen flex flex-col bg-base-100">
       <Header
