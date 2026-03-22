@@ -63,7 +63,10 @@ export default async function handler(req: Request) {
   if (oauthStateCookie) {
     try {
       const { payload } = await jwtVerify(oauthStateCookie, secret);
-      if (typeof payload.nonce !== 'string' || payload.nonce !== nonceFromParamToken) {
+      if (
+        typeof payload.nonce !== 'string' ||
+        payload.nonce !== nonceFromParamToken
+      ) {
         return new Response('Invalid CSRF token (state mismatch).', {
           status: 403,
         });

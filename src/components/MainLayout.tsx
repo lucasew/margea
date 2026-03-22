@@ -3,7 +3,7 @@ import { MainLayoutContextType } from '../types';
 import { Header } from './Header';
 import { Footer } from './Footer';
 
-export const MainLayout = (props: MainLayoutContextType) => {
+export const MainLayout = (props: MainLayoutContextType & { children?: React.ReactNode }) => {
   return (
     <div className="min-h-screen flex flex-col bg-base-100">
       <Header
@@ -14,7 +14,7 @@ export const MainLayout = (props: MainLayoutContextType) => {
         currentMode={props.currentMode}
       />
       <main className="flex-1 flex flex-col">
-        <Outlet context={props} />
+        {props.children ? props.children : <Outlet context={props} />}
       </main>
       <Footer />
     </div>
