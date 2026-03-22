@@ -3,6 +3,7 @@ import { Eye, Edit, Key } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import { Logo } from './Logo';
 import { Footer } from './Footer';
+import { reportError } from '../utils/errorReporting';
 
 interface LoginPageProps {
   currentMode?: 'read' | 'write' | null;
@@ -23,7 +24,7 @@ export function LoginPage({ currentMode }: LoginPageProps) {
         credentials: 'include',
       });
     } catch (error) {
-      console.error('Error logging out before re-auth:', error);
+      reportError(error, { action: 'logoutBeforeReauth' });
     }
   };
 
@@ -64,7 +65,7 @@ export function LoginPage({ currentMode }: LoginPageProps) {
 
       window.location.href = '/';
     } catch (error) {
-      console.error('Error authenticating with PAT:', error);
+      reportError(error, { action: 'authenticateWithPAT' });
       setPatError(t('loginPage.patLoginFailed'));
     } finally {
       setIsPATLoading(false);
@@ -145,7 +146,9 @@ export function LoginPage({ currentMode }: LoginPageProps) {
                   >
                     <div className="flex items-center gap-2">
                       <Eye size={24} />
-                      <span className="font-bold">{t('loginPage.readOnly')}</span>
+                      <span className="font-bold">
+                        {t('loginPage.readOnly')}
+                      </span>
                     </div>
                     <span className="text-xs opacity-70 normal-case font-normal">
                       {t('loginPage.readOnlyDescription')}
@@ -158,7 +161,9 @@ export function LoginPage({ currentMode }: LoginPageProps) {
                   >
                     <div className="flex items-center gap-2">
                       <Edit size={24} />
-                      <span className="font-bold">{t('loginPage.readWrite')}</span>
+                      <span className="font-bold">
+                        {t('loginPage.readWrite')}
+                      </span>
                     </div>
                     <span className="text-xs opacity-90 normal-case font-normal">
                       {t('loginPage.readWriteDescription')}
@@ -172,7 +177,9 @@ export function LoginPage({ currentMode }: LoginPageProps) {
                   {t('loginPage.enterPAT')}
                 </h2>
                 <label className="form-control w-full">
-                  <span className="label-text mb-1">{t('loginPage.patLabel')}</span>
+                  <span className="label-text mb-1">
+                    {t('loginPage.patLabel')}
+                  </span>
                   <input
                     type="password"
                     value={patToken}

@@ -1,6 +1,8 @@
 /**
  * Configuration options for the retry mechanism.
  */
+import { reportError } from './errorReporting';
+
 export interface RetryOptions {
   /** Maximum number of retry attempts. Default: 5 */
   maxRetries?: number;
@@ -47,6 +49,14 @@ export async function executeWithRetry<T>(
       return await operation();
     } catch (error) {
       if (retries >= maxRetries || !shouldRetry(error)) {
+        const parsedError =
+          error instanceof Error ? error : new Error(String(error));
+        reportError(parsedError, {
+          context: 'executeWithRetry',
+          retries,
+          maxRetries,
+          shouldRetry: shouldRetry(error),
+        });
         throw error;
       }
 

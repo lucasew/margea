@@ -1,4 +1,5 @@
 import { PullRequest } from '../types';
+import { reportError } from '../utils/errorReporting';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const MIN_INTERVAL_MS = DAY_MS;
@@ -130,8 +131,16 @@ export class AdaptiveScopeFetcher {
         state: { oldestFetchedDate: windowEnd, intervalMs },
       };
     } catch (err) {
-      progress.error =
+      const parsedError =
         err instanceof Error ? err : new Error('Unknown error in scope fetch');
+      reportError(parsedError, {
+        context: 'AdaptiveScopeFetcher',
+        scope: this.scope,
+        oldestFetchedDate: windowEnd,
+        intervalMs,
+      });
+
+      progress.error = parsedError;
       progress.done = true;
       this.onProgress({ ...progress });
 

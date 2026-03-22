@@ -4,13 +4,10 @@ import { MergePullRequestMutation } from '../queries/MergePullRequestMutation';
 import { ClosePullRequestMutation } from '../queries/ClosePullRequestMutation';
 import { executeWithRetry } from '../utils/retry';
 import type { PullRequest, BulkActionProgress } from '../types';
-import type {
-  MergePullRequestMutation$data,
-} from '../queries/__generated__/MergePullRequestMutation.graphql';
-import type {
-  ClosePullRequestMutation$data,
-} from '../queries/__generated__/ClosePullRequestMutation.graphql';
+import type { MergePullRequestMutation$data } from '../queries/__generated__/MergePullRequestMutation.graphql';
+import type { ClosePullRequestMutation$data } from '../queries/__generated__/ClosePullRequestMutation.graphql';
 import type { RecordSourceSelectorProxy } from 'relay-runtime';
+import { reportError } from '../utils/errorReporting';
 
 /**
  * Represents the result of a single bulk action operation on a Pull Request.
@@ -48,7 +45,8 @@ function toMergeFields(
   data?: MergePullRequestMutation$data | null,
 ): Partial<PullRequest> {
   const mergedPR = data?.mergePullRequest?.pullRequest;
-  if (!mergedPR) return { state: 'MERGED', updatedAt: new Date().toISOString() };
+  if (!mergedPR)
+    return { state: 'MERGED', updatedAt: new Date().toISOString() };
 
   const updatedAt = mergedPR.mergedAt ?? new Date().toISOString();
   return {
@@ -62,7 +60,8 @@ function toCloseFields(
   data?: ClosePullRequestMutation$data | null,
 ): Partial<PullRequest> {
   const closedPR = data?.closePullRequest?.pullRequest;
-  if (!closedPR) return { state: 'CLOSED', updatedAt: new Date().toISOString() };
+  if (!closedPR)
+    return { state: 'CLOSED', updatedAt: new Date().toISOString() };
 
   const updatedAt = closedPR.closedAt ?? new Date().toISOString();
   return {
@@ -283,10 +282,16 @@ export const BulkActionsService = {
         );
       } catch (err) {
         // Erro após todas as retentativas ou erro inesperado
+        const parsedError = err instanceof Error ? err : new Error(String(err));
+        reportError(parsedError, {
+          action: 'bulkActionExecution',
+          prId: pr.id,
+          actionType,
+        });
         result = {
           success: false,
           prId: pr.id,
-          error: err instanceof Error ? err.message : String(err),
+          error: parsedError.message,
         };
       }
 

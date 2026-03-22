@@ -5,6 +5,7 @@ import {
   ErrorBoundary as ReactErrorBoundary,
   FallbackProps,
 } from 'react-error-boundary';
+import { reportError } from '../utils/errorReporting';
 
 interface Props {
   children: ReactNode;
@@ -62,7 +63,7 @@ function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
 
 export function ErrorBoundary({ children, fallback }: Props) {
   const logError = (error: Error, info: { componentStack?: string | null }) => {
-    console.error('ErrorBoundary caught an error:', error, info);
+    reportError(error, { context: 'GlobalErrorBoundary', ...info });
   };
 
   return (
