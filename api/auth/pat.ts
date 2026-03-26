@@ -24,7 +24,7 @@ export default async function handler(req: Request) {
   }
 
   const token = body.token?.trim();
-  const mode: 'write' = 'write';
+  const mode = 'write' as const;
 
   if (!token) {
     return new Response('Token is required', { status: 400 });
