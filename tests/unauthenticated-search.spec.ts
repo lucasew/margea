@@ -13,12 +13,8 @@ test.describe('Unauthenticated Home Page', () => {
   });
 
   test('should display login prompt and buttons', async ({ page }) => {
-    // Navigate straight to LoginPage if unauthenticated? No, the app renders LoginPage when unauthenticated.
-
     // Check for login required prompt (it's in HomePage which we don't see, we see LoginPage now)
     // We should be seeing LoginPage
-
-    // Let's check for something on the LoginPage
     const oauthTab = page.locator('role=tab[name="OAuth"]');
     await expect(oauthTab).toBeVisible();
   });
