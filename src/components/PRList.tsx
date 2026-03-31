@@ -16,6 +16,7 @@ import { PRListStats } from './PRListStats';
 import { PRListFilters } from './PRListFilters';
 import { usePRContext } from '../context/PRContext';
 import { useStablePRGroups } from '../hooks/useStablePRGroups';
+import { reportError } from '../utils/errorReporting';
 
 function PRListContent() {
   const navigate = useNavigate();
@@ -335,7 +336,10 @@ export function PRList() {
   const { refresh } = usePRContext();
 
   const logError = (error: Error, info: { componentStack?: string | null }) => {
-    console.error('PR List error:', error, info);
+    reportError(error, {
+      context: 'PRList',
+      componentStack: info.componentStack,
+    });
   };
 
   return (

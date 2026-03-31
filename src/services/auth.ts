@@ -1,3 +1,5 @@
+import { reportError } from '../utils/errorReporting';
+
 /**
  * Represents the authentication data retrieved from the server.
  */
@@ -46,7 +48,7 @@ export const AuthService = {
         mode: data.mode || 'read',
       };
     } catch (error) {
-      console.error('Error fetching auth data:', error);
+      reportError(error, { action: 'get_auth_data' });
       return null;
     }
   },
@@ -95,7 +97,7 @@ export const AuthService = {
       // Recarregar página para limpar estado
       window.location.href = '/';
     } catch (error) {
-      console.error('Error logging out:', error);
+      reportError(error, { action: 'logout' });
     }
   },
 

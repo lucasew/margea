@@ -3,6 +3,7 @@ import { Eye, Edit, Key } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import { Logo } from './Logo';
 import { Footer } from './Footer';
+import { reportError } from '../utils/errorReporting';
 
 interface LoginPageProps {
   currentMode?: 'read' | 'write' | null;
@@ -23,7 +24,7 @@ export function LoginPage({ currentMode }: LoginPageProps) {
         credentials: 'include',
       });
     } catch (error) {
-      console.error('Error logging out before re-auth:', error);
+      reportError(error, { action: 'logout_before_reauth' });
     }
   };
 
@@ -64,7 +65,7 @@ export function LoginPage({ currentMode }: LoginPageProps) {
 
       window.location.href = '/';
     } catch (error) {
-      console.error('Error authenticating with PAT:', error);
+      reportError(error, { action: 'pat_login' });
       setPatError(t('loginPage.patLoginFailed'));
     } finally {
       setIsPATLoading(false);
