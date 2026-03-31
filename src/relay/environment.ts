@@ -61,7 +61,10 @@ const fetchQuery: FetchFunction = async (operation, variables) => {
 
     // 401 Unauthorized — unrecoverable, don't retry
     if (response.status === 401) {
-      reportError(new Error('401 Unauthorized'), { action: 'relay_fetch', context: 'logging_out' });
+      reportError(new Error('401 Unauthorized'), {
+        action: 'relay_fetch',
+        context: 'logging_out',
+      });
       await AuthService.logout();
       window.location.href = '/';
       throw new Error('Sessão expirada. Por favor, faça login novamente.');
@@ -101,8 +104,13 @@ const fetchQuery: FetchFunction = async (operation, variables) => {
     }
 
     if (json.errors) {
-      const graphqlError = new Error(json.errors[0]?.message || 'GraphQL error occurred');
-      reportError(graphqlError, { action: 'graphql_response_errors', errors: json.errors });
+      const graphqlError = new Error(
+        json.errors[0]?.message || 'GraphQL error occurred',
+      );
+      reportError(graphqlError, {
+        action: 'graphql_response_errors',
+        errors: json.errors,
+      });
       throw graphqlError;
     }
 
