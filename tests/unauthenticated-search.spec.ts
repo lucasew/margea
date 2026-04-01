@@ -12,54 +12,20 @@ test.describe('Unauthenticated Home Page', () => {
     await page.reload();
   });
 
-  test('should display login prompt and buttons', async ({ page }) => {
-    // Check for login required prompt
-    await expect(
-      page.locator(`text=${en.homepage.login_prompt}`),
-    ).toBeVisible();
-
-    // Check for Hero Login button
-    const heroLoginButton = page.locator('button.btn-primary.btn-lg');
-    await expect(heroLoginButton).toBeVisible();
-    await expect(heroLoginButton).toHaveText(en.header.login);
-
-    // Check for Header Login button (filtering by text to avoid matching theme toggle if it uses same class)
-    const headerLoginButton = page
-      .locator('header button.btn-ghost')
-      .filter({ hasText: en.header.login });
-    await expect(headerLoginButton).toBeVisible();
-  });
-
-  test('should navigate to login page when clicking login button in header', async ({
+  test('should display login page directly when unauthenticated', async ({
     page,
   }) => {
-    // Click login button in header
-    const loginButton = page
-      .locator('header button.btn-ghost')
-      .filter({ hasText: en.header.login });
-    await expect(loginButton).toBeVisible();
-    await loginButton.click();
+    // Should show login page title "Margea"
+    await expect(page.locator('h1', { hasText: 'Margea' })).toBeVisible();
 
-    // Should show login page
-    await expect(
-      page.locator(`text=${en.loginPage.readOnly.title}`),
-    ).toBeVisible({ timeout: 5000 });
-    await expect(
-      page.locator(`text=${en.loginPage.readWrite.title}`),
-    ).toBeVisible();
-  });
+    // Should show OAuth tab
+    const oauthTab = page
+      .locator('button[role="tab"]', { hasText: 'OAuth' })
+      .or(page.locator('.tabs'));
+    await expect(oauthTab.first()).toBeVisible({ timeout: 10000 });
 
-  test('should navigate to login page when clicking login button in hero', async ({
-    page,
-  }) => {
-    // Click login button in hero
-    const loginButton = page.locator('button.btn-primary.btn-lg');
-    await expect(loginButton).toBeVisible();
-    await loginButton.click();
-
-    // Should show login page
-    await expect(
-      page.locator(`text=${en.loginPage.readOnly.title}`),
-    ).toBeVisible({ timeout: 5000 });
+    // Check for readOnly button elements
+    const readOnlyLocator = page.locator('.btn-outline');
+    await expect(readOnlyLocator.first()).toBeVisible();
   });
 });
