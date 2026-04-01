@@ -1,6 +1,8 @@
 /**
  * Represents the authentication data retrieved from the server.
  */
+import { reportError } from '../utils/errorReporting';
+
 export interface AuthData {
   /** The GitHub OAuth access token. */
   token: string;
@@ -46,7 +48,7 @@ export const AuthService = {
         mode: data.mode || 'read',
       };
     } catch (error) {
-      console.error('Error fetching auth data:', error);
+      reportError(error, { context: 'Error fetching auth data' });
       return null;
     }
   },
@@ -95,7 +97,7 @@ export const AuthService = {
       // Recarregar página para limpar estado
       window.location.href = '/';
     } catch (error) {
-      console.error('Error logging out:', error);
+      reportError(error, { context: 'Error logging out' });
     }
   },
 

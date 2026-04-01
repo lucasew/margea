@@ -6,6 +6,7 @@ import {
   FetchFunction,
 } from 'relay-runtime';
 import { AuthService } from '../services/auth';
+import { reportError } from '../utils/errorReporting';
 import { rateLimitStore } from '../services/rateLimitStore';
 
 const GITHUB_GRAPHQL_URL = 'https://api.github.com/graphql';
@@ -60,7 +61,9 @@ const fetchQuery: FetchFunction = async (operation, variables) => {
 
     // 401 Unauthorized — unrecoverable, don't retry
     if (response.status === 401) {
-      console.error('401 Unauthorized - logging out user');
+      reportError(new Error('401 Unauthorized - logging out user'), {
+        status: response.status,
+      });
       await AuthService.logout();
       window.location.href = '/';
       throw new Error('Sessão expirada. Por favor, faça login novamente.');
@@ -100,7 +103,9 @@ const fetchQuery: FetchFunction = async (operation, variables) => {
     }
 
     if (json.errors) {
-      console.error('GraphQL errors:', json.errors);
+      reportError(new Error('GraphQL errors occurred'), {
+        errors: json.errors,
+      });
       throw new Error(json.errors[0]?.message || 'GraphQL error occurred');
     }
 
