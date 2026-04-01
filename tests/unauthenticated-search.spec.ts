@@ -1,9 +1,6 @@
 import { test, expect } from '@playwright/test';
-import { translations } from './utils/translations';
 
 test.describe('Unauthenticated Home Page', () => {
-  const en = translations.en;
-
   test.beforeEach(async ({ page, context }) => {
     // Clear localStorage to ensure unauthenticated state
     await context.clearCookies();
