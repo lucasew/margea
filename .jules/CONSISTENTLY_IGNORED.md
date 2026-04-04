@@ -21,6 +21,7 @@
 **- Pattern:** Adding `gh release create` or artifact upload steps to `.github/workflows/autorelease.yml` when the project is deployed on Vercel.
 **- Justification:** Vercel manages deployments automatically; manual release steps in CI are redundant or conflict with the platform's workflow.
 **- Files Affected:** `.github/workflows/autorelease.yml`.
+
 ## IGNORE: Committing Binary Files
 
 **- Pattern:** Committing the `mise` binary or other executables.
