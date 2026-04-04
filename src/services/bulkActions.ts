@@ -4,12 +4,8 @@ import { MergePullRequestMutation } from '../queries/MergePullRequestMutation';
 import { ClosePullRequestMutation } from '../queries/ClosePullRequestMutation';
 import { executeWithRetry } from '../utils/retry';
 import type { PullRequest, BulkActionProgress } from '../types';
-import type {
-  MergePullRequestMutation$data,
-} from '../queries/__generated__/MergePullRequestMutation.graphql';
-import type {
-  ClosePullRequestMutation$data,
-} from '../queries/__generated__/ClosePullRequestMutation.graphql';
+import type { MergePullRequestMutation$data } from '../queries/__generated__/MergePullRequestMutation.graphql';
+import type { ClosePullRequestMutation$data } from '../queries/__generated__/ClosePullRequestMutation.graphql';
 import type { RecordSourceSelectorProxy } from 'relay-runtime';
 
 /**
@@ -26,6 +22,17 @@ export interface BulkActionResult {
   error?: string;
 }
 
+/**
+ * Updates a specific Pull Request record in the Relay local store.
+ *
+ * This is used for both optimistic UI updates (before the server responds)
+ * and for committing the final state after a successful mutation.
+ * It directly modifies the Relay cache to prevent requiring a full data refetch.
+ *
+ * @param store - The Relay record source proxy, giving access to the local cache.
+ * @param prId - The global GraphQL ID of the Pull Request to update.
+ * @param fields - The subset of fields (state, mergedAt, closedAt, updatedAt) to apply.
+ */
 function updatePullRequestRecord(
   store: RecordSourceSelectorProxy,
   prId: string,
@@ -44,11 +51,21 @@ function updatePullRequestRecord(
   if (fields.updatedAt) prRecord.setValue(fields.updatedAt, 'updatedAt');
 }
 
+/**
+ * Extracts and normalizes the resulting fields from a merge mutation response.
+ *
+ * Fallbacks to the current timestamp if the server doesn't return `mergedAt`.
+ * This ensures the local state always reflects that the PR is 'MERGED'.
+ *
+ * @param data - The raw response data from the MergePullRequest mutation.
+ * @returns An object containing the fields to update in the local cache.
+ */
 function toMergeFields(
   data?: MergePullRequestMutation$data | null,
 ): Partial<PullRequest> {
   const mergedPR = data?.mergePullRequest?.pullRequest;
-  if (!mergedPR) return { state: 'MERGED', updatedAt: new Date().toISOString() };
+  if (!mergedPR)
+    return { state: 'MERGED', updatedAt: new Date().toISOString() };
 
   const updatedAt = mergedPR.mergedAt ?? new Date().toISOString();
   return {
@@ -58,11 +75,21 @@ function toMergeFields(
   };
 }
 
+/**
+ * Extracts and normalizes the resulting fields from a close mutation response.
+ *
+ * Fallbacks to the current timestamp if the server doesn't return `closedAt`.
+ * This ensures the local state always reflects that the PR is 'CLOSED'.
+ *
+ * @param data - The raw response data from the ClosePullRequest mutation.
+ * @returns An object containing the fields to update in the local cache.
+ */
 function toCloseFields(
   data?: ClosePullRequestMutation$data | null,
 ): Partial<PullRequest> {
   const closedPR = data?.closePullRequest?.pullRequest;
-  if (!closedPR) return { state: 'CLOSED', updatedAt: new Date().toISOString() };
+  if (!closedPR)
+    return { state: 'CLOSED', updatedAt: new Date().toISOString() };
 
   const updatedAt = closedPR.closedAt ?? new Date().toISOString();
   return {
@@ -72,6 +99,19 @@ function toCloseFields(
   };
 }
 
+/**
+ * Executes a GraphQL mutation to merge a specific Pull Request.
+ *
+ * Flow:
+ * 1. Creates optimistic fields to update the UI immediately.
+ * 2. Triggers the Relay `commitMutation`.
+ * 3. Applies the optimistic update to the Relay store.
+ * 4. Replaces the optimistic data with actual server data upon success.
+ * 5. Returns a unified `BulkActionResult` regardless of success or failure.
+ *
+ * @param prId - The GraphQL ID of the Pull Request to merge.
+ * @returns A promise resolving to the result of the merge operation.
+ */
 const performMergeMutation = (prId: string): Promise<BulkActionResult> => {
   const optimisticNow = new Date().toISOString();
   const optimisticFields: Partial<PullRequest> = {
@@ -118,6 +158,19 @@ const performMergeMutation = (prId: string): Promise<BulkActionResult> => {
   });
 };
 
+/**
+ * Executes a GraphQL mutation to close a specific Pull Request.
+ *
+ * Flow:
+ * 1. Creates optimistic fields to update the UI immediately.
+ * 2. Triggers the Relay `commitMutation`.
+ * 3. Applies the optimistic update to the Relay store.
+ * 4. Replaces the optimistic data with actual server data upon success.
+ * 5. Returns a unified `BulkActionResult` regardless of success or failure.
+ *
+ * @param prId - The GraphQL ID of the Pull Request to close.
+ * @returns A promise resolving to the result of the close operation.
+ */
 const performCloseMutation = (prId: string): Promise<BulkActionResult> => {
   const optimisticNow = new Date().toISOString();
   const optimisticFields: Partial<PullRequest> = {
