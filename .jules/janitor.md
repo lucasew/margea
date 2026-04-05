@@ -34,4 +34,5 @@
 **Root Cause:** Validation and logic were inline, mixing different levels of abstraction in a single function.
 **Solution:** Extracted `isValidPR` for validation and `getCIStatus` for CI status logic into helper functions.
 **Pattern:** Extract complex inline logic and validation checks into small, named helper functions to improve readability and separation of concerns.
+
 - 2026-04-05: Use 'as const' assertions instead of literal type annotations to comply with @typescript-eslint/prefer-as-const.
