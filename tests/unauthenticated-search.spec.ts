@@ -13,7 +13,9 @@ test.describe('Unauthenticated Home Page', () => {
     await page.waitForLoadState('networkidle');
   });
 
-  test('should show login page directly when unauthenticated', async ({ page }) => {
+  test('should show login page directly when unauthenticated', async ({
+    page,
+  }) => {
     // Wait for the page to load
     await page.waitForLoadState('domcontentloaded');
 
@@ -21,12 +23,10 @@ test.describe('Unauthenticated Home Page', () => {
     await expect(page.locator('.loading')).toBeHidden({ timeout: 15000 });
 
     // The app now redirects directly to the login page when unauthenticated
-    await expect(
-      page.locator(`text=${en.loginPage.readOnly}`),
-    ).toBeVisible({ timeout: 5000 });
+    await expect(page.locator(`text=${en.loginPage.readOnly}`)).toBeVisible({
+      timeout: 5000,
+    });
 
-    await expect(
-      page.locator(`text=${en.loginPage.readWrite}`),
-    ).toBeVisible();
+    await expect(page.locator(`text=${en.loginPage.readWrite}`)).toBeVisible();
   });
 });
