@@ -32,3 +32,9 @@
 **- Pattern:** Modifying files unrelated to the agent's specific persona/mission (e.g., Janitor modifying CI config, Arrumador modifying source code).
 **- Justification:** Agents must strictly adhere to their scope. Mixing concerns increases rejection risk. Observed in PRs #210 and #221.
 **- Files Affected:** `src/**/*`, `.github/**/*`, `mise.toml`, `.jules/*.md`.
+
+## IGNORE: Transitive Dependency Lockfile Bumps
+
+**- Pattern:** Submitting PRs that only bump versions of transitive dependencies (e.g., `tar`, `minimatch`) in `package-lock.json` without any corresponding changes to `package.json`.
+**- Justification:** Bumping individual transitive dependencies creates unnecessary PR noise and CI churn. These should be managed via bulk updates, native security tools, or alongside top-level dependency updates.
+**- Files Affected:** `package-lock.json`
