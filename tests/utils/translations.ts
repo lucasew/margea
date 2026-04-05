@@ -8,12 +8,8 @@ export const translations = {
       login: 'Login',
     },
     loginPage: {
-      readOnly: {
-        title: 'Read-Only',
-      },
-      readWrite: {
-        title: 'Read and Write',
-      },
+      readOnly: 'Read-Only',
+      readWrite: 'Read and Write',
     },
   },
 };
