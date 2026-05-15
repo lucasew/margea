@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom';
 import { MainLayoutContextType } from '../types';
 import { Header } from './Header';
 import { Footer } from './Footer';
+import { FetchSpeedDial } from './FetchSpeedDial';
 
 export const MainLayout = (props: MainLayoutContextType) => {
   return (
@@ -17,6 +18,7 @@ export const MainLayout = (props: MainLayoutContextType) => {
         <Outlet context={props} />
       </main>
       <Footer />
+      {props.isAuthenticated && <FetchSpeedDial />}
     </div>
   );
 };
