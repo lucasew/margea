@@ -1,13 +1,17 @@
 import { SignJWT } from 'jose';
 
 export async function GET({ request }: { request: Request }) {
-  const clientId = process.env.GITHUB_CLIENT_ID;
-  const callbackUrl = process.env.GITHUB_CALLBACK_URL;
-  const sessionSecret = process.env.SESSION_SECRET;
+  const clientId = import.meta.env.GITHUB_CLIENT_ID;
+  const callbackUrl = import.meta.env.GITHUB_CALLBACK_URL;
+  const sessionSecret = import.meta.env.SESSION_SECRET;
   const requestUrl = new URL(request.url);
 
   if (!clientId || !callbackUrl || !sessionSecret) {
-    return new Response('Missing environment variables', { status: 500 });
+    return new Response(
+      'Missing required environment variables (GITHUB_CLIENT_ID, GITHUB_CALLBACK_URL, SESSION_SECRET). ' +
+      'Copy .env.example → .env.local and fill them. See README for GitHub OAuth setup.',
+      { status: 500 }
+    );
   }
 
   const mode = requestUrl.searchParams.get('mode') || 'read';

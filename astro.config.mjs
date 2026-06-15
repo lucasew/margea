@@ -1,9 +1,12 @@
-import { defineConfig } from 'astro/config';
+import { defineConfig, envField } from 'astro/config';
 import react from '@astrojs/react';
 import vercel from '@astrojs/vercel';
 import relay from 'vite-plugin-relay';
 
 export default defineConfig({
+  server: {
+    port: 3000,
+  },
   integrations: [
     react({
       babel: {
@@ -13,6 +16,30 @@ export default defineConfig({
   ],
   adapter: vercel(),
   output: 'server',
+  env: {
+    schema: {
+      GITHUB_CLIENT_ID: envField.string({
+        context: 'server',
+        access: 'secret',
+        optional: false,
+      }),
+      GITHUB_CLIENT_SECRET: envField.string({
+        context: 'server',
+        access: 'secret',
+        optional: false,
+      }),
+      GITHUB_CALLBACK_URL: envField.string({
+        context: 'server',
+        access: 'secret',
+        optional: false,
+      }),
+      SESSION_SECRET: envField.string({
+        context: 'server',
+        access: 'secret',
+        optional: false,
+      }),
+    },
+  },
   vite: {
     plugins: [relay],
     server: {

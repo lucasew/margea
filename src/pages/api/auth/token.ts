@@ -14,8 +14,20 @@ export async function GET({ request }: { request: Request }) {
     });
   }
 
+  if (!import.meta.env.SESSION_SECRET) {
+    return new Response(
+      JSON.stringify({
+        error: 'Server misconfigured: missing SESSION_SECRET. Copy .env.example → .env.local',
+      }),
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
+  }
+
   try {
-    const secret = new TextEncoder().encode(process.env.SESSION_SECRET);
+    const secret = new TextEncoder().encode(import.meta.env.SESSION_SECRET);
     const { payload } = await jwtVerify(sessionCookie, secret);
 
     return new Response(

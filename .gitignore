@@ -31,3 +31,9 @@ playwright-report/
 test-results/
 verification/
 .vercel
+
+# Environment variables (real secrets)
+# Keep .env.example committed so others know what is required.
+.env
+.env.local
+.env.*.local

@@ -3,13 +3,17 @@ import { parse } from 'cookie';
 
 export async function GET({ request }: { request: Request }) {
   const requestUrl = new URL(request.url);
-  const callbackUrl = process.env.GITHUB_CALLBACK_URL;
+  const callbackUrl = import.meta.env.GITHUB_CALLBACK_URL;
   const { searchParams } = new URL(request.url);
   const code = searchParams.get('code');
   const stateTokenFromParam = searchParams.get('state');
 
   if (!callbackUrl) {
-    return new Response('Missing environment variables', { status: 500 });
+    return new Response(
+      'Missing required environment variable GITHUB_CALLBACK_URL. ' +
+      'Copy .env.example → .env.local and fill it (must match the callback URL registered in your GitHub OAuth App).',
+      { status: 500 }
+    );
   }
 
   // Optional cookie channel (can be absent in preview host changes).
@@ -25,7 +29,7 @@ export async function GET({ request }: { request: Request }) {
 
   // 🛡️ SENTINEL: Verify signed state token from callback parameter.
   // This keeps CSRF protection even when preview host differences drop cookies.
-  const secret = new TextEncoder().encode(process.env.SESSION_SECRET);
+  const secret = new TextEncoder().encode(import.meta.env.SESSION_SECRET);
   let nonceFromParamToken: string;
   let mode: string;
 
@@ -66,8 +70,8 @@ export async function GET({ request }: { request: Request }) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      client_id: process.env.GITHUB_CLIENT_ID,
-      client_secret: process.env.GITHUB_CLIENT_SECRET,
+      client_id: import.meta.env.GITHUB_CLIENT_ID,
+      client_secret: import.meta.env.GITHUB_CLIENT_SECRET,
       code,
       redirect_uri: callbackUrl,
     }),

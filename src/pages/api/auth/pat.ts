@@ -5,9 +5,13 @@ interface PATAuthRequestBody {
 }
 
 export async function POST({ request }: { request: Request }) {
-  const secretValue = process.env.SESSION_SECRET;
+  const secretValue = import.meta.env.SESSION_SECRET;
   if (!secretValue) {
-    return new Response('Missing environment variables', { status: 500 });
+    return new Response(
+      'Missing required environment variable SESSION_SECRET. ' +
+      'Copy .env.example → .env.local and generate one with `openssl rand -hex 32`.',
+      { status: 500 }
+    );
   }
 
   let body: PATAuthRequestBody;
