@@ -79,6 +79,11 @@ export function createScopeStream(
   async function* generator(): AsyncGenerator<PullRequest> {
     const baseQuery = `is:pr ${scope}`;
 
+    const doFetch = async (query: string, cursor: string | null) => {
+      console.log('[generator] request', { scope, query, cursor });
+      return fetchPage(query, cursor);
+    };
+
     try {
       while (windowEnd > targetStart && !signal.aborted) {
         const windowStart = new Date(
@@ -91,7 +96,7 @@ export function createScopeStream(
         const query = `${baseQuery} ${dateFilter}`;
 
         // Probe: fetch first page to get issueCount + first results
-        const firstPage = await fetchPage(query, null);
+        const firstPage = await doFetch(query, null);
         if (signal.aborted) break;
 
         // GitHub hard cap guard: split window and retry
@@ -112,7 +117,7 @@ export function createScopeStream(
         let cursor = firstPage.endCursor;
         let hasNext = firstPage.hasNextPage;
         while (hasNext && !signal.aborted) {
-          const page = await fetchPage(query, cursor);
+          const page = await doFetch(query, cursor);
           for (const pr of page.prs) {
             yield pr;
           }
