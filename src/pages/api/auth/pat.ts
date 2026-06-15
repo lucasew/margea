@@ -1,16 +1,10 @@
 import { SignJWT } from 'jose';
 
-export const config = { runtime: 'edge' };
-
 interface PATAuthRequestBody {
   token?: string;
 }
 
-export default async function handler(req: Request) {
-  if (req.method !== 'POST') {
-    return new Response('Method not allowed', { status: 405 });
-  }
-
+export async function POST({ request }: { request: Request }) {
   const secretValue = process.env.SESSION_SECRET;
   if (!secretValue) {
     return new Response('Missing environment variables', { status: 500 });
@@ -18,7 +12,7 @@ export default async function handler(req: Request) {
 
   let body: PATAuthRequestBody;
   try {
-    body = (await req.json()) as PATAuthRequestBody;
+    body = (await request.json()) as PATAuthRequestBody;
   } catch {
     return new Response('Invalid JSON body', { status: 400 });
   }

@@ -5,7 +5,7 @@ node = "25.4.0"
 _.path = ["./node_modules/.bin"]
 
 [tasks.dev]
-run = "vercel dev"
+run = "astro dev"
 
 [tasks.install]
 run = "npm install && npx playwright install --with-deps"

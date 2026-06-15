@@ -1,10 +1,12 @@
+import './i18n';
+
 import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { RelayEnvironmentProvider } from 'react-relay';
 import { relayEnvironment } from './relay/environment';
 import { AuthService } from './services/auth';
 import { LoginPage } from './components/LoginPage';
-import { HomePage } from './pages/HomePage';
+import { HomePage } from './legacy-pages/HomePage';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { BulkActionProvider } from './context/BulkActionProvider';
 import { PRProvider } from './context/PRProvider';

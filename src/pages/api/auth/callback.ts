@@ -1,27 +1,10 @@
 import { SignJWT, jwtVerify } from 'jose';
 import { parse } from 'cookie';
 
-export const config = { runtime: 'edge' };
-
-/**
- * Handles the GitHub OAuth 2.0 callback.
- *
- * This function completes the authentication flow by:
- * 1. **Validation**: Verifying the presence of the authorization `code` and `state`.
- * 2. **CSRF Protection**: Decrypting the `oauth_state` cookie and comparing its state with the one
- *    returned by GitHub. This ensures the response corresponds to a request we initiated.
- * 3. **Token Exchange**: Exchanging the authorization code for a GitHub access token.
- * 4. **Session Creation**: Creating a long-lived, encrypted JWE session cookie containing the
- *    GitHub access token and the user's selected mode.
- * 5. **Cleanup**: Clearing the temporary `oauth_state` cookie.
- *
- * @param req - The incoming HTTP request.
- * @returns A 302 Redirect response to the application root with the new session.
- */
-export default async function handler(req: Request) {
-  const requestUrl = new URL(req.url);
+export async function GET({ request }: { request: Request }) {
+  const requestUrl = new URL(request.url);
   const callbackUrl = process.env.GITHUB_CALLBACK_URL;
-  const { searchParams } = new URL(req.url);
+  const { searchParams } = new URL(request.url);
   const code = searchParams.get('code');
   const stateTokenFromParam = searchParams.get('state');
 
@@ -30,7 +13,7 @@ export default async function handler(req: Request) {
   }
 
   // Optional cookie channel (can be absent in preview host changes).
-  const cookieHeader = req.headers.get('Cookie') || '';
+  const cookieHeader = request.headers.get('Cookie') || '';
   const cookies = parse(cookieHeader);
   const oauthStateCookie = cookies.oauth_state;
 

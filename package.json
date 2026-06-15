@@ -4,9 +4,9 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "npm run relay && tsc && vite build",
-    "preview": "vite preview",
+    "dev": "astro dev",
+    "build": "npm run relay && astro build",
+    "preview": "astro preview",
     "relay": "relay-compiler"
   },
   "dependencies": {
@@ -25,6 +25,8 @@
     "relay-runtime": "^20.0.0"
   },
   "devDependencies": {
+    "@astrojs/react": "^5.0.7",
+    "@astrojs/vercel": "^10.0.8",
     "@eslint/js": "^9.39.2",
     "@playwright/test": "^1.56.1",
     "@tailwindcss/postcss": "^4.1.17",
@@ -36,6 +38,7 @@
     "@types/react-router-dom": "^5.3.3",
     "@types/relay-runtime": "^19.0.3",
     "@vitejs/plugin-react": "^5.0.0",
+    "astro": "^6.4.7",
     "autoprefixer": "^10.4.16",
     "babel-plugin-relay": "^20.0.0",
     "daisyui": "^5.0.0",
