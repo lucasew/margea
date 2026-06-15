@@ -7,19 +7,14 @@ const WIDEN_THRESHOLD = 200;
 const NARROW_THRESHOLD = 500;
 const GITHUB_SEARCH_LIMIT = 1000;
 
+export const INITIAL_INTERVAL_MS = DAY_MS;
+
 function formatDate(date: Date): string {
   return [
     date.getUTCFullYear(),
     (date.getUTCMonth() + 1).toString().padStart(2, '0'),
     date.getUTCDate().toString().padStart(2, '0'),
   ].join('-');
-}
-
-export interface ScopeProgress {
-  scope: string;
-  fetched: number;
-  done: boolean;
-  error: Error | null;
 }
 
 export interface AdaptiveFetchState {
@@ -39,36 +34,55 @@ export type PageFetcher = (
   cursor: string | null,
 ) => Promise<PageResult>;
 
-export class AdaptiveScopeFetcher {
-  constructor(
-    private scope: string,
-    private fetchPage: PageFetcher,
-    private onBatch: (prs: PullRequest[]) => void,
-    private onProgress: (progress: ScopeProgress) => void,
-  ) {}
+export interface ScopeStream {
+  generator: AsyncGenerator<PullRequest>;
+  getState: () => AdaptiveFetchState;
+  extendTarget: (newStartDate: Date) => void;
+  abort: () => void;
+}
 
-  async fetch(
-    endDate: Date,
-    startDate: Date,
-    initialIntervalMs: number,
-    signal: AbortSignal,
-  ): Promise<{ progress: ScopeProgress; state: AdaptiveFetchState }> {
-    const baseQuery = `is:pr ${this.scope}`;
-    let intervalMs = initialIntervalMs;
-    let windowEnd = endDate;
-    let totalFetched = 0;
+export function createScopeStream(
+  scope: string,
+  fetchPage: PageFetcher,
+  initialEndDate: Date,
+  initialStartDate: Date,
+  initialIntervalMs: number,
+  abortSignal: AbortSignal,
+): ScopeStream {
+  let intervalMs = initialIntervalMs;
+  let windowEnd = new Date(initialEndDate.getTime());
+  let targetStart = new Date(initialStartDate.getTime());
 
-    const progress: ScopeProgress = {
-      scope: this.scope,
-      fetched: 0,
-      done: false,
-      error: null,
-    };
+  const controller = new AbortController();
+  const linkAbort = () => controller.abort();
+  if (abortSignal.aborted) {
+    controller.abort();
+  } else {
+    abortSignal.addEventListener('abort', linkAbort, { once: true });
+  }
+  const signal = controller.signal;
+
+  function getState(): AdaptiveFetchState {
+    return { oldestFetchedDate: windowEnd, intervalMs };
+  }
+
+  function extendTarget(newStartDate: Date) {
+    if (newStartDate.getTime() < targetStart.getTime()) {
+      targetStart = new Date(newStartDate.getTime());
+    }
+  }
+
+  function abort() {
+    controller.abort();
+  }
+
+  async function* generator(): AsyncGenerator<PullRequest> {
+    const baseQuery = `is:pr ${scope}`;
 
     try {
-      while (windowEnd > startDate && !signal.aborted) {
+      while (windowEnd > targetStart && !signal.aborted) {
         const windowStart = new Date(
-          Math.max(windowEnd.getTime() - intervalMs, startDate.getTime()),
+          Math.max(windowEnd.getTime() - intervalMs, targetStart.getTime()),
         );
 
         const dateFilter = `created:${formatDate(windowStart)}..${formatDate(
@@ -76,69 +90,61 @@ export class AdaptiveScopeFetcher {
         )}`;
         const query = `${baseQuery} ${dateFilter}`;
 
-        // Probe: fetch first page to check issueCount before full pagination
-        const firstPage = await this.fetchPage(query, null);
+        // Probe: fetch first page to get issueCount + first results
+        const firstPage = await fetchPage(query, null);
         if (signal.aborted) break;
 
-        // If issueCount exceeds GitHub's hard cap, split the window
+        // GitHub hard cap guard: split window and retry
         if (
           firstPage.issueCount > GITHUB_SEARCH_LIMIT &&
           intervalMs > MIN_INTERVAL_MS
         ) {
           intervalMs = Math.max(Math.floor(intervalMs / 2), MIN_INTERVAL_MS);
-          continue; // Retry this window with smaller interval
+          continue;
         }
 
-        // Process probe results
-        if (firstPage.prs.length > 0) {
-          totalFetched += firstPage.prs.length;
-          this.onBatch(firstPage.prs);
+        // Yield PRs from the probe page immediately (stream as found)
+        for (const pr of firstPage.prs) {
+          yield pr;
         }
 
-        // Paginate remaining pages in this window
+        // Yield the rest of the pages for this window (stream as found)
         let cursor = firstPage.endCursor;
         let hasNext = firstPage.hasNextPage;
         while (hasNext && !signal.aborted) {
-          const page = await this.fetchPage(query, cursor);
-          if (page.prs.length > 0) {
-            totalFetched += page.prs.length;
-            this.onBatch(page.prs);
+          const page = await fetchPage(query, cursor);
+          for (const pr of page.prs) {
+            yield pr;
           }
           hasNext = page.hasNextPage;
           cursor = page.endCursor;
         }
 
-        progress.fetched = totalFetched;
-        this.onProgress({ ...progress });
-
-        // Adapt interval for next window based on density
+        // Adapt interval based on density from the probe
         if (firstPage.issueCount > NARROW_THRESHOLD) {
           intervalMs = Math.max(Math.floor(intervalMs / 2), MIN_INTERVAL_MS);
         } else if (firstPage.issueCount < WIDEN_THRESHOLD) {
           intervalMs = Math.min(intervalMs * 2, MAX_INTERVAL_MS);
         }
 
-        // Advance to next window
+        // Advance frontier
         windowEnd = windowStart;
       }
-
-      progress.done = true;
-      this.onProgress({ ...progress });
-
-      return {
-        progress,
-        state: { oldestFetchedDate: windowEnd, intervalMs },
-      };
     } catch (err) {
-      progress.error =
-        err instanceof Error ? err : new Error('Unknown error in scope fetch');
-      progress.done = true;
-      this.onProgress({ ...progress });
-
-      return {
-        progress,
-        state: { oldestFetchedDate: windowEnd, intervalMs },
-      };
+      // Preserve frontier in getState(), surface failure to the puller
+      throw err instanceof Error
+        ? err
+        : new Error('Unknown error in scope stream');
+    } finally {
+      abortSignal.removeEventListener('abort', linkAbort);
     }
+    // Natural end: no more yields for current targetStart. Consumer can extendTarget and pull again.
   }
+
+  return {
+    generator: generator(),
+    getState,
+    extendTarget,
+    abort,
+  };
 }
