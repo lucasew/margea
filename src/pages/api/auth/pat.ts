@@ -21,11 +21,28 @@ export async function POST({ request }: { request: Request }) {
     return new Response('Invalid JSON body', { status: 400 });
   }
 
-  const token = body.token?.trim();
+  let token = (body.token || '').trim();
+
+  // Defensively strip common "smart quotes" / curly quotes that users
+  // frequently paste by accident from documentation, Notion, email, Word, etc.
+  // These are the main cause of the "ByteString" / character > 255 fetch errors later.
+  token = token.replace(/["“”‘’„‟]/g, '');
+
   const mode: 'write' = 'write';
 
   if (!token) {
     return new Response('Token is required', { status: 400 });
+  }
+
+  // Basic validation: GitHub tokens are alphanumeric + a few symbols.
+  // Rejecting here gives a much clearer error at PAT entry time instead of
+  // a cryptic "Window.fetch: Cannot convert value... ByteString" later.
+  if (!/^[A-Za-z0-9_.-]+$/.test(token)) {
+    return new Response(
+      'The PAT you provided contains invalid characters (for example curly quotes “ ”). ' +
+      'Please go back to GitHub → Personal access tokens, copy the token directly (plain text), and paste it again.',
+      { status: 400 }
+    );
   }
 
   const secret = new TextEncoder().encode(secretValue);
