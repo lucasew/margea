@@ -38,6 +38,10 @@ export async function POST({ request }: { request: Request }) {
     .setExpirationTime('7d')
     .sign(secret);
 
+  const requestUrl = new URL(request.url);
+  const forwardedProto = request.headers.get('x-forwarded-proto');
+  const isHttps = requestUrl.protocol === 'https:' || forwardedProto === 'https';
+
   const response = new Response(JSON.stringify({ success: true }), {
     headers: {
       'Content-Type': 'application/json',
@@ -47,7 +51,7 @@ export async function POST({ request }: { request: Request }) {
 
   response.headers.set(
     'Set-Cookie',
-    `session=${session}; HttpOnly; Secure; SameSite=Strict; Max-Age=${
+    `session=${session}; HttpOnly; ${isHttps ? 'Secure; ' : ''}SameSite=Strict; Max-Age=${
       60 * 60 * 24 * 7
     }; Path=/`,
   );

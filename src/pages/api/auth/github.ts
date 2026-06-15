@@ -43,11 +43,12 @@ export async function GET({ request }: { request: Request }) {
   url.searchParams.set('state', stateToken);
 
   // Keep cookie as an optional second validation channel (double-submit style).
-  const isSecure = requestUrl.protocol === 'https:';
+  const forwardedProto = request.headers.get('x-forwarded-proto');
+  const isHttps = requestUrl.protocol === 'https:' || forwardedProto === 'https';
 
   const cookie = `oauth_state=${stateToken}; HttpOnly; ${
-    isSecure ? 'Secure;' : ''
-  } Path=/; SameSite=Lax; Max-Age=300`; // 5 minutes expiry
+    isHttps ? 'Secure; ' : ''
+  }Path=/; SameSite=Lax; Max-Age=300`; // 5 minutes expiry
 
   // Redirect to GitHub, including the CSRF state and the new cookie.
   return new Response(null, {

@@ -8,6 +8,11 @@ export async function GET({ request }: { request: Request }) {
   const code = searchParams.get('code');
   const stateTokenFromParam = searchParams.get('state');
 
+  // Determine if we should set Secure cookies.
+  // Works for direct https and when behind a proxy (Vercel, etc.) that sets x-forwarded-proto.
+  const forwardedProto = request.headers.get('x-forwarded-proto');
+  const isHttps = requestUrl.protocol === 'https:' || forwardedProto === 'https';
+
   if (!callbackUrl) {
     return new Response(
       'Missing required environment variable GITHUB_CALLBACK_URL. ' +
@@ -100,7 +105,7 @@ export async function GET({ request }: { request: Request }) {
   const baseUrl = requestUrl.origin;
 
   // Set the session cookie and clear the state cookie
-  const sessionCookie = `session=${session}; HttpOnly; Secure; SameSite=Strict; Max-Age=${
+  const sessionCookie = `session=${session}; HttpOnly; ${isHttps ? 'Secure; ' : ''}SameSite=Strict; Max-Age=${
     60 * 60 * 24 * 7
   }; Path=/`;
   const clearStateCookie = `oauth_state=; HttpOnly; Path=/; Max-Age=0`;
