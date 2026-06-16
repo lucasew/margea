@@ -1,0 +1,6 @@
+.astro/
+src/locales/
+src/components/LoginPage.tsx
+src/context/PRProvider.tsx
+src/pages/api/auth/
+src/services/bulkActions.ts
