@@ -22,7 +22,8 @@ export function BulkActionModal({
   const { t } = useTranslation();
   if (!isOpen || !actionType) return null;
 
-  const actionLabel = actionType === 'merge' ? 'Mergear' : 'Fechar';
+  const actionKey = actionType === 'merge' ? 'merge' : 'close';
+  const actionLabel = t(`bulkActionModal.${actionKey}`);
   const actionColor = actionType === 'merge' ? 'success' : 'error';
 
   const hasStarted = progress.some((p) => p.status !== 'pending');
@@ -31,6 +32,8 @@ export function BulkActionModal({
     progress.every((p) => p.status === 'success' || p.status === 'error');
   const successCount = progress.filter((p) => p.status === 'success').length;
   const errorCount = progress.filter((p) => p.status === 'error').length;
+  const count = progress.length;
+  const s = count > 1 ? 's' : '';
 
   return (
     <div className="modal modal-open">
@@ -38,13 +41,13 @@ export function BulkActionModal({
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-bold">
             {hasStarted
-              ? `${actionLabel} PRs - Progresso`
-              : `Confirmar ${actionLabel} PRs`}
+              ? `${actionLabel} ${t('common.prs')} - ${t('bulkActionModal.progress')}`
+              : `${t('bulkActionModal.confirmPrefix')} ${actionLabel} ${t('common.prs')}`}
           </h3>
           <button
             onClick={onCancel}
             className="btn btn-sm btn-circle btn-ghost"
-            aria-label="Fechar"
+            aria-label={t('bulkActionModal.ariaClose')}
           >
             <X size={20} />
           </button>
@@ -54,9 +57,11 @@ export function BulkActionModal({
           <div className="alert alert-warning mb-4">
             <AlertCircle size={20} />
             <span>
-              Você está prestes a {actionLabel.toLowerCase()} {progress.length}{' '}
-              PR
-              {progress.length > 1 ? 's' : ''}. Esta ação não pode ser desfeita.
+              {t('bulkActionModal.warning', {
+                action: actionLabel.toLowerCase(),
+                count,
+                s,
+              })}
             </span>
           </div>
         )}
@@ -67,9 +72,16 @@ export function BulkActionModal({
           >
             <CheckCircle size={20} />
             <span>
-              {successCount} de {progress.length} PRs{' '}
-              {actionType === 'merge' ? 'mergeados' : 'fechados'} com sucesso
-              {errorCount > 0 && ` (${errorCount} com erro)`}
+              {t('bulkActionModal.successSummary', {
+                success: successCount,
+                total: count,
+                actionPast:
+                  actionType === 'merge'
+                    ? t('bulkActionModal.merge')
+                    : t('bulkActionModal.close'),
+              })}
+              {errorCount > 0 &&
+                t('bulkActionModal.errorSuffix', { count: errorCount })}
             </span>
           </div>
         )}
@@ -132,26 +144,29 @@ export function BulkActionModal({
                 className="btn btn-ghost"
                 disabled={isExecuting}
               >
-                Cancelar
+                {t('bulkActionModal.cancel')}
               </button>
               <button
                 onClick={onConfirm}
                 className={`btn btn-${actionColor}`}
                 disabled={isExecuting}
               >
-                {actionLabel} {progress.length} PR
-                {progress.length > 1 ? 's' : ''}
+                {actionLabel} {count}{' '}
+                {t('common.prs').replace(
+                  'PRs',
+                  count > 1 ? t('common.prs') : 'PR',
+                )}
               </button>
             </>
           )}
           {hasStarted && !isComplete && (
             <button onClick={onCancel} className="btn btn-ghost">
-              Minimizar
+              {t('bulkActionModal.minimize')}
             </button>
           )}
           {isComplete && (
             <button onClick={onCancel} className="btn btn-primary">
-              Fechar
+              {t('bulkActionModal.closeBtn')}
             </button>
           )}
         </div>

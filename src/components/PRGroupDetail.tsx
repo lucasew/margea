@@ -25,7 +25,7 @@ interface PRGroupDetailProps {
 }
 
 export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { hasWritePermission, mode } = useAuth();
   const { startBulkAction } = useBulkAction();
   const [selectedPRs, setSelectedPRs] = useState<Set<string>>(new Set());
@@ -40,7 +40,8 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR', {
+    const lang = i18n.language || 'en';
+    return new Date(dateString).toLocaleDateString(lang, {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -117,12 +118,12 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
   const getTooltipContent = () => {
     const parts = [];
     if (ciStatusCounts.success > 0)
-      parts.push(`${ciStatusCounts.success} Success`);
+      parts.push(`${ciStatusCounts.success} ${t('ci.success')}`);
     if (ciStatusCounts.failure > 0)
-      parts.push(`${ciStatusCounts.failure} Failure`);
+      parts.push(`${ciStatusCounts.failure} ${t('ci.failure')}`);
     if (ciStatusCounts.pending > 0)
-      parts.push(`${ciStatusCounts.pending} Pending`);
-    return `CI Status: ${parts.join(', ')}`;
+      parts.push(`${ciStatusCounts.pending} ${t('ci.pending')}`);
+    return `${t('ci.status')}: ${parts.join(', ')}`;
   };
 
   return (
@@ -230,7 +231,9 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
                   />
                 </div>
               )}
-              <span className="badge badge-neutral">{group.count} PRs</span>
+              <span className="badge badge-neutral">
+                {group.count} {t('common.prs')}
+              </span>
             </div>
           </div>
 
@@ -286,7 +289,7 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
                 <div className="flex flex-wrap items-center justify-end gap-x-4 gap-y-2 flex-shrink-0">
                   <div
                     className="flex items-center gap-1 font-mono text-sm"
-                    title={`${pr.additions} additions, ${pr.deletions} deletions`}
+                    title={`${pr.additions} ${t('common.additionsDeletions')}`}
                   >
                     <span className="text-success">+{pr.additions}</span>
                     <span className="text-error">-{pr.deletions}</span>
@@ -295,7 +298,7 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
                   {pr.ciStatus && (
                     <div
                       className="tooltip"
-                      data-tip={`CI Status: ${pr.ciStatus}`}
+                      data-tip={`${t('ci.status')}: ${pr.ciStatus}`}
                     >
                       <CiStatusChart
                         success={pr.ciStatus === 'SUCCESS' ? 1 : 0}

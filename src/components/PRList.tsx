@@ -1,6 +1,7 @@
 import { Suspense, useState, useEffect, useRef } from 'react';
 import { useSearchParams, useLocation, useNavigate } from 'react-router-dom';
 import { RefreshCw, AlertTriangle, AlertCircle, Plus } from 'react-feather';
+import { useTranslation } from 'react-i18next';
 import {
   ErrorBoundary as ReactErrorBoundary,
   FallbackProps,
@@ -18,6 +19,7 @@ import { usePRContext } from '../context/PRContext';
 import { useStablePRGroups } from '../hooks/useStablePRGroups';
 
 function PRListContent() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
@@ -219,7 +221,7 @@ function PRListContent() {
           <div role="alert" className="alert alert-error mb-6 shadow-lg">
             <AlertCircle />
             <div>
-              <h3 className="font-bold">Error loading PRs</h3>
+              <h3 className="font-bold">{t('prList.errorTitle')}</h3>
               <div className="text-xs">{error.message}</div>
             </div>
           </div>
@@ -228,7 +230,7 @@ function PRListContent() {
         {/* Groups */}
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-2xl font-bold flex items-center gap-3">
-            Grupos de PRs
+            {t('prList.groups')}
             <div className="badge badge-lg badge-neutral">{groups.length}</div>
           </h2>
           {isLoading && !isFetchingNextPage && (
@@ -239,7 +241,7 @@ function PRListContent() {
         {groups.length === 0 && !isLoading && !error ? (
           <div role="alert" className="alert alert-info shadow-lg">
             <InfoIcon />
-            <span>Nenhum PR encontrado com os filtros aplicados.</span>
+            <span>{t('prList.noPRs')}</span>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -261,7 +263,9 @@ function PRListContent() {
           {isFetchingNextPage || (isLoading && groups.length > 0) ? (
             <div className="flex flex-col items-center gap-2">
               <span className="loading loading-spinner loading-lg text-primary"></span>
-              <span className="text-sm opacity-50">Carregando mais...</span>
+              <span className="text-sm opacity-50">
+                {t('prList.loadingMore')}
+              </span>
             </div>
           ) : pageInfo.hasNextPage ? (
             // Show button if manually loading (filters active) or auto-load fallback
@@ -270,8 +274,8 @@ function PRListContent() {
               className={`btn btn-circle btn-outline btn-primary shadow-md hover:scale-110 transition-transform ${
                 !hasActiveFilters ? 'opacity-0 hover:opacity-100' : ''
               }`}
-              aria-label="Carregar mais"
-              title="Carregar mais"
+              aria-label={t('prList.loadMore')}
+              title={t('prList.loadMore')}
             >
               <Plus size={24} />
             </button>
@@ -280,7 +284,7 @@ function PRListContent() {
             !isLoading &&
             !error && (
               <span className="text-sm opacity-50">
-                Isso é tudo, pessoal! 🐰
+                {t('prList.endOfList')}
               </span>
             )
           )}
@@ -295,14 +299,15 @@ function PRListErrorFallback({
   resetErrorBoundary,
   onRetry,
 }: FallbackProps & { onRetry: () => void }) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col items-center justify-center min-h-screen gap-4 p-4">
       <div className="card w-full max-w-2xl bg-base-100 shadow-xl">
         <div className="card-body items-center text-center">
           <AlertTriangle size={64} className="text-error mb-4" />
-          <h2 className="card-title text-2xl mb-2">Erro ao carregar PRs</h2>
+          <h2 className="card-title text-2xl mb-2">{t('prList.errorTitle')}</h2>
           <p className="text-base-content/70 mb-4">
-            Não foi possível carregar os Pull Requests.
+            {t('prList.errorMessage')}
           </p>
 
           {error && (
@@ -322,7 +327,7 @@ function PRListErrorFallback({
               className="btn btn-primary"
             >
               <RefreshCw size={18} />
-              Tentar novamente
+              {t('prList.retry')}
             </button>
           </div>
         </div>
@@ -332,6 +337,7 @@ function PRListErrorFallback({
 }
 
 export function PRList() {
+  const { t } = useTranslation();
   const { refresh } = usePRContext();
 
   const logError = (error: Error, info: { componentStack?: string | null }) => {
@@ -350,7 +356,7 @@ export function PRList() {
           <div className="flex flex-col items-center justify-center min-h-screen gap-4">
             <span className="loading loading-spinner loading-lg text-primary"></span>
             <p className="text-lg text-base-content/70">
-              Carregando Pull Requests...
+              {t('prList.loading')}
             </p>
           </div>
         }

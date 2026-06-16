@@ -29,7 +29,7 @@ function OrganizationSelector({ value, onChange }: OrganizationSelectorProps) {
     return (
       <input
         type="text"
-        placeholder="ex: facebook"
+        placeholder={t('search.exampleOwner')}
         className="input input-bordered w-full"
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -103,7 +103,7 @@ function SearchFormContent({ isAuthenticated }: SearchFormProps) {
         ) : (
           <input
             type="text"
-            placeholder="ex: facebook"
+            placeholder={t('search.exampleOwner')}
             className="input input-bordered w-full"
             value={searchConfig.owner}
             onChange={(e) =>
@@ -128,7 +128,7 @@ function SearchFormContent({ isAuthenticated }: SearchFormProps) {
         </label>
         <input
           type="text"
-          placeholder="ex: react"
+          placeholder={t('search.exampleRepo')}
           className="input input-bordered w-full"
           value={searchConfig.repo}
           onChange={(e) =>
@@ -151,7 +151,7 @@ function SearchFormContent({ isAuthenticated }: SearchFormProps) {
           type="number"
           min="1"
           max="1000"
-          placeholder="100"
+          placeholder={t('search.exampleLimit')}
           className="input input-bordered w-full"
           value={searchConfig.limit}
           onChange={(e) =>

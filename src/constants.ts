@@ -1,13 +1,6 @@
 export const PR_STATES = ['ALL', 'OPEN', 'CLOSED', 'MERGED'] as const;
 export type PRState = (typeof PR_STATES)[number];
 
-export const PR_STATE_LABELS: { [key in PRState]: string } = {
-  ALL: 'Todos',
-  OPEN: 'Abertos',
-  MERGED: 'Merged',
-  CLOSED: 'Fechados',
-};
-
 // PRList constants
 export const DEFAULT_PR_TARGET = 100;
 export const MAX_PR_TARGET = 1000;
@@ -29,9 +22,9 @@ export const URL_SEARCH_PARAMS = {
 } as const;
 
 export const GROUPING_STRATEGIES = {
-  renovate: 'Renovate',
-  repository: 'Repositório',
-  author: 'Autor',
+  renovate: 'renovate',
+  repository: 'repository',
+  author: 'author',
 } as const;
 
 export const THEME_LIGHT = 'light';

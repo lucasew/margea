@@ -7,6 +7,7 @@ import {
 } from 'relay-runtime';
 import { AuthService } from '../services/auth';
 import { rateLimitStore } from '../services/rateLimitStore';
+import i18n from '../i18n';
 
 const GITHUB_GRAPHQL_URL = 'https://api.github.com/graphql';
 const MAX_RETRIES = 3;
@@ -63,7 +64,7 @@ const fetchQuery: FetchFunction = async (operation, variables) => {
       console.error('401 Unauthorized - logging out user');
       await AuthService.logout();
       window.location.href = '/';
-      throw new Error('Sessão expirada. Por favor, faça login novamente.');
+      throw new Error(i18n.t('errors.sessionExpired'));
     }
 
     // 429 or 403 (secondary rate limit) — retryable
@@ -95,19 +96,22 @@ const fetchQuery: FetchFunction = async (operation, variables) => {
 
     if (!response.ok) {
       throw new Error(
-        `Network error: ${response.status} ${response.statusText}`,
+        i18n.t('errors.network', {
+          status: response.status,
+          statusText: response.statusText,
+        }),
       );
     }
 
     if (json.errors) {
       console.error('GraphQL errors:', json.errors);
-      throw new Error(json.errors[0]?.message || 'GraphQL error occurred');
+      throw new Error(json.errors[0]?.message || i18n.t('errors.graphql'));
     }
 
     return json;
   }
 
-  throw new Error('Max retries exceeded');
+  throw new Error(i18n.t('errors.maxRetries'));
 };
 
 function createEnvironment() {

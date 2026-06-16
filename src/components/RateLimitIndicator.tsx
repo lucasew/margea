@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Activity } from 'react-feather';
 import { rateLimitStore, RateLimitState } from '../services/rateLimitStore';
 
 export function RateLimitIndicator() {
+  const { t } = useTranslation();
   const [state, setState] = useState<RateLimitState>(rateLimitStore.getState());
   const [timeUntilReset, setTimeUntilReset] = useState<string>('');
 
@@ -51,7 +53,7 @@ export function RateLimitIndicator() {
         tabIndex={0}
         role="button"
         className="btn btn-ghost btn-circle"
-        aria-label="API Rate Limit Status"
+        aria-label={t('rateLimit.aria')}
       >
         <div
           className={`radial-progress ${colorClass}`}
@@ -75,11 +77,11 @@ export function RateLimitIndicator() {
         <div className="card-body">
           <h3 className="card-title text-sm flex items-center gap-2">
             <Activity size={16} />
-            GitHub API Quota
+            {t('rateLimit.title')}
           </h3>
           <div className="py-2 space-y-2">
             <div className="flex justify-between items-center text-xs">
-              <span className="opacity-70">Remaining:</span>
+              <span className="opacity-70">{t('rateLimit.remaining')}</span>
               <span className={`font-mono font-bold ${colorClass}`}>
                 {state.remaining} / {state.limit}
               </span>
@@ -90,12 +92,12 @@ export function RateLimitIndicator() {
               max="100"
             />
             <div className="flex justify-between items-center text-xs">
-              <span className="opacity-70">Resets in:</span>
+              <span className="opacity-70">{t('rateLimit.resetsIn')}</span>
               <span className="font-mono">{timeUntilReset}</span>
             </div>
           </div>
           <div className="text-[10px] opacity-50 text-center pt-1">
-            Updates automatically on every request
+            {t('rateLimit.updates')}
           </div>
         </div>
       </div>

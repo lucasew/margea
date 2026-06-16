@@ -1,8 +1,8 @@
 import { Filter, RefreshCw, Download } from 'react-feather';
+import { useTranslation } from 'react-i18next';
 import { FilterDropdown } from './FilterDropdown';
 import {
   PR_STATES,
-  PR_STATE_LABELS,
   URL_SEARCH_PARAMS,
   PRState,
   GROUPING_STRATEGIES,
@@ -36,43 +36,49 @@ export function PRListFilters({
   onExportJSON,
   updateFilter,
 }: PRListFiltersProps) {
+  const { t } = useTranslation();
   return (
     <div className="card bg-base-100 shadow-lg mb-6">
       <div className="card-body">
         <h3 className="card-title mb-4">
           <Filter size={20} />
-          Filtros e Ações
+          {t('filters.title')}
         </h3>
 
         <div className="space-y-4">
           {/* Filtros - Linha 1 */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <FilterDropdown
-              label="Repositório"
+              label={t('filters.repository')}
               value={filterRepo}
               onChange={(value) => updateFilter(URL_SEARCH_PARAMS.REPO, value)}
               options={uniqueRepos}
+              allLabel={t('common.all')}
             />
 
             <FilterDropdown
-              label="Owner/Org"
+              label={t('filters.ownerOrg')}
               value={filterOwner}
               onChange={(value) => updateFilter(URL_SEARCH_PARAMS.OWNER, value)}
               options={uniqueOwners}
+              allLabel={t('common.all')}
             />
 
             <FilterDropdown
-              label="Autor"
+              label={t('filters.author')}
               value={filterAuthor}
               onChange={(value) =>
                 updateFilter(URL_SEARCH_PARAMS.AUTHOR, value)
               }
               options={uniqueAuthors}
+              allLabel={t('common.all')}
             />
 
             <div className="form-control">
               <label className="label">
-                <span className="label-text font-semibold">Status</span>
+                <span className="label-text font-semibold">
+                  {t('filters.status')}
+                </span>
               </label>
               <select
                 className="select select-bordered w-full"
@@ -83,7 +89,7 @@ export function PRListFilters({
               >
                 {PR_STATES.map((state) => (
                   <option key={state} value={state}>
-                    {PR_STATE_LABELS[state]}
+                    {t(`prStates.${state}`)}
                   </option>
                 ))}
               </select>
@@ -94,7 +100,9 @@ export function PRListFilters({
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="form-control">
               <label className="label">
-                <span className="label-text font-semibold">Agrupar por</span>
+                <span className="label-text font-semibold">
+                  {t('filters.groupBy')}
+                </span>
               </label>
               <select
                 className="select select-bordered w-full"
@@ -103,9 +111,9 @@ export function PRListFilters({
                   updateFilter(URL_SEARCH_PARAMS.GROUP_BY, e.target.value)
                 }
               >
-                {Object.entries(GROUPING_STRATEGIES).map(([key, label]) => (
+                {Object.keys(GROUPING_STRATEGIES).map((key) => (
                   <option key={key} value={key}>
-                    {label}
+                    {t(`grouping.${key}`)}
                   </option>
                 ))}
               </select>
@@ -116,12 +124,12 @@ export function PRListFilters({
           <div className="flex flex-row gap-4 justify-end">
             <button onClick={onRefresh} className="btn btn-primary">
               <RefreshCw size={18} />
-              Atualizar
+              {t('filters.refresh')}
             </button>
 
             <button onClick={onExportJSON} className="btn btn-secondary">
               <Download size={18} />
-              Exportar JSON
+              {t('filters.exportJSON')}
             </button>
           </div>
         </div>

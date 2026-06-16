@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { THEMES } from '../constants';
 
 type Theme = (typeof THEMES)[keyof typeof THEMES];
@@ -26,9 +27,10 @@ export function ThemeToggle() {
     );
   };
 
+  const { t } = useTranslation();
   const isDarkMode = theme === THEMES.DARK;
-  const title = isDarkMode ? 'Mudar para tema claro' : 'Mudar para tema escuro';
-  const label = isDarkMode ? 'Claro' : 'Escuro';
+  const title = isDarkMode ? t('theme.toggleToLight') : t('theme.toggleToDark');
+  const label = isDarkMode ? t('theme.light') : t('theme.dark');
 
   return (
     <button

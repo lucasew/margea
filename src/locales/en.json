@@ -13,7 +13,10 @@
     "search_pull_requests": "Search Pull Requests",
     "login_required": "Login required to search",
     "prsGoal": "PRs Goal",
-    "prsGoalDescription": "The system will automatically search until it reaches this goal (default: 100)"
+    "prsGoalDescription": "The system will automatically search until it reaches this goal (default: 100)",
+    "exampleOwner": "ex: facebook",
+    "exampleRepo": "ex: react",
+    "exampleLimit": "100"
   },
   "header": {
     "login": "Login",
@@ -115,5 +118,110 @@
     "mergedAt": "Merged",
     "closedAt": "Closed",
     "openInGitHub": "Open in GitHub"
+  },
+  "prStates": {
+    "ALL": "All",
+    "OPEN": "Open",
+    "CLOSED": "Closed",
+    "MERGED": "Merged"
+  },
+  "grouping": {
+    "renovate": "Renovate",
+    "repository": "Repository",
+    "author": "Author"
+  },
+  "filters": {
+    "title": "Filters & Actions",
+    "repository": "Repository",
+    "ownerOrg": "Owner/Org",
+    "author": "Author",
+    "status": "Status",
+    "groupBy": "Group by",
+    "refresh": "Refresh",
+    "exportJSON": "Export JSON"
+  },
+  "prList": {
+    "groups": "PR Groups",
+    "noPRs": "No PRs found with the applied filters.",
+    "loadingMore": "Loading more...",
+    "loadMore": "Load more",
+    "endOfList": "That's all, folks! 🐰",
+    "errorTitle": "Error loading PRs",
+    "errorMessage": "Could not load the Pull Requests.",
+    "retry": "Try again",
+    "loading": "Loading Pull Requests..."
+  },
+  "prStats": {
+    "total": "Total PRs",
+    "open": "Open",
+    "merged": "Merged",
+    "closed": "Closed",
+    "repositories": "Repositories"
+  },
+  "bulkActionModal": {
+    "pending": "Pending",
+    "processing": "Processing...",
+    "merge": "Merge",
+    "close": "Close",
+    "progress": "Progress",
+    "confirmPrefix": "Confirm",
+    "warning": "You are about to {{action}} {{count}} PR{{s}}. This action cannot be undone.",
+    "successSummary": "{{success}} of {{total}} PRs successfully {{actionPast}}",
+    "errorSuffix": " ({{count}} with error)",
+    "cancel": "Cancel",
+    "minimize": "Minimize",
+    "closeBtn": "Close",
+    "ariaClose": "Close"
+  },
+  "bulkAction": {
+    "processing": "Processing ({{done}}/{{total}})",
+    "completed": "Done: {{success}} success, {{error}} error",
+    "detailsAria": "Details",
+    "closeAria": "Close"
+  },
+  "fetcher": {
+    "ready": "Ready",
+    "searching": "Searching...",
+    "upTo": "Up to {{date}}",
+    "clickToLoadMore": "Click to fetch older PRs",
+    "searchingMore": "Fetching older PRs...",
+    "noMore": "No more PRs to load"
+  },
+  "rateLimit": {
+    "aria": "API Rate Limit Status",
+    "title": "GitHub API Quota",
+    "remaining": "Remaining:",
+    "resetsIn": "Resets in:",
+    "updates": "Updates automatically on every request"
+  },
+  "theme": {
+    "toggleToLight": "Switch to light theme",
+    "toggleToDark": "Switch to dark theme",
+    "light": "Light",
+    "dark": "Dark"
+  },
+  "permissions": {
+    "read": "Read",
+    "write": "Write",
+    "change": "change",
+    "changeTitle": "Change permissions"
+  },
+  "common": {
+    "viewOnGitHub": "View repository on GitHub",
+    "all": "All",
+    "additionsDeletions": "additions, deletions",
+    "prs": "PRs"
+  },
+  "errors": {
+    "sessionExpired": "Session expired. Please log in again.",
+    "graphql": "GraphQL error occurred",
+    "maxRetries": "Max retries exceeded",
+    "network": "Network error: {{status}} {{statusText}}"
+  },
+  "ci": {
+    "status": "CI Status",
+    "success": "Success",
+    "failure": "Failure",
+    "pending": "Pending"
   }
 }

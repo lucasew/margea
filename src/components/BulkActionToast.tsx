@@ -1,7 +1,9 @@
 import { CheckCircle, AlertCircle, X, Maximize2 } from 'react-feather';
+import { useTranslation } from 'react-i18next';
 import { useBulkAction } from '../hooks/useBulkAction';
 
 export function BulkActionToast() {
+  const { t } = useTranslation();
   const { operations, openGlobalModal, dismissOperation } = useBulkAction();
 
   if (operations.length === 0) return null;
@@ -42,8 +44,14 @@ export function BulkActionToast() {
             <div className="flex-1">
               <div className="font-bold text-sm">
                 {isExecuting
-                  ? `Processando (${successCount + errorCount}/${total})`
-                  : `Concluído: ${successCount} sucesso, ${errorCount} erro`}
+                  ? t('bulkAction.processing', {
+                      done: successCount + errorCount,
+                      total,
+                    })
+                  : t('bulkAction.completed', {
+                      success: successCount,
+                      error: errorCount,
+                    })}
               </div>
               <progress
                 className="progress progress-primary w-full bg-base-200"
@@ -55,7 +63,7 @@ export function BulkActionToast() {
             <button
               onClick={() => openGlobalModal(id)}
               className="btn btn-ghost btn-xs btn-circle"
-              aria-label="Detalhes"
+              aria-label={t('bulkAction.detailsAria')}
             >
               <Maximize2 size={16} />
             </button>
@@ -64,7 +72,7 @@ export function BulkActionToast() {
               <button
                 onClick={() => dismissOperation(id)}
                 className="btn btn-ghost btn-xs btn-circle"
-                aria-label="Fechar"
+                aria-label={t('bulkAction.closeAria')}
               >
                 <X size={16} />
               </button>

@@ -41,7 +41,7 @@ export function Header({
               target="_blank"
               rel="noopener noreferrer"
               className="btn btn-ghost btn-sm"
-              title="Ver repositório no GitHub"
+              title={t('common.viewOnGitHub')}
             >
               <GitHub size={20} />
             </a>
@@ -52,21 +52,21 @@ export function Header({
                     {currentMode === 'read' ? (
                       <>
                         <Eye size={16} />
-                        <span>Leitura</span>
+                        <span>{t('permissions.read')}</span>
                       </>
                     ) : (
                       <>
                         <Edit size={16} />
-                        <span>Escrita</span>
+                        <span>{t('permissions.write')}</span>
                       </>
                     )}
                     {onChangePermissions && (
                       <button
                         onClick={onChangePermissions}
                         className="ml-2 text-xs underline opacity-70 hover:opacity-100"
-                        title="Mudar permissões"
+                        title={t('permissions.changeTitle')}
                       >
-                        alterar
+                        {t('permissions.change')}
                       </button>
                     )}
                   </div>

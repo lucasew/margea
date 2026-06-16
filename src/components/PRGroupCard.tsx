@@ -39,12 +39,12 @@ export function PRGroupCard({ group, onExpand }: PRGroupCardProps) {
   const getTooltipContent = () => {
     const parts = [];
     if (ciStatusCounts.success > 0)
-      parts.push(`${ciStatusCounts.success} Success`);
+      parts.push(`${ciStatusCounts.success} ${t('ci.success')}`);
     if (ciStatusCounts.failure > 0)
-      parts.push(`${ciStatusCounts.failure} Failure`);
+      parts.push(`${ciStatusCounts.failure} ${t('ci.failure')}`);
     if (ciStatusCounts.pending > 0)
-      parts.push(`${ciStatusCounts.pending} Pending`);
-    return `CI Status: ${parts.join(', ')}`;
+      parts.push(`${ciStatusCounts.pending} ${t('ci.pending')}`);
+    return `${t('ci.status')}: ${parts.join(', ')}`;
   };
 
   return (
