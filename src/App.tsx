@@ -13,6 +13,7 @@ import { PRProvider } from './context/PRProvider';
 import { BulkActionToast } from './components/BulkActionToast';
 import { GlobalBulkActionModal } from './components/GlobalBulkActionModal';
 import { MainLayout } from './components/MainLayout';
+import { FetcherProgressHint } from './components/FetcherProgressHint';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -95,7 +96,10 @@ function App() {
                   />
                 </Route>
               </Routes>
-              <BulkActionToast />
+              <div className="toast toast-end z-50">
+                <BulkActionToast />
+                <FetcherProgressHint />
+              </div>
               <GlobalBulkActionModal />
             </BrowserRouter>
           </BulkActionProvider>

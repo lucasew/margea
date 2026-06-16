@@ -7,7 +7,7 @@ export function BulkActionToast() {
   if (operations.length === 0) return null;
 
   return (
-    <div className="toast toast-end z-50 flex flex-col gap-2">
+    <>
       {operations.map((op) => {
         const { progress, isExecuting, id } = op;
         const successCount = progress.filter(
@@ -72,6 +72,6 @@ export function BulkActionToast() {
           </div>
         );
       })}
-    </div>
+    </>
   );
 }

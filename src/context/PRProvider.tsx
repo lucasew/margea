@@ -33,6 +33,7 @@ export function PRProvider({ children }: PRProviderProps) {
   const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
   const [searchQuery, setSearchQueryState] = useState('');
   const [error, setError] = useState<Error | null>(null);
+  const [oldestFetchedDate, setOldestFetchedDate] = useState<Date | null>(null);
 
   // Active search scopes + the live generators/streams we pull from.
   // The store drives everything by creating streams and pulling PRs out of them.
@@ -118,6 +119,12 @@ export function PRProvider({ children }: PRProviderProps) {
       setIsLoading(false);
       setIsFetchingNextPage(false);
 
+      const currentStates = getCurrentStates();
+      if (currentStates.size > 0) {
+        const dates = Array.from(currentStates.values()).map((s) => s.oldestFetchedDate.getTime());
+        setOldestFetchedDate(new Date(Math.min(...dates)));
+      }
+
       if (isLoadMore) {
         const hasMore = phase.count > 0;
         setPageInfo({ endCursor: null, hasNextPage: hasMore });
@@ -161,11 +168,13 @@ export function PRProvider({ children }: PRProviderProps) {
       if (scopes.length === 0) {
         setPrMap(new Map());
         setPageInfo({ endCursor: null, hasNextPage: false });
+        setOldestFetchedDate(null);
         return;
       }
 
       setPrMap(new Map());
       setError(null);
+      setOldestFetchedDate(null);
 
       const now = new Date();
       const initialStart = new Date(
@@ -219,6 +228,7 @@ export function PRProvider({ children }: PRProviderProps) {
 
     abortAllStreams();
     setError(null);
+    setOldestFetchedDate(null);
 
     const now = new Date();
     const initialStart = new Date(
@@ -315,6 +325,7 @@ export function PRProvider({ children }: PRProviderProps) {
     optimisticUpdate,
     removePR,
     error,
+    oldestFetchedDate,
   };
 
   return (

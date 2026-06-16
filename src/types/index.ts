@@ -98,6 +98,7 @@ export interface PRContextState {
   isFetchingNextPage: boolean;
   searchQuery: string;
   error: Error | null;
+  oldestFetchedDate: Date | null;
 }
 
 export interface PRContextType extends PRContextState {
