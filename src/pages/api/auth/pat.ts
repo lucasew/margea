@@ -28,7 +28,7 @@ export async function POST({ request }: { request: Request }) {
   // These are the main cause of the "ByteString" / character > 255 fetch errors later.
   token = token.replace(/["“”‘’„‟]/g, '');
 
-  const mode = 'write' as const;
+  const mode: 'write' = 'write';
 
   if (!token) {
     return new Response('Token is required', { status: 400 });

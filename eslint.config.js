@@ -9,7 +9,6 @@ import eslintConfigPrettier from 'eslint-config-prettier';
 export default tseslint.config(
   {
     ignores: [
-      '.astro',
       'dist',
       'coverage',
       'src/__generated__',
