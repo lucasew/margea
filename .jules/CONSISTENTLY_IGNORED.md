@@ -7,7 +7,7 @@
 ## IGNORE: Unrelated Formatting and Trivial Changes
 
 **- Pattern:** Running global formatting or linting commands (e.g., `npx prettier --write .`) that result in massive diffs in unrelated files (such as `src/locales/*.json` or tests) not involved in the actual fix.
-**- Justification:** Introduces severe noise, obscures the PR's true intent, and causes merge conflicts. Agents must bypass global checks and format *only* the specific files they intentionally modified.
+**- Justification:** Introduces severe noise, obscures the PR's true intent, and causes merge conflicts. Agents must bypass global checks and format _only_ the specific files they intentionally modified.
 **- Files Affected:** Any file not central to the requested change, commonly `src/locales/*.json` or `tests/*.spec.ts`.
 
 ## IGNORE: Committing Binaries

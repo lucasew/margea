@@ -14,6 +14,7 @@ export default tseslint.config(
       'src/__generated__',
       'test-results',
       'playwright-report',
+      '.astro',
     ],
   },
   {
