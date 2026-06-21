@@ -5,13 +5,14 @@ import { Footer } from './Footer';
 
 export const MainLayout = (props: MainLayoutContextType) => {
   return (
-    <div className="min-h-screen flex flex-col bg-base-100">
+    <div className="app-shell">
       <Header
         onLogout={props.onLogout}
         onLogin={props.onLogin}
-        onChangePermissions={props.onChangePermissions}
+        onToggleMode={props.onToggleMode}
         isAuthenticated={props.isAuthenticated}
         currentMode={props.currentMode}
+        tokenCapability={props.tokenCapability}
       />
       <main className="flex-1 flex flex-col">
         <Outlet context={props} />

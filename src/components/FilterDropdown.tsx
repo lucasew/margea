@@ -15,11 +15,13 @@ export function FilterDropdown({
 }: FilterDropdownProps) {
   return (
     <div className="form-control">
-      <label className="label">
-        <span className="label-text font-semibold">{label}</span>
+      <label className="label py-0.5 min-h-0">
+        <span className="label-text text-xs font-medium text-base-content/70">
+          {label}
+        </span>
       </label>
       <select
-        className="select select-bordered w-full"
+        className="select select-bordered select-sm w-full"
         value={value}
         onChange={(e) => onChange(e.target.value)}
       >

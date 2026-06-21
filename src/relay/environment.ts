@@ -5,7 +5,7 @@ import {
   Store,
   FetchFunction,
 } from 'relay-runtime';
-import { AuthService } from '../services/auth';
+import { AuthService, noteTokenScopesFromHeaders } from '../services/auth';
 import { rateLimitStore } from '../services/rateLimitStore';
 import i18n from '../i18n';
 
@@ -92,6 +92,10 @@ const fetchQuery: FetchFunction = async (operation, variables) => {
 
     if (remaining && reset) {
       rateLimitStore.update(limit, remaining, reset);
+    }
+
+    if (token) {
+      noteTokenScopesFromHeaders(token, response.headers);
     }
 
     if (!response.ok) {

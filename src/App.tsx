@@ -20,15 +20,21 @@ function App() {
   const [showLogin, setShowLogin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [currentMode, setCurrentMode] = useState<'read' | 'write' | null>(null);
+  const [tokenCapability, setTokenCapability] = useState<
+    'read' | 'write' | null
+  >(null);
 
   useEffect(() => {
     // Verificar autenticação no mount
     AuthService.isAuthenticated().then((authenticated) => {
       setIsAuthenticated(authenticated);
       if (authenticated) {
-        // Se autenticado, buscar o modo atual
-        AuthService.getPermissions().then((mode) => {
+        Promise.all([
+          AuthService.getPermissions(),
+          AuthService.getTokenCapability(),
+        ]).then(([mode, capability]) => {
           setCurrentMode(mode);
+          setTokenCapability(capability);
         });
       }
       setIsLoading(false);
@@ -39,6 +45,7 @@ function App() {
     await AuthService.logout();
     setIsAuthenticated(false);
     setCurrentMode(null);
+    setTokenCapability(null);
     setShowLogin(true); // Mostrar tela de login após logout
   };
 
@@ -46,15 +53,18 @@ function App() {
     setShowLogin(true);
   };
 
-  const handleChangePermissions = () => {
-    setShowLogin(true); // Mostrar tela de login para escolher novo modo
+  /** Soft feature flag: flip effective mode in localStorage, no token change. */
+  const handleToggleMode = async () => {
+    if (!currentMode || tokenCapability !== 'write') return;
+    const next = await AuthService.toggleEffectiveMode();
+    if (next) setCurrentMode(next);
   };
 
   // Mostrar loading enquanto verifica autenticação
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <span className="loading loading-spinner loading-lg"></span>
+      <div className="app-shell items-center justify-center">
+        <span className="loading loading-spinner loading-md text-primary" />
       </div>
     );
   }
@@ -70,9 +80,10 @@ function App() {
   const mainLayoutProps = {
     onLogout: handleLogout,
     onLogin: handleShowLogin,
-    onChangePermissions: handleChangePermissions,
+    onToggleMode: handleToggleMode,
     isAuthenticated,
     currentMode,
+    tokenCapability,
   };
 
   return (

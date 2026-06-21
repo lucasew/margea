@@ -28,7 +28,9 @@ export async function POST({ request }: { request: Request }) {
   // These are the main cause of the "ByteString" / character > 255 fetch errors later.
   token = token.replace(/["“”‘’„‟]/g, '');
 
-  const mode = 'write' as const;
+  // Session still stores a login label for compatibility; capability is probed
+  // client-side from the token's X-OAuth-Scopes (not this field).
+  const mode = 'read' as const;
 
   if (!token) {
     return new Response('Token is required', { status: 400 });

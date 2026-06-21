@@ -1,20 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Sun, Moon } from 'react-feather';
-import { THEMES } from '../constants';
+import { THEMES, resolveTheme } from '../constants';
 
 type Theme = (typeof THEMES)[keyof typeof THEMES];
 
 export function ThemeToggle() {
   const [theme, setTheme] = useState<Theme>(() => {
-    const savedTheme = localStorage.getItem('theme') as Theme | null;
-    if (savedTheme && Object.values(THEMES).includes(savedTheme)) {
-      return savedTheme;
-    }
     const prefersDark = window.matchMedia(
       '(prefers-color-scheme: dark)',
     ).matches;
-    return prefersDark ? THEMES.DARK : THEMES.LIGHT;
+    return resolveTheme(localStorage.getItem('theme'), prefersDark) as Theme;
   });
 
   useEffect(() => {
@@ -36,13 +32,11 @@ export function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className="btn btn-ghost btn-sm gap-2"
+      className="btn btn-ghost btn-sm btn-square"
       title={title}
+      aria-label={title}
     >
-      <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
-        {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
-      </div>
-      <span className="hidden lg:inline text-sm">{label}</span>
+      {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
     </button>
   );
 }

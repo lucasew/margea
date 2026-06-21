@@ -3,6 +3,7 @@ import { Eye, Edit, Key } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import { Logo } from './Logo';
 import { Footer } from './Footer';
+import { ThemeToggle } from './ThemeToggle';
 import { InfoIcon } from './icons/InfoIcon';
 
 interface LoginPageProps {
@@ -75,21 +76,25 @@ export function LoginPage({ currentMode }: LoginPageProps) {
   const isReauthorizing = !!currentMode;
 
   return (
-    <div className="min-h-screen flex flex-col bg-base-100">
-      <main className="flex-1 flex items-center justify-center p-4">
-        <div className="w-full max-w-md border border-base-300 rounded-lg p-8 bg-base-100">
-          <div className="flex flex-col items-center mb-8">
-            <Logo size={64} className="text-primary mb-3" />
-            <h1 className="text-3xl font-bold mb-2">Margea</h1>
-            <p className="text-base-content/70 text-center">
+    <div className="app-shell">
+      <div className="app-container flex justify-end py-3">
+        <ThemeToggle />
+      </div>
+
+      <main className="flex-1 flex items-center justify-center px-4 pb-10">
+        <div className="login-surface">
+          <div className="flex flex-col items-center mb-7 text-center">
+            <Logo size={48} className="text-primary mb-3" />
+            <h1 className="text-2xl font-semibold tracking-tight mb-1">Margea</h1>
+            <p className="text-sm text-base-content/70 max-w-[28ch]">
               {t('loginPage.subtitle')}
             </p>
           </div>
 
           {isReauthorizing && (
-            <div className="alert alert-info mb-6">
+            <div className="alert alert-info mb-5 py-2.5 text-sm">
               <InfoIcon />
-              <span className="text-sm">
+              <span>
                 {t('loginPage.reauthorizingMessage', {
                   currentMode:
                     currentMode === 'read'
@@ -100,106 +105,112 @@ export function LoginPage({ currentMode }: LoginPageProps) {
             </div>
           )}
 
-          <div className="mb-6">
-            <div role="tablist" className="tabs tabs-box mb-4">
-              <button
-                role="tab"
-                type="button"
-                className={`tab flex-1 ${authTab === 'oauth' ? 'tab-active' : ''}`}
-                onClick={() => setAuthTab('oauth')}
-              >
-                OAuth
-              </button>
-              <button
-                role="tab"
-                type="button"
-                className={`tab flex-1 ${authTab === 'pat' ? 'tab-active' : ''}`}
-                onClick={() => setAuthTab('pat')}
-              >
-                {t('loginPage.patLabel')}
-              </button>
-            </div>
-
-            {authTab === 'oauth' ? (
-              <>
-                <h2 className="font-semibold text-lg mb-3 text-center">
-                  {isReauthorizing
-                    ? t('loginPage.chooseNewAccessLevel')
-                    : t('loginPage.chooseAccessLevel')}
-                </h2>
-                <div className="flex flex-col gap-3">
-                  <button
-                    onClick={() => handleGitHubLogin('read')}
-                    className="btn btn-outline btn-lg gap-2 flex-col h-auto py-4"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Eye size={24} />
-                      <span className="font-bold">{t('loginPage.readOnly')}</span>
-                    </div>
-                    <span className="text-xs opacity-70 normal-case font-normal">
-                      {t('loginPage.readOnlyDescription')}
-                    </span>
-                  </button>
-
-                  <button
-                    onClick={() => handleGitHubLogin('write')}
-                    className="btn btn-primary btn-lg gap-2 flex-col h-auto py-4"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Edit size={24} />
-                      <span className="font-bold">{t('loginPage.readWrite')}</span>
-                    </div>
-                    <span className="text-xs opacity-90 normal-case font-normal">
-                      {t('loginPage.readWriteDescription')}
-                    </span>
-                  </button>
-                </div>
-              </>
-            ) : (
-              <div className="space-y-3">
-                <h2 className="font-semibold text-lg mb-1 text-center">
-                  {t('loginPage.enterPAT')}
-                </h2>
-                <label className="form-control w-full">
-                  <span className="label-text mb-1">{t('loginPage.patLabel')}</span>
-                  <input
-                    type="password"
-                    value={patToken}
-                    onChange={(e) => setPatToken(e.target.value)}
-                    placeholder={t('loginPage.patPlaceholder')}
-                    className="input input-bordered w-full"
-                    autoComplete="off"
-                  />
-                </label>
-
-                <button
-                  type="button"
-                  onClick={handlePATLogin}
-                  disabled={isPATLoading}
-                  className="btn btn-secondary w-full gap-2"
-                >
-                  <Key size={16} />
-                  {isPATLoading
-                    ? t('loginPage.patSubmitting')
-                    : t('loginPage.continueWithPAT')}
-                </button>
-
-                {patError && (
-                  <div role="alert" className="alert alert-error">
-                    <span className="text-sm">{patError}</span>
-                  </div>
-                )}
-              </div>
-            )}
+          <div role="tablist" className="tabs tabs-box tabs-sm mb-5 w-full">
+            <button
+              role="tab"
+              type="button"
+              className={`tab flex-1 ${authTab === 'oauth' ? 'tab-active' : ''}`}
+              onClick={() => setAuthTab('oauth')}
+              aria-selected={authTab === 'oauth'}
+            >
+              OAuth
+            </button>
+            <button
+              role="tab"
+              type="button"
+              className={`tab flex-1 ${authTab === 'pat' ? 'tab-active' : ''}`}
+              onClick={() => setAuthTab('pat')}
+              aria-selected={authTab === 'pat'}
+            >
+              {t('loginPage.patLabel')}
+            </button>
           </div>
 
-          <div className="divider mt-8">{t('loginPage.howItWorks')}</div>
+          {authTab === 'oauth' ? (
+            <div className="space-y-3">
+              <p className="text-xs font-medium text-base-content/60 uppercase tracking-wide">
+                {isReauthorizing
+                  ? t('loginPage.chooseNewAccessLevel')
+                  : t('loginPage.chooseAccessLevel')}
+              </p>
 
-          <div className="text-sm text-base-content/70 space-y-2">
-            <p>{t('loginPage.step1')}</p>
-            <p>{t('loginPage.step2')}</p>
-            <p>{t('loginPage.step3')}</p>
-            <p>{t('loginPage.step4')}</p>
+              <button
+                type="button"
+                onClick={() => handleGitHubLogin('read')}
+                className="access-option"
+              >
+                <span className="flex items-center gap-2 font-semibold text-sm">
+                  <Eye size={18} className="text-base-content/70" aria-hidden />
+                  {t('loginPage.readOnly')}
+                </span>
+                <span className="text-xs text-base-content/65 pl-7">
+                  {t('loginPage.readOnlyDescription')}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleGitHubLogin('write')}
+                className="access-option access-option-primary"
+              >
+                <span className="flex items-center gap-2 font-semibold text-sm text-primary">
+                  <Edit size={18} aria-hidden />
+                  {t('loginPage.readWrite')}
+                </span>
+                <span className="text-xs text-base-content/70 pl-7">
+                  {t('loginPage.readWriteDescription')}
+                </span>
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <p className="text-xs font-medium text-base-content/60 uppercase tracking-wide">
+                {t('loginPage.enterPAT')}
+              </p>
+              <label className="form-control w-full">
+                <span className="label-text text-xs mb-1">
+                  {t('loginPage.patLabel')}
+                </span>
+                <input
+                  type="password"
+                  value={patToken}
+                  onChange={(e) => setPatToken(e.target.value)}
+                  placeholder={t('loginPage.patPlaceholder')}
+                  className="input input-bordered input-sm w-full"
+                  autoComplete="off"
+                />
+              </label>
+
+              <button
+                type="button"
+                onClick={handlePATLogin}
+                disabled={isPATLoading}
+                className="btn btn-primary btn-sm w-full gap-2"
+              >
+                <Key size={15} aria-hidden />
+                {isPATLoading
+                  ? t('loginPage.patSubmitting')
+                  : t('loginPage.continueWithPAT')}
+              </button>
+
+              {patError && (
+                <div role="alert" className="alert alert-error py-2 text-sm">
+                  <span>{patError}</span>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="mt-8 pt-5 border-t border-base-300">
+            <p className="text-xs font-medium text-base-content/55 mb-2">
+              {t('loginPage.howItWorks')}
+            </p>
+            <ol className="text-xs text-base-content/65 space-y-1.5 list-decimal list-inside">
+              <li>{t('loginPage.step1')}</li>
+              <li>{t('loginPage.step2')}</li>
+              <li>{t('loginPage.step3')}</li>
+              <li>{t('loginPage.step4')}</li>
+            </ol>
           </div>
         </div>
       </main>

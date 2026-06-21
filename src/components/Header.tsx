@@ -1,84 +1,72 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Eye, Edit, GitHub } from 'react-feather';
+import { GitHub } from 'react-feather';
 import { ThemeToggle } from './ThemeToggle';
 import { Logo } from './Logo';
-import { RateLimitIndicator } from './RateLimitIndicator';
+import { RateLimitIndicator, UserAccountMenu } from './RateLimitIndicator';
 
 interface HeaderProps {
   onLogout: () => void;
   onLogin: () => void;
-  onChangePermissions?: () => void;
+  onToggleMode?: () => void;
   isAuthenticated: boolean;
   currentMode?: 'read' | 'write' | null;
+  tokenCapability?: 'read' | 'write' | null;
 }
 
 export function Header({
   onLogout,
   onLogin,
-  onChangePermissions,
+  onToggleMode,
   isAuthenticated,
   currentMode,
+  tokenCapability,
 }: HeaderProps) {
   const { t } = useTranslation();
 
   return (
-    <header className="border-b border-base-300">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between py-4">
+    <header className="header-bar">
+      <div className="app-container">
+        <div className="flex items-center justify-between gap-3 py-3">
           <Link
             to="/"
-            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+            className="flex items-center gap-2.5 min-w-0 hover:opacity-80 transition-opacity duration-150"
           >
-            <Logo size={24} />
-            <span className="font-bold text-lg">Margea</span>
+            <Logo size={22} className="text-primary flex-shrink-0" />
+            <span className="font-semibold text-base tracking-tight">Margea</span>
           </Link>
-          <div className="flex items-center gap-3">
-            <RateLimitIndicator />
+
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
             <ThemeToggle />
             <a
               href="https://github.com/lucasew/margea"
               target="_blank"
               rel="noopener noreferrer"
-              className="btn btn-ghost btn-sm"
+              className="btn btn-ghost btn-sm btn-square"
               title={t('common.viewOnGitHub')}
+              aria-label={t('common.viewOnGitHub')}
             >
-              <GitHub size={20} />
+              <GitHub size={18} />
             </a>
+
             {isAuthenticated ? (
-              <>
-                {currentMode && (
-                  <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-base-200 text-sm">
-                    {currentMode === 'read' ? (
-                      <>
-                        <Eye size={16} />
-                        <span>{t('permissions.read')}</span>
-                      </>
-                    ) : (
-                      <>
-                        <Edit size={16} />
-                        <span>{t('permissions.write')}</span>
-                      </>
-                    )}
-                    {onChangePermissions && (
-                      <button
-                        onClick={onChangePermissions}
-                        className="ml-2 text-xs underline opacity-70 hover:opacity-100"
-                        title={t('permissions.changeTitle')}
-                      >
-                        {t('permissions.change')}
-                      </button>
-                    )}
-                  </div>
-                )}
-                <button onClick={onLogout} className="btn btn-ghost btn-sm">
-                  {t('header.logout')}
-                </button>
-              </>
+              <UserAccountMenu
+                currentMode={currentMode}
+                onToggleMode={onToggleMode}
+                onLogout={onLogout}
+                modeToggleDisabled={tokenCapability !== 'write'}
+              />
             ) : (
-              <button onClick={onLogin} className="btn btn-ghost btn-sm">
-                {t('header.login')}
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={onLogin}
+                  className="btn btn-primary btn-sm"
+                >
+                  {t('header.login')}
+                </button>
+                <RateLimitIndicator />
+              </>
             )}
           </div>
         </div>

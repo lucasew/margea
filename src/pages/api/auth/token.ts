@@ -33,7 +33,9 @@ export async function GET({ request }: { request: Request }) {
     return new Response(
       JSON.stringify({
         token: payload.github_token,
-        mode: payload.mode || 'read', // Default: read-only
+        // Login-time label only (which OAuth path / PAT entry); client derives
+        // real write capability from live token scopes (X-OAuth-Scopes), not this.
+        mode: payload.mode || 'read',
       }),
       {
         headers: {
