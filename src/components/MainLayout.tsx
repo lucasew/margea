@@ -5,7 +5,7 @@ import { Footer } from './Footer';
 
 export const MainLayout = (props: MainLayoutContextType) => {
   return (
-    <div className="min-h-screen flex flex-col bg-base-100">
+    <div className="app-shell">
       <Header
         onLogout={props.onLogout}
         onLogin={props.onLogin}

@@ -201,7 +201,7 @@ function PRListContent() {
 
   return (
     <div className="w-full">
-      <div className="container mx-auto px-4 py-6 max-w-7xl">
+      <div className="app-container py-5 sm:py-6">
         <PRListStats stats={stats} />
         <PRListFilters
           filterRepo={filterRepo}
@@ -218,33 +218,34 @@ function PRListContent() {
         />
 
         {error && (
-          <div role="alert" className="alert alert-error mb-6 shadow-lg">
-            <AlertCircle />
+          <div role="alert" className="alert alert-error mb-4 py-2.5 text-sm">
+            <AlertCircle size={18} />
             <div>
-              <h3 className="font-bold">{t('prList.errorTitle')}</h3>
-              <div className="text-xs">{error.message}</div>
+              <h3 className="font-semibold text-sm">{t('prList.errorTitle')}</h3>
+              <div className="text-xs opacity-90">{error.message}</div>
             </div>
           </div>
         )}
 
-        {/* Groups */}
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-2xl font-bold flex items-center gap-3">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <h2 className="text-base font-semibold flex items-center gap-2">
             {t('prList.groups')}
-            <div className="badge badge-lg badge-neutral">{groups.length}</div>
+            <span className="badge badge-sm badge-neutral tabular-nums">
+              {groups.length}
+            </span>
           </h2>
           {isLoading && !isFetchingNextPage && (
-            <span className="loading loading-spinner loading-md"></span>
+            <span className="loading loading-spinner loading-sm text-primary" />
           )}
         </div>
 
         {groups.length === 0 && !isLoading && !error ? (
-          <div role="alert" className="alert alert-info shadow-lg">
+          <div role="alert" className="alert alert-info py-2.5 text-sm">
             <InfoIcon />
             <span>{t('prList.noPRs')}</span>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
             {groups.map((group) => (
               <PRGroupCard
                 key={group.key}
@@ -255,35 +256,33 @@ function PRListContent() {
           </div>
         )}
 
-        {/* Sentinel & Loader for Infinite Scroll */}
         <div
           ref={sentinelRef}
-          className="h-20 w-full flex items-center justify-center mt-8"
+          className="h-16 w-full flex items-center justify-center mt-6"
         >
           {isFetchingNextPage || (isLoading && groups.length > 0) ? (
-            <div className="flex flex-col items-center gap-2">
-              <span className="loading loading-spinner loading-lg text-primary"></span>
-              <span className="text-sm opacity-50">
-                {t('prList.loadingMore')}
-              </span>
+            <div className="flex items-center gap-2 text-sm text-base-content/55">
+              <span className="loading loading-spinner loading-sm text-primary" />
+              {t('prList.loadingMore')}
             </div>
           ) : pageInfo.hasNextPage ? (
-            // Show button if manually loading (filters active) or auto-load fallback
             <button
+              type="button"
               onClick={() => loadNextPage()}
-              className={`btn btn-circle btn-outline btn-primary shadow-md hover:scale-110 transition-transform ${
-                !hasActiveFilters ? 'opacity-0 hover:opacity-100' : ''
+              className={`btn btn-sm btn-outline btn-primary gap-1.5 ${
+                !hasActiveFilters ? 'opacity-0 hover:opacity-100 focus:opacity-100' : ''
               }`}
               aria-label={t('prList.loadMore')}
               title={t('prList.loadMore')}
             >
-              <Plus size={24} />
+              <Plus size={16} aria-hidden />
+              {t('prList.loadMore')}
             </button>
           ) : (
             groups.length > 0 &&
             !isLoading &&
             !error && (
-              <span className="text-sm opacity-50">
+              <span className="text-xs text-base-content/45">
                 {t('prList.endOfList')}
               </span>
             )
@@ -301,36 +300,31 @@ function PRListErrorFallback({
 }: FallbackProps & { onRetry: () => void }) {
   const { t } = useTranslation();
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen gap-4 p-4">
-      <div className="card w-full max-w-2xl bg-base-100 shadow-xl">
-        <div className="card-body items-center text-center">
-          <AlertTriangle size={64} className="text-error mb-4" />
-          <h2 className="card-title text-2xl mb-2">{t('prList.errorTitle')}</h2>
-          <p className="text-base-content/70 mb-4">
-            {t('prList.errorMessage')}
-          </p>
+    <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4 p-6">
+      <div className="app-panel w-full max-w-lg p-6 text-center">
+        <AlertTriangle size={40} className="text-error mx-auto mb-3" />
+        <h2 className="text-lg font-semibold mb-1">{t('prList.errorTitle')}</h2>
+        <p className="text-sm text-base-content/70 mb-4">
+          {t('prList.errorMessage')}
+        </p>
 
-          {error && (
-            <div className="alert alert-error w-full mb-4">
-              <code className="text-sm bg-base-200 p-2 rounded w-full text-left overflow-x-auto">
-                {error.message}
-              </code>
-            </div>
-          )}
-
-          <div className="card-actions">
-            <button
-              onClick={() => {
-                resetErrorBoundary();
-                onRetry();
-              }}
-              className="btn btn-primary"
-            >
-              <RefreshCw size={18} />
-              {t('prList.retry')}
-            </button>
+        {error && (
+          <div className="alert alert-error py-2 mb-4 text-left">
+            <code className="text-xs break-all">{error.message}</code>
           </div>
-        </div>
+        )}
+
+        <button
+          type="button"
+          onClick={() => {
+            resetErrorBoundary();
+            onRetry();
+          }}
+          className="btn btn-primary btn-sm gap-1.5"
+        >
+          <RefreshCw size={15} aria-hidden />
+          {t('prList.retry')}
+        </button>
       </div>
     </div>
   );
@@ -353,11 +347,9 @@ export function PRList() {
     >
       <Suspense
         fallback={
-          <div className="flex flex-col items-center justify-center min-h-screen gap-4">
-            <span className="loading loading-spinner loading-lg text-primary"></span>
-            <p className="text-lg text-base-content/70">
-              {t('prList.loading')}
-            </p>
+          <div className="flex flex-col items-center justify-center min-h-[50vh] gap-2">
+            <span className="loading loading-spinner loading-md text-primary" />
+            <p className="text-sm text-base-content/60">{t('prList.loading')}</p>
           </div>
         }
       >

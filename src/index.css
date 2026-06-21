@@ -1,2 +1,210 @@
 @import 'tailwindcss';
-@plugin "daisyui";
+@plugin "daisyui" {
+  themes: margea-light --default, margea-dark --prefersdark;
+}
+
+@plugin "daisyui/theme" {
+  name: "margea-light";
+  default: true;
+  color-scheme: light;
+
+  /* Cool off-white tinted toward brand hue — not cream/sand */
+  --color-base-100: oklch(0.985 0.004 175);
+  --color-base-200: oklch(0.955 0.008 175);
+  --color-base-300: oklch(0.9 0.012 175);
+  --color-base-content: oklch(0.22 0.02 175);
+
+  /* Merge teal — primary action only */
+  --color-primary: oklch(0.48 0.12 170);
+  --color-primary-content: oklch(0.98 0.01 170);
+
+  --color-secondary: oklch(0.42 0.04 240);
+  --color-secondary-content: oklch(0.98 0.005 240);
+
+  --color-accent: oklch(0.58 0.14 155);
+  --color-accent-content: oklch(0.18 0.03 155);
+
+  --color-neutral: oklch(0.32 0.02 175);
+  --color-neutral-content: oklch(0.96 0.005 175);
+
+  --color-info: oklch(0.55 0.12 240);
+  --color-info-content: oklch(0.98 0.01 240);
+
+  --color-success: oklch(0.55 0.14 150);
+  --color-success-content: oklch(0.98 0.01 150);
+
+  --color-warning: oklch(0.72 0.14 75);
+  --color-warning-content: oklch(0.22 0.04 75);
+
+  --color-error: oklch(0.55 0.18 25);
+  --color-error-content: oklch(0.98 0.01 25);
+
+  --radius-selector: 0.375rem;
+  --radius-field: 0.375rem;
+  --radius-box: 0.5rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+@plugin "daisyui/theme" {
+  name: "margea-dark";
+  prefersdark: true;
+  color-scheme: dark;
+
+  --color-base-100: oklch(0.18 0.015 175);
+  --color-base-200: oklch(0.22 0.018 175);
+  --color-base-300: oklch(0.28 0.02 175);
+  --color-base-content: oklch(0.92 0.01 175);
+
+  --color-primary: oklch(0.7 0.13 170);
+  --color-primary-content: oklch(0.16 0.03 170);
+
+  --color-secondary: oklch(0.65 0.05 240);
+  --color-secondary-content: oklch(0.16 0.02 240);
+
+  --color-accent: oklch(0.72 0.14 155);
+  --color-accent-content: oklch(0.16 0.03 155);
+
+  --color-neutral: oklch(0.75 0.015 175);
+  --color-neutral-content: oklch(0.18 0.015 175);
+
+  --color-info: oklch(0.7 0.1 240);
+  --color-info-content: oklch(0.16 0.03 240);
+
+  --color-success: oklch(0.72 0.13 150);
+  --color-success-content: oklch(0.16 0.03 150);
+
+  --color-warning: oklch(0.78 0.12 75);
+  --color-warning-content: oklch(0.2 0.04 75);
+
+  --color-error: oklch(0.68 0.16 25);
+  --color-error-content: oklch(0.16 0.03 25);
+
+  --radius-selector: 0.375rem;
+  --radius-field: 0.375rem;
+  --radius-box: 0.5rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+@layer base {
+  html {
+    font-family:
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      'Segoe UI',
+      Roboto,
+      'Helvetica Neue',
+      Arial,
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-base-100 text-base-content;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary;
+  }
+}
+
+/* App primitives — plain CSS so we never @apply custom utilities into each other */
+.app-shell {
+  @apply min-h-screen flex flex-col bg-base-100;
+}
+
+.app-container {
+  @apply container mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+}
+
+.app-panel {
+  @apply rounded-lg border border-base-300 bg-base-100;
+}
+
+.app-toolbar {
+  @apply rounded-lg border border-base-300 bg-base-200/60;
+}
+
+.stat-chip {
+  @apply flex items-center gap-2 rounded-md border border-base-300 bg-base-100 px-3 py-2;
+}
+
+.stat-chip-value {
+  @apply text-lg font-semibold tabular-nums leading-none;
+}
+
+.stat-chip-label {
+  @apply text-xs text-base-content/65 leading-tight;
+}
+
+.pr-card {
+  @apply rounded-lg border border-base-300 bg-base-100 p-4;
+  transition:
+    border-color 150ms ease-out,
+    background-color 150ms ease-out;
+}
+
+.pr-card:hover {
+  @apply border-primary/40 bg-base-200/40;
+}
+
+.pr-card:focus-visible {
+  @apply outline-2 outline-offset-2 outline-primary;
+}
+
+.login-surface {
+  @apply w-full max-w-md rounded-lg border border-base-300 bg-base-100 p-8;
+}
+
+.header-bar {
+  @apply sticky top-0 z-40 border-b border-base-300 bg-base-100/90 backdrop-blur-sm;
+}
+
+.footer-bar {
+  @apply border-t border-base-300 mt-auto;
+}
+
+.mode-pill {
+  @apply inline-flex items-center gap-1.5 rounded-full border border-base-300 bg-base-200 px-2.5 py-1 text-xs font-medium;
+}
+
+.access-option {
+  @apply flex w-full flex-col items-start gap-1 rounded-lg border border-base-300 bg-base-100 p-4 text-left;
+  transition:
+    border-color 150ms ease-out,
+    background-color 150ms ease-out;
+}
+
+.access-option:hover {
+  @apply border-primary/50 bg-base-200/50;
+}
+
+.access-option-primary {
+  @apply border-primary/40 bg-primary/5;
+}
+
+.access-option-primary:hover {
+  @apply border-primary bg-primary/10;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pr-card,
+  .access-option {
+    transition: none;
+  }
+}

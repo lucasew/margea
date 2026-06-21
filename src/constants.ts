@@ -27,10 +27,18 @@ export const GROUPING_STRATEGIES = {
   author: 'author',
 } as const;
 
-export const THEME_LIGHT = 'light';
-export const THEME_DARK = 'dark';
+export const THEME_LIGHT = 'margea-light';
+export const THEME_DARK = 'margea-dark';
 
 export const THEMES = {
   LIGHT: THEME_LIGHT,
   DARK: THEME_DARK,
 } as const;
+
+/** Migrate legacy daisyui theme names stored before the redesign. */
+export function resolveTheme(stored: string | null, prefersDark: boolean): string {
+  if (stored === THEME_LIGHT || stored === THEME_DARK) return stored;
+  if (stored === 'light') return THEME_LIGHT;
+  if (stored === 'dark') return THEME_DARK;
+  return prefersDark ? THEME_DARK : THEME_LIGHT;
+}

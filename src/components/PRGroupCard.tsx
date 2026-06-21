@@ -2,6 +2,7 @@ import { GitBranch, Package, Tag, User } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import { PRGroup } from '../types';
 import { CiStatusChart } from './CiStatusChart';
+import { KeyboardEvent } from 'react';
 
 interface PRGroupCardProps {
   group: PRGroup;
@@ -22,7 +23,6 @@ export function PRGroupCard({ group, onExpand }: PRGroupCardProps) {
     .size;
   const author = group.prs[0]?.author;
 
-  // Calculate Group CI Status Counts
   const ciStatusCounts = group.prs.reduce(
     (acc, pr) => {
       if (pr.ciStatus === 'SUCCESS') acc.success++;
@@ -47,25 +47,41 @@ export function PRGroupCard({ group, onExpand }: PRGroupCardProps) {
     return `${t('ci.status')}: ${parts.join(', ')}`;
   };
 
+  const borderTone =
+    ciStatusCounts.failure > 0
+      ? 'border-error/35'
+      : ciStatusCounts.success === totalCiStatus && totalCiStatus > 0
+        ? 'border-success/35'
+        : '';
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onExpand(group);
+    }
+  };
+
   return (
     <div
-      className={`border rounded-lg p-6 hover:border-primary/50 transition-all cursor-pointer bg-base-100 ${
-        ciStatusCounts.failure > 0
-          ? 'border-error/30'
-          : ciStatusCounts.success === totalCiStatus && totalCiStatus > 0
-            ? 'border-success/30'
-            : 'border-base-300'
-      }`}
+      role="button"
+      tabIndex={0}
+      className={`pr-card ${borderTone}`}
       onClick={() => onExpand(group)}
+      onKeyDown={handleKeyDown}
+      aria-label={`${group.package}, ${group.count} PRs`}
     >
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex items-center gap-3 flex-1">
-          <Package size={20} className="text-primary flex-shrink-0" />
-          <h3 className="font-mono text-base lg:text-lg font-bold break-all">
+      <div className="flex justify-between items-start gap-2 mb-3">
+        <div className="flex items-start gap-2 flex-1 min-w-0">
+          <Package
+            size={16}
+            className="text-primary flex-shrink-0 mt-0.5"
+            aria-hidden
+          />
+          <h3 className="font-mono text-sm font-semibold break-all leading-snug">
             {group.package}
           </h3>
         </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="flex items-center gap-1.5 flex-shrink-0">
           {totalCiStatus > 0 && (
             <div
               className="tooltip tooltip-left"
@@ -75,132 +91,113 @@ export function PRGroupCard({ group, onExpand }: PRGroupCardProps) {
                 success={ciStatusCounts.success}
                 failure={ciStatusCounts.failure}
                 pending={ciStatusCounts.pending}
-                size={20}
+                size={18}
                 strokeWidth={2.5}
               />
             </div>
           )}
-          <div className="badge badge-neutral badge-lg">{group.count}</div>
+          <span className="badge badge-sm badge-neutral tabular-nums">
+            {group.count}
+          </span>
         </div>
       </div>
 
       {author && (
-        <div className="flex items-center gap-2 mb-3">
+        <div className="flex items-center gap-1.5 mb-2.5">
           {author.avatarUrl ? (
             <img
               src={author.avatarUrl}
-              alt={author.login}
-              className="w-5 h-5 rounded-full"
+              alt=""
+              className="w-4 h-4 rounded-full"
             />
           ) : (
-            <User size={16} className="text-base-content/60" />
+            <User size={14} className="text-base-content/55" aria-hidden />
           )}
-          <span className="text-sm text-base-content/70 font-medium">
-            {author.login}
-          </span>
+          <span className="text-xs text-base-content/65">{author.login}</span>
         </div>
       )}
 
-      <div className="divider my-1"></div>
-
-      <div className="space-y-2 text-sm">
-        <div className="flex items-center gap-2 text-base-content/70">
-          <GitBranch size={16} className="flex-shrink-0" />
+      <div className="space-y-1.5 text-xs text-base-content/70 mb-3">
+        <div className="flex items-center gap-1.5">
+          <GitBranch size={13} className="flex-shrink-0" aria-hidden />
           <span className="truncate">
-            <span className="font-semibold">{t('prGroupCard.base')}:</span>{' '}
+            <span className="text-base-content/50">{t('prGroupCard.base')}:</span>{' '}
             <span className="font-mono">{group.baseRef}</span>
           </span>
         </div>
 
         {group.labels.length > 0 && (
-          <div className="flex items-start gap-2">
+          <div className="flex items-start gap-1.5">
             <Tag
-              size={16}
-              className="text-base-content/60 flex-shrink-0 mt-0.5"
+              size={13}
+              className="text-base-content/50 flex-shrink-0 mt-0.5"
+              aria-hidden
             />
             <div className="flex flex-wrap gap-1 flex-1">
               {group.labels.map((label) => (
-                <div key={label} className="badge badge-sm badge-outline">
+                <span key={label} className="badge badge-xs badge-outline">
                   {label}
-                </div>
+                </span>
               ))}
             </div>
           </div>
         )}
       </div>
 
-      <div className="divider my-1"></div>
-
-      {/* Progress Bar com cores por estado */}
-      <div className="space-y-2">
-        <div className="flex justify-between text-xs text-base-content/70 font-medium">
+      <div className="space-y-1.5">
+        <div className="flex justify-between text-[11px] text-base-content/55 font-medium">
           <span>{t('prGroupCard.prStatus')}</span>
           {repoCount > 1 && (
-            <span className="text-base-content/50">
+            <span>
               {repoCount} {t('prGroupCard.repos')}
             </span>
           )}
         </div>
 
-        <div className="flex h-4 w-full rounded-full overflow-hidden bg-base-300">
-          {states.OPEN && (
+        <div
+          className="flex h-1.5 w-full rounded-full overflow-hidden bg-base-300"
+          role="img"
+          aria-label={`${t('prGroupCard.open')}: ${states.OPEN || 0}, ${t('prGroupCard.merged')}: ${states.MERGED || 0}, ${t('prGroupCard.closed')}: ${states.CLOSED || 0}`}
+        >
+          {states.OPEN ? (
             <div
-              className="bg-success flex items-center justify-center text-[10px] font-bold text-success-content"
+              className="bg-success"
               style={{ width: `${(states.OPEN / group.count) * 100}%` }}
-              title={`${t('prGroupCard.open')}: ${states.OPEN}`}
-            >
-              {states.OPEN > 0 && <span className="px-1">{states.OPEN}</span>}
-            </div>
-          )}
-          {states.MERGED && (
+            />
+          ) : null}
+          {states.MERGED ? (
             <div
-              className="bg-info flex items-center justify-center text-[10px] font-bold text-info-content"
+              className="bg-info"
               style={{ width: `${(states.MERGED / group.count) * 100}%` }}
-              title={`${t('prGroupCard.merged')}: ${states.MERGED}`}
-            >
-              {states.MERGED > 0 && (
-                <span className="px-1">{states.MERGED}</span>
-              )}
-            </div>
-          )}
-          {states.CLOSED && (
+            />
+          ) : null}
+          {states.CLOSED ? (
             <div
-              className="bg-error flex items-center justify-center text-[10px] font-bold text-error-content"
+              className="bg-error"
               style={{ width: `${(states.CLOSED / group.count) * 100}%` }}
-              title={`${t('prGroupCard.closed')}: ${states.CLOSED}`}
-            >
-              {states.CLOSED > 0 && (
-                <span className="px-1">{states.CLOSED}</span>
-              )}
-            </div>
-          )}
+            />
+          ) : null}
         </div>
 
-        <div className="flex gap-3 text-xs">
-          {states.OPEN && (
-            <div className="flex items-center gap-1">
-              <div className="w-2 h-2 rounded-full bg-success"></div>
-              <span className="text-base-content/60">
-                {t('prGroupCard.open')}: {states.OPEN}
-              </span>
-            </div>
-          )}
-          {states.MERGED && (
-            <div className="flex items-center gap-1">
-              <div className="w-2 h-2 rounded-full bg-info"></div>
-              <span className="text-base-content/60">
-                {t('prGroupCard.merged')}: {states.MERGED}
-              </span>
-            </div>
-          )}
-          {states.CLOSED && (
-            <div className="flex items-center gap-1">
-              <div className="w-2 h-2 rounded-full bg-error"></div>
-              <span className="text-base-content/60">
-                {t('prGroupCard.closed')}: {states.CLOSED}
-              </span>
-            </div>
-          )}
+        <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-base-content/55">
+          {states.OPEN ? (
+            <span className="inline-flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-success" aria-hidden />
+              {t('prGroupCard.open')} {states.OPEN}
+            </span>
+          ) : null}
+          {states.MERGED ? (
+            <span className="inline-flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-info" aria-hidden />
+              {t('prGroupCard.merged')} {states.MERGED}
+            </span>
+          ) : null}
+          {states.CLOSED ? (
+            <span className="inline-flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-error" aria-hidden />
+              {t('prGroupCard.closed')} {states.CLOSED}
+            </span>
+          ) : null}
         </div>
       </div>
     </div>
