@@ -210,8 +210,8 @@
     "changeTitle": "Cambiar permisos",
     "switchToRead": "Cambiar a solo lectura (mantiene el token)",
     "switchToWrite": "Cambiar a lectura y escritura (mantiene el token)",
-    "tokenReadOnly": "La sesión es de solo lectura; inicia sesión con escritura para habilitar",
-    "tokenReadOnlyShort": "token sin escritura"
+    "tokenReadOnly": "Este token no tiene scopes de escritura (p. ej. repo). Vuelve a entrar con OAuth escritura o un PAT clásico con repo.",
+    "tokenReadOnlyShort": "sin scopes de escritura"
   },
   "common": {
     "viewOnGitHub": "Ver repositorio en GitHub",

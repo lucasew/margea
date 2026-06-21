@@ -4,14 +4,25 @@ import { EFFECTIVE_MODE_STORAGE_KEY } from '../constants';
  * Represents the authentication data retrieved from the server.
  */
 export interface AuthData {
-  /** The GitHub OAuth access token. */
+  /** The GitHub access token (OAuth or PAT). */
   token: string;
   /**
-   * Capability encoded in the session JWT at login time (OAuth scope / PAT).
-   * This does not change without re-authentication.
+   * Login-time label only (which OAuth button / PAT path was used).
+   * Not used for write gates — see getTokenCapability().
    */
-  mode: 'read' | 'write';
+  loginMode?: 'read' | 'write';
 }
+
+/** Scopes that let Margea perform write mutations (merge/close PRs). */
+const WRITE_SCOPES = new Set(['repo', 'public_repo']);
+
+type TokenCapability = 'read' | 'write';
+
+let capabilityCache: {
+  token: string;
+  capability: TokenCapability;
+  scopes: string[];
+} | null = null;
 
 function readStoredEffectiveMode(): 'read' | 'write' | null {
   try {
@@ -23,12 +34,54 @@ function readStoredEffectiveMode(): 'read' | 'write' | null {
   return null;
 }
 
+function parseScopeHeader(header: string | null): string[] {
+  if (!header || !header.trim()) return [];
+  return header
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+/**
+ * Map GitHub OAuth scope list → capability.
+ * Classic OAuth / classic PAT expose scopes via X-OAuth-Scopes.
+ */
+export function capabilityFromScopes(scopes: string[]): TokenCapability {
+  for (const scope of scopes) {
+    if (WRITE_SCOPES.has(scope)) return 'write';
+  }
+  return 'read';
+}
+
+/**
+ * Ingest scopes from any GitHub API response (REST or GraphQL).
+ * Call when you have X-OAuth-Scopes so capability stays in sync.
+ */
+export function noteTokenScopesFromHeaders(
+  token: string,
+  headers: Headers,
+): TokenCapability | null {
+  const raw = headers.get('X-OAuth-Scopes');
+  if (raw === null) {
+    // Fine-grained PAT or response without classic scopes: don't update cache from absence alone
+    return capabilityCache?.token === token ? capabilityCache.capability : null;
+  }
+  const scopes = parseScopeHeader(raw);
+  const capability = capabilityFromScopes(scopes);
+  capabilityCache = { token, capability, scopes };
+  return capability;
+}
+
+function invalidateCapabilityCache(): void {
+  capabilityCache = null;
+}
+
 /**
  * Service to manage authentication state on the client side.
  *
- * Token capability (`mode` from `/api/auth/token`) is fixed at login.
- * Effective access mode is a soft client preference (feature flag) stored in
- * localStorage and clamped so write is only effective when the token can write.
+ * Login read/write only steers OAuth authorize scopes. Actual write capability
+ * is always derived from the live token (X-OAuth-Scopes), not session JWT mode.
+ * Effective UI mode is a soft localStorage flag clamped by that capability.
  */
 export const AuthService = {
   async getAuthData(): Promise<AuthData | null> {
@@ -48,7 +101,7 @@ export const AuthService = {
 
       return {
         token: data.token,
-        mode: data.mode === 'write' ? 'write' : 'read',
+        loginMode: data.mode === 'write' ? 'write' : 'read',
       };
     } catch (error) {
       console.error('Error fetching auth data:', error);
@@ -61,16 +114,66 @@ export const AuthService = {
     return authData?.token || null;
   },
 
-  /** Session/token capability from the server (not the UI preference). */
-  async getTokenCapability(): Promise<'read' | 'write' | null> {
-    const authData = await this.getAuthData();
-    return authData?.mode || null;
+  /**
+   * Probe GitHub with the token and read X-OAuth-Scopes.
+   * Cached per token until logout / token change.
+   */
+  async probeTokenCapability(token: string): Promise<TokenCapability> {
+    if (capabilityCache?.token === token) {
+      return capabilityCache.capability;
+    }
+
+    try {
+      const response = await fetch('https://api.github.com/user', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/vnd.github+json',
+          'X-GitHub-Api-Version': '2022-11-28',
+        },
+      });
+
+      if (response.status === 401) {
+        invalidateCapabilityCache();
+        return 'read';
+      }
+
+      const fromHeaders = noteTokenScopesFromHeaders(token, response.headers);
+      if (fromHeaders) {
+        return fromHeaders;
+      }
+
+      // No classic scope header (common for fine-grained github_pat_*).
+      // We cannot enumerate permissions here; treat as read so we never
+      // falsely enable write without evidence. User can still use PAT that
+      // returns X-OAuth-Scopes (classic) or OAuth with repo scope.
+      const scopes = parseScopeHeader(response.headers.get('X-OAuth-Scopes'));
+      const capability = capabilityFromScopes(scopes);
+      capabilityCache = { token, capability, scopes };
+      return capability;
+    } catch (error) {
+      console.error('Error probing token capability:', error);
+      // Fail closed: read-only until we know better
+      return capabilityCache?.token === token
+        ? capabilityCache.capability
+        : 'read';
+    }
+  },
+
+  /** Live capability from token scopes (not login button / session mode). */
+  async getTokenCapability(): Promise<TokenCapability | null> {
+    const token = await this.getToken();
+    if (!token) return null;
+    return this.probeTokenCapability(token);
+  },
+
+  /** Last known scopes from probe/headers (debug / future UI). */
+  getCachedScopes(): string[] {
+    return capabilityCache?.scopes ?? [];
   },
 
   /**
    * Effective access mode used by the UI and write gates.
-   * Preference in localStorage, clamped by token capability.
-   * Read-only tokens always resolve to read (and any stored write pref is scrubbed).
+   * Preference in localStorage, clamped by live token capability.
    */
   async getPermissions(): Promise<'read' | 'write' | null> {
     const capability = await this.getTokenCapability();
@@ -87,11 +190,9 @@ export const AuthService = {
     const preferred = readStoredEffectiveMode();
     if (preferred === 'write') return 'write';
     if (preferred === 'read') return 'read';
-    // No preference yet: default to full capability of the token
     return capability;
   },
 
-  /** Persist preference only; callers must enforce capability before choosing write. */
   persistEffectiveMode(mode: 'read' | 'write'): void {
     try {
       localStorage.setItem(EFFECTIVE_MODE_STORAGE_KEY, mode);
@@ -103,10 +204,6 @@ export const AuthService = {
     );
   },
 
-  /**
-   * Soft set: effective mode preference without touching the session/token.
-   * Returns false if write was requested but the token cannot write.
-   */
   async setEffectiveMode(
     mode: 'read' | 'write',
   ): Promise<{ ok: boolean; mode: 'read' | 'write' | null }> {
@@ -122,10 +219,6 @@ export const AuthService = {
     return { ok: true, mode };
   },
 
-  /**
-   * Toggle effective mode; returns the new effective mode.
-   * No-op (stays read) when the token cannot write.
-   */
   async toggleEffectiveMode(): Promise<'read' | 'write' | null> {
     const capability = await this.getTokenCapability();
     if (!capability) return null;
@@ -149,6 +242,7 @@ export const AuthService = {
   },
 
   async logout(): Promise<void> {
+    invalidateCapabilityCache();
     try {
       await fetch('/api/auth/logout', {
         method: 'POST',

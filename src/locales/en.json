@@ -207,8 +207,8 @@
     "changeTitle": "Change permissions",
     "switchToRead": "Switch to read-only (keeps token)",
     "switchToWrite": "Switch to read & write (keeps token)",
-    "tokenReadOnly": "Session is read-only; log in with write access to enable",
-    "tokenReadOnlyShort": "token can't write"
+    "tokenReadOnly": "This token has no write scopes (e.g. repo). Re-login with write OAuth or a classic PAT that includes repo.",
+    "tokenReadOnlyShort": "no write scopes"
   },
   "common": {
     "viewOnGitHub": "View repository on GitHub",
