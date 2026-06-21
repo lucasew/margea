@@ -1,35 +1,40 @@
+import { EFFECTIVE_MODE_STORAGE_KEY } from '../constants';
+
 /**
  * Represents the authentication data retrieved from the server.
  */
 export interface AuthData {
   /** The GitHub OAuth access token. */
   token: string;
-  /** The access mode granted to the user. */
+  /**
+   * Capability encoded in the session JWT at login time (OAuth scope / PAT).
+   * This does not change without re-authentication.
+   */
   mode: 'read' | 'write';
+}
+
+function readStoredEffectiveMode(): 'read' | 'write' | null {
+  try {
+    const stored = localStorage.getItem(EFFECTIVE_MODE_STORAGE_KEY);
+    if (stored === 'read' || stored === 'write') return stored;
+  } catch {
+    // ignore storage errors
+  }
+  return null;
 }
 
 /**
  * Service to manage authentication state on the client side.
  *
- * This service acts as a bridge between the React frontend and the backend authentication endpoints.
- * It handles:
- * - Retrieving the session token and permissions from the secure, HttpOnly cookie via the `/api/auth/token` endpoint.
- * - Checking authentication status and permissions.
- * - Logging out by calling the `/api/auth/logout` endpoint.
- *
- * Note: The actual session cookie is HttpOnly and cannot be accessed directly by JavaScript.
- * This service relies on the `/api/auth/token` endpoint to safely expose the necessary data (token, mode) to the client.
+ * Token capability (`mode` from `/api/auth/token`) is fixed at login.
+ * Effective access mode is a soft client preference (feature flag) stored in
+ * localStorage and clamped so write is only effective when the token can write.
  */
 export const AuthService = {
-  /**
-   * Retrieves the authentication data (token and mode) from the server.
-   *
-   * @returns A promise that resolves to `AuthData` if authenticated, or `null` otherwise.
-   */
   async getAuthData(): Promise<AuthData | null> {
     try {
       const response = await fetch('/api/auth/token', {
-        credentials: 'include', // Importante: envia cookies
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -43,7 +48,7 @@ export const AuthService = {
 
       return {
         token: data.token,
-        mode: data.mode || 'read',
+        mode: data.mode === 'write' ? 'write' : 'read',
       };
     } catch (error) {
       console.error('Error fetching auth data:', error);
@@ -51,59 +56,84 @@ export const AuthService = {
     }
   },
 
-  /**
-   * Retrieves the GitHub access token.
-   *
-   * @returns A promise that resolves to the token string, or `null` if not authenticated.
-   */
   async getToken(): Promise<string | null> {
     const authData = await this.getAuthData();
     return authData?.token || null;
   },
 
-  /**
-   * Retrieves the user's permission mode ('read' or 'write').
-   *
-   * @returns A promise that resolves to the mode, or `null` if not authenticated.
-   */
-  async getPermissions(): Promise<'read' | 'write' | null> {
+  /** Session/token capability from the server (not the UI preference). */
+  async getTokenCapability(): Promise<'read' | 'write' | null> {
     const authData = await this.getAuthData();
     return authData?.mode || null;
   },
 
   /**
-   * Checks if the user has 'write' permission.
-   *
-   * @returns `true` if the user has 'write' access, `false` otherwise.
+   * Effective access mode used by the UI and write gates.
+   * Preference in localStorage, clamped by token capability.
    */
+  async getPermissions(): Promise<'read' | 'write' | null> {
+    const capability = await this.getTokenCapability();
+    if (!capability) return null;
+
+    const preferred = readStoredEffectiveMode();
+    if (preferred === 'write' && capability === 'write') return 'write';
+    if (preferred === 'read') return 'read';
+    // No preference yet: default to full capability of the token
+    return capability;
+  },
+
+  /**
+   * Soft toggle: set effective mode preference without touching the session/token.
+   * Write preference is ignored when the token is read-only.
+   */
+  setEffectiveMode(mode: 'read' | 'write'): void {
+    try {
+      localStorage.setItem(EFFECTIVE_MODE_STORAGE_KEY, mode);
+    } catch (error) {
+      console.error('Error saving effective mode preference:', error);
+    }
+    // Notify same-tab listeners (storage event only fires across tabs)
+    window.dispatchEvent(
+      new CustomEvent('margea-effective-mode', { detail: { mode } }),
+    );
+  },
+
+  /** Toggle effective mode; returns the new effective mode. */
+  async toggleEffectiveMode(): Promise<'read' | 'write' | null> {
+    const capability = await this.getTokenCapability();
+    if (!capability) return null;
+
+    const current = await this.getPermissions();
+    if (!current) return null;
+
+    if (capability === 'read') {
+      // Token cannot write; preference can only be read
+      this.setEffectiveMode('read');
+      return 'read';
+    }
+
+    const next = current === 'write' ? 'read' : 'write';
+    this.setEffectiveMode(next);
+    return next;
+  },
+
   async hasWritePermission(): Promise<boolean> {
     const mode = await this.getPermissions();
     return mode === 'write';
   },
 
-  /**
-   * Logs the user out.
-   *
-   * Calls the logout endpoint to clear the session cookie and then redirects to the home page.
-   */
   async logout(): Promise<void> {
     try {
       await fetch('/api/auth/logout', {
         method: 'POST',
         credentials: 'include',
       });
-      // Recarregar página para limpar estado
       window.location.href = '/';
     } catch (error) {
       console.error('Error logging out:', error);
     }
   },
 
-  /**
-   * Checks if the user is currently authenticated.
-   *
-   * @returns `true` if the user has a valid session, `false` otherwise.
-   */
   async isAuthenticated(): Promise<boolean> {
     const token = await this.getToken();
     return !!token;

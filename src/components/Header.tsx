@@ -8,17 +8,19 @@ import { RateLimitIndicator, UserAccountMenu } from './RateLimitIndicator';
 interface HeaderProps {
   onLogout: () => void;
   onLogin: () => void;
-  onChangePermissions?: () => void;
+  onToggleMode?: () => void;
   isAuthenticated: boolean;
   currentMode?: 'read' | 'write' | null;
+  tokenCapability?: 'read' | 'write' | null;
 }
 
 export function Header({
   onLogout,
   onLogin,
-  onChangePermissions,
+  onToggleMode,
   isAuthenticated,
   currentMode,
+  tokenCapability,
 }: HeaderProps) {
   const { t } = useTranslation();
 
@@ -50,8 +52,9 @@ export function Header({
             {isAuthenticated ? (
               <UserAccountMenu
                 currentMode={currentMode}
-                onChangePermissions={onChangePermissions}
+                onToggleMode={onToggleMode}
                 onLogout={onLogout}
+                modeToggleDisabled={tokenCapability === 'read'}
               />
             ) : (
               <>

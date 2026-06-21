@@ -9,9 +9,10 @@ export const MainLayout = (props: MainLayoutContextType) => {
       <Header
         onLogout={props.onLogout}
         onLogin={props.onLogin}
-        onChangePermissions={props.onChangePermissions}
+        onToggleMode={props.onToggleMode}
         isAuthenticated={props.isAuthenticated}
         currentMode={props.currentMode}
+        tokenCapability={props.tokenCapability}
       />
       <main className="flex-1 flex flex-col">
         <Outlet context={props} />

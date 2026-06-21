@@ -8,8 +8,10 @@ interface RateLimitIndicatorProps {
   avatarUrl?: string | null;
   avatarAlt?: string;
   currentMode?: 'read' | 'write' | null;
-  onChangePermissions?: () => void;
+  onToggleMode?: () => void;
   onLogout?: () => void;
+  /** Token is read-only at OAuth/PAT level; toggle can't enable real writes. */
+  modeToggleDisabled?: boolean;
 }
 
 function RateLimitRing({
@@ -60,12 +62,14 @@ export function RateLimitIndicator({
   avatarUrl,
   avatarAlt,
   currentMode,
-  onChangePermissions,
+  onToggleMode,
   onLogout,
+  modeToggleDisabled = false,
 }: RateLimitIndicatorProps = {}) {
   const { t } = useTranslation();
   const [state, setState] = useState<RateLimitState>(rateLimitStore.getState());
   const [timeUntilReset, setTimeUntilReset] = useState<string>('');
+  const isWrite = currentMode === 'write';
 
   useEffect(() => {
     return rateLimitStore.subscribe(setState);
@@ -123,30 +127,54 @@ export function RateLimitIndicator({
         tabIndex={0}
         className="dropdown-content z-50 mt-2 w-64 rounded-lg border border-base-300 bg-base-100 p-3 shadow-none"
       >
-        {(currentMode || onChangePermissions || onLogout) && (
+        {(currentMode || onToggleMode || onLogout) && (
           <div className="mb-3 space-y-2 pb-3 border-b border-base-300">
-            {currentMode && (
+            {currentMode && onToggleMode && (
+              <label
+                className={`flex items-center justify-between gap-3 select-none ${modeToggleDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                title={
+                  modeToggleDisabled
+                    ? t('permissions.tokenReadOnly')
+                    : isWrite
+                      ? t('permissions.switchToRead')
+                      : t('permissions.switchToWrite')
+                }
+              >
+                <span className="flex items-center gap-2 text-sm min-w-0">
+                  {isWrite ? (
+                    <Edit size={14} className="text-primary flex-shrink-0" aria-hidden />
+                  ) : (
+                    <Eye
+                      size={14}
+                      className="text-base-content/60 flex-shrink-0"
+                      aria-hidden
+                    />
+                  )}
+                  <span className="font-medium truncate">
+                    {isWrite ? t('permissions.write') : t('permissions.read')}
+                  </span>
+                </span>
+                <input
+                  type="checkbox"
+                  className="toggle toggle-sm toggle-primary"
+                  checked={isWrite}
+                  disabled={modeToggleDisabled}
+                  onChange={onToggleMode}
+                  aria-label={t('permissions.changeTitle')}
+                />
+              </label>
+            )}
+            {currentMode && !onToggleMode && (
               <div className="flex items-center gap-2 text-sm">
-                {currentMode === 'read' ? (
-                  <Eye size={14} className="text-base-content/60" aria-hidden />
-                ) : (
+                {isWrite ? (
                   <Edit size={14} className="text-primary" aria-hidden />
+                ) : (
+                  <Eye size={14} className="text-base-content/60" aria-hidden />
                 )}
                 <span className="font-medium">
-                  {currentMode === 'read'
-                    ? t('permissions.read')
-                    : t('permissions.write')}
+                  {isWrite ? t('permissions.write') : t('permissions.read')}
                 </span>
               </div>
-            )}
-            {onChangePermissions && (
-              <button
-                type="button"
-                onClick={onChangePermissions}
-                className="btn btn-ghost btn-xs justify-start w-full font-normal"
-              >
-                {t('permissions.change')}
-              </button>
             )}
             {onLogout && (
               <button
@@ -192,12 +220,14 @@ export function RateLimitIndicator({
 /** Authenticated variant: loads viewer avatar via Relay (must be under Suspense + Relay). */
 function UserAccountMenuInner({
   currentMode,
-  onChangePermissions,
+  onToggleMode,
   onLogout,
+  modeToggleDisabled,
 }: {
   currentMode?: 'read' | 'write' | null;
-  onChangePermissions?: () => void;
+  onToggleMode?: () => void;
   onLogout?: () => void;
+  modeToggleDisabled?: boolean;
 }) {
   const { viewer } = useViewer();
   return (
@@ -205,35 +235,40 @@ function UserAccountMenuInner({
       avatarUrl={viewer.avatarUrl}
       avatarAlt={viewer.login}
       currentMode={currentMode}
-      onChangePermissions={onChangePermissions}
+      onToggleMode={onToggleMode}
       onLogout={onLogout}
+      modeToggleDisabled={modeToggleDisabled}
     />
   );
 }
 
 export function UserAccountMenu({
   currentMode,
-  onChangePermissions,
+  onToggleMode,
   onLogout,
+  modeToggleDisabled,
 }: {
   currentMode?: 'read' | 'write' | null;
-  onChangePermissions?: () => void;
+  onToggleMode?: () => void;
   onLogout?: () => void;
+  modeToggleDisabled?: boolean;
 }) {
   return (
     <Suspense
       fallback={
         <RateLimitIndicator
           currentMode={currentMode}
-          onChangePermissions={onChangePermissions}
+          onToggleMode={onToggleMode}
           onLogout={onLogout}
+          modeToggleDisabled={modeToggleDisabled}
         />
       }
     >
       <UserAccountMenuInner
         currentMode={currentMode}
-        onChangePermissions={onChangePermissions}
+        onToggleMode={onToggleMode}
         onLogout={onLogout}
+        modeToggleDisabled={modeToggleDisabled}
       />
     </Suspense>
   );

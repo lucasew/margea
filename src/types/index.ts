@@ -83,9 +83,11 @@ export interface BulkActionState {
 export interface MainLayoutContextType {
   onLogout: () => void;
   onLogin: () => void;
-  onChangePermissions: () => void;
+  onToggleMode: () => void;
   isAuthenticated: boolean;
   currentMode: 'read' | 'write' | null;
+  /** What the session/token actually allows (OAuth/PAT at login). */
+  tokenCapability?: 'read' | 'write' | null;
 }
 
 export interface PRContextState {

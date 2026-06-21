@@ -204,7 +204,10 @@
     "read": "Read",
     "write": "Write",
     "change": "change",
-    "changeTitle": "Change permissions"
+    "changeTitle": "Change permissions",
+    "switchToRead": "Switch to read-only (keeps token)",
+    "switchToWrite": "Switch to read & write (keeps token)",
+    "tokenReadOnly": "Session is read-only; log in with write access to enable"
   },
   "common": {
     "viewOnGitHub": "View repository on GitHub",

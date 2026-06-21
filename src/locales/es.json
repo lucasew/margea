@@ -207,7 +207,10 @@
     "read": "Lectura",
     "write": "Escritura",
     "change": "cambiar",
-    "changeTitle": "Cambiar permisos"
+    "changeTitle": "Cambiar permisos",
+    "switchToRead": "Cambiar a solo lectura (mantiene el token)",
+    "switchToWrite": "Cambiar a lectura y escritura (mantiene el token)",
+    "tokenReadOnly": "La sesión es de solo lectura; inicia sesión con escritura para habilitar"
   },
   "common": {
     "viewOnGitHub": "Ver repositorio en GitHub",
