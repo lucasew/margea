@@ -6,7 +6,7 @@ import { RelayEnvironmentProvider } from 'react-relay';
 import { relayEnvironment } from './relay/environment';
 import { AuthService } from './services/auth';
 import { LoginPage } from './components/LoginPage';
-import { HomePage } from './legacy-pages/HomePage';
+import { HomePage } from './components/HomePage';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { BulkActionProvider } from './context/BulkActionProvider';
 import { PRProvider } from './context/PRProvider';

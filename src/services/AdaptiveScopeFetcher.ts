@@ -80,7 +80,6 @@ export function createScopeStream(
     const baseQuery = `is:pr ${scope}`;
 
     const doFetch = async (query: string, cursor: string | null) => {
-      console.log('[generator] request', { scope, query, cursor });
       return fetchPage(query, cursor);
     };
 
