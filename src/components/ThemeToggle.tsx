@@ -37,7 +37,6 @@ export function ThemeToggle() {
       aria-label={title}
     >
       {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
-      <span className="sr-only">{label}</span>
     </button>
   );
 }

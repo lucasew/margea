@@ -1,4 +1,4 @@
-import { GitBranch, Package, Tag, User } from 'react-feather';
+import { GitBranch, User } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import { PRGroup } from '../types';
 import { CiStatusChart } from './CiStatusChart';
@@ -70,18 +70,11 @@ export function PRGroupCard({ group, onExpand }: PRGroupCardProps) {
       onKeyDown={handleKeyDown}
       aria-label={`${group.package}, ${group.count} PRs`}
     >
-      <div className="flex justify-between items-start gap-2 mb-3">
-        <div className="flex items-start gap-2 flex-1 min-w-0">
-          <Package
-            size={16}
-            className="text-primary flex-shrink-0 mt-0.5"
-            aria-hidden
-          />
-          <h3 className="font-mono text-sm font-semibold break-all leading-snug">
-            {group.package}
-          </h3>
-        </div>
-        <div className="flex items-center gap-1.5 flex-shrink-0">
+      <div className="flex items-start gap-2 mb-3">
+        <h3 className="flex-1 min-w-0 font-mono text-sm font-semibold break-words leading-snug">
+          {group.package}
+        </h3>
+        <div className="flex items-center gap-1.5 flex-shrink-0 self-start">
           {totalCiStatus > 0 && (
             <div
               className="tooltip tooltip-left"
@@ -127,19 +120,12 @@ export function PRGroupCard({ group, onExpand }: PRGroupCardProps) {
         </div>
 
         {group.labels.length > 0 && (
-          <div className="flex items-start gap-1.5">
-            <Tag
-              size={13}
-              className="text-base-content/50 flex-shrink-0 mt-0.5"
-              aria-hidden
-            />
-            <div className="flex flex-wrap gap-1 flex-1">
-              {group.labels.map((label) => (
-                <span key={label} className="badge badge-xs badge-outline">
-                  {label}
-                </span>
-              ))}
-            </div>
+          <div className="flex flex-wrap gap-1 w-full min-w-0">
+            {group.labels.map((label) => (
+              <span key={label} className="badge badge-xs badge-outline">
+                {label}
+              </span>
+            ))}
           </div>
         )}
       </div>

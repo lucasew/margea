@@ -27,16 +27,17 @@
   --color-neutral: oklch(0.32 0.02 175);
   --color-neutral-content: oklch(0.96 0.005 175);
 
-  --color-info: oklch(0.55 0.12 240);
-  --color-info-content: oklch(0.98 0.01 240);
+  /* Status colors: deeper L + higher C for WCAG-friendly labels on light bg */
+  --color-info: oklch(0.42 0.16 245);
+  --color-info-content: oklch(0.98 0.01 245);
 
-  --color-success: oklch(0.55 0.14 150);
+  --color-success: oklch(0.42 0.15 150);
   --color-success-content: oklch(0.98 0.01 150);
 
-  --color-warning: oklch(0.72 0.14 75);
-  --color-warning-content: oklch(0.22 0.04 75);
+  --color-warning: oklch(0.55 0.16 70);
+  --color-warning-content: oklch(0.98 0.02 70);
 
-  --color-error: oklch(0.55 0.18 25);
+  --color-error: oklch(0.45 0.2 25);
   --color-error-content: oklch(0.98 0.01 25);
 
   --radius-selector: 0.375rem;
@@ -71,17 +72,18 @@
   --color-neutral: oklch(0.75 0.015 175);
   --color-neutral-content: oklch(0.18 0.015 175);
 
-  --color-info: oklch(0.7 0.1 240);
-  --color-info-content: oklch(0.16 0.03 240);
+  /* Dark: brighter + more saturated so status doesn't wash into base-content */
+  --color-info: oklch(0.78 0.14 245);
+  --color-info-content: oklch(0.14 0.03 245);
 
-  --color-success: oklch(0.72 0.13 150);
-  --color-success-content: oklch(0.16 0.03 150);
+  --color-success: oklch(0.78 0.16 150);
+  --color-success-content: oklch(0.14 0.03 150);
 
-  --color-warning: oklch(0.78 0.12 75);
-  --color-warning-content: oklch(0.2 0.04 75);
+  --color-warning: oklch(0.84 0.15 80);
+  --color-warning-content: oklch(0.18 0.04 80);
 
-  --color-error: oklch(0.68 0.16 25);
-  --color-error-content: oklch(0.16 0.03 25);
+  --color-error: oklch(0.76 0.18 25);
+  --color-error-content: oklch(0.14 0.03 25);
 
   --radius-selector: 0.375rem;
   --radius-field: 0.375rem;

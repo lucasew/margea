@@ -197,9 +197,9 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
 
         {/* Group Header */}
         <div className="border border-base-300 rounded-lg p-6 mb-8 bg-base-100">
-          <div className="flex items-center gap-4 mb-6">
-            <Package size={32} className="text-primary flex-shrink-0" />
-            <h1 className="text-3xl md:text-4xl font-bold font-mono break-all">
+          <div className="flex items-start gap-4 mb-6">
+            <Package size={32} className="text-primary flex-shrink-0 mt-1" />
+            <h1 className="flex-1 min-w-0 text-3xl md:text-4xl font-bold font-mono break-words">
               {group.package}
             </h1>
           </div>
@@ -263,16 +263,16 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
               className={`border rounded-lg p-6 transition-all bg-base-100 ${selectedPRs.has(pr.id) ? 'border-primary border-2' : 'border-base-300 hover:border-primary/30'}`}
             >
               {/* PR Header */}
-              <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-3 mb-4">
-                <div className="flex items-start gap-3 flex-1 min-w-0">
+              <div className="flex flex-col md:flex-row md:items-start gap-3 mb-4">
+                <div className="flex items-start gap-3 flex-1 min-w-0 w-full md:w-auto">
                   <input
                     type="checkbox"
                     className="checkbox checkbox-primary mt-1 flex-shrink-0"
                     checked={selectedPRs.has(pr.id)}
                     onChange={() => handleTogglePR(pr.id)}
                   />
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-lg md:text-xl font-bold break-words">
+                  <div className="flex-1 min-w-0 w-full">
+                    <h3 className="w-full text-lg md:text-xl font-bold break-words">
                       {pr.title}
                     </h3>
                     <div className="flex flex-wrap items-center gap-2 mt-2 text-sm text-base-content/70">
