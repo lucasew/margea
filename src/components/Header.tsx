@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Eye, Edit, GitHub } from 'react-feather';
+import { GitHub } from 'react-feather';
 import { ThemeToggle } from './ThemeToggle';
 import { Logo } from './Logo';
-import { RateLimitIndicator } from './RateLimitIndicator';
+import { RateLimitIndicator, UserAccountMenu } from './RateLimitIndicator';
 
 interface HeaderProps {
   onLogout: () => void;
@@ -48,50 +48,23 @@ export function Header({
             </a>
 
             {isAuthenticated ? (
+              <UserAccountMenu
+                currentMode={currentMode}
+                onChangePermissions={onChangePermissions}
+                onLogout={onLogout}
+              />
+            ) : (
               <>
-                {currentMode && (
-                  <div className="mode-pill hidden sm:inline-flex">
-                    {currentMode === 'read' ? (
-                      <Eye size={13} aria-hidden />
-                    ) : (
-                      <Edit size={13} aria-hidden />
-                    )}
-                    <span>
-                      {currentMode === 'read'
-                        ? t('permissions.read')
-                        : t('permissions.write')}
-                    </span>
-                    {onChangePermissions && (
-                      <button
-                        type="button"
-                        onClick={onChangePermissions}
-                        className="ml-0.5 underline opacity-70 hover:opacity-100"
-                        title={t('permissions.changeTitle')}
-                      >
-                        {t('permissions.change')}
-                      </button>
-                    )}
-                  </div>
-                )}
                 <button
                   type="button"
-                  onClick={onLogout}
-                  className="btn btn-ghost btn-sm"
+                  onClick={onLogin}
+                  className="btn btn-primary btn-sm"
                 >
-                  {t('header.logout')}
+                  {t('header.login')}
                 </button>
+                <RateLimitIndicator />
               </>
-            ) : (
-              <button
-                type="button"
-                onClick={onLogin}
-                className="btn btn-primary btn-sm"
-              >
-                {t('header.login')}
-              </button>
             )}
-
-            <RateLimitIndicator />
           </div>
         </div>
       </div>
