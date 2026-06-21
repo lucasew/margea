@@ -35,7 +35,6 @@ export function Header({
           </Link>
 
           <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-            <RateLimitIndicator />
             <ThemeToggle />
             <a
               href="https://github.com/lucasew/margea"
@@ -91,6 +90,8 @@ export function Header({
                 {t('header.login')}
               </button>
             )}
+
+            <RateLimitIndicator />
           </div>
         </div>
       </div>

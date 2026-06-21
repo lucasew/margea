@@ -28,12 +28,15 @@ export function PRListStats({ stats }: PRListStatsProps) {
 
   return (
     <div
-      className="flex flex-wrap gap-2 mb-4"
+      className="flex flex-wrap justify-center gap-[clamp(0.5rem,2vw,1.25rem)] mb-[clamp(1rem,2.5vw,1.5rem)]"
       role="region"
       aria-label={t('prStats.total')}
     >
       {items.map((item) => (
-        <div key={item.key} className="stat-chip min-w-[5.5rem]">
+        <div
+          key={item.key}
+          className="stat-chip min-w-[5.5rem] flex-1 basis-[clamp(5.5rem,12vw,9rem)] max-w-[11rem] justify-center text-center"
+        >
           <div>
             <div className={`stat-chip-value ${item.tone}`}>{item.value}</div>
             <div className="stat-chip-label">{item.label}</div>
