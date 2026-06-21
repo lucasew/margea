@@ -11,7 +11,7 @@ export default tseslint.config(
     ignores: [
       'dist',
       'coverage',
-      'src/__generated__',
+      'src/queries/__generated__',
       'test-results',
       'playwright-report',
     ],
