@@ -54,7 +54,7 @@ export function Header({
                 currentMode={currentMode}
                 onToggleMode={onToggleMode}
                 onLogout={onLogout}
-                modeToggleDisabled={tokenCapability === 'read'}
+                modeToggleDisabled={tokenCapability !== 'write'}
               />
             ) : (
               <>

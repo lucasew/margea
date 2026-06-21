@@ -129,15 +129,13 @@ export function RateLimitIndicator({
       >
         {(currentMode || onToggleMode || onLogout) && (
           <div className="mb-3 space-y-2 pb-3 border-b border-base-300">
-            {currentMode && onToggleMode && (
+            {currentMode && onToggleMode && !modeToggleDisabled && (
               <label
-                className={`flex items-center justify-between gap-3 select-none ${modeToggleDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                className="flex items-center justify-between gap-3 select-none cursor-pointer"
                 title={
-                  modeToggleDisabled
-                    ? t('permissions.tokenReadOnly')
-                    : isWrite
-                      ? t('permissions.switchToRead')
-                      : t('permissions.switchToWrite')
+                  isWrite
+                    ? t('permissions.switchToRead')
+                    : t('permissions.switchToWrite')
                 }
               >
                 <span className="flex items-center gap-2 text-sm min-w-0">
@@ -158,22 +156,25 @@ export function RateLimitIndicator({
                   type="checkbox"
                   className="toggle toggle-sm toggle-primary"
                   checked={isWrite}
-                  disabled={modeToggleDisabled}
                   onChange={onToggleMode}
                   aria-label={t('permissions.changeTitle')}
                 />
               </label>
             )}
-            {currentMode && !onToggleMode && (
-              <div className="flex items-center gap-2 text-sm">
-                {isWrite ? (
-                  <Edit size={14} className="text-primary" aria-hidden />
-                ) : (
-                  <Eye size={14} className="text-base-content/60" aria-hidden />
+            {currentMode && (modeToggleDisabled || !onToggleMode) && (
+              <div
+                className="flex items-center gap-2 text-sm"
+                title={
+                  modeToggleDisabled ? t('permissions.tokenReadOnly') : undefined
+                }
+              >
+                <Eye size={14} className="text-base-content/60" aria-hidden />
+                <span className="font-medium">{t('permissions.read')}</span>
+                {modeToggleDisabled && (
+                  <span className="text-[10px] text-base-content/45 ml-auto">
+                    {t('permissions.tokenReadOnlyShort')}
+                  </span>
                 )}
-                <span className="font-medium">
-                  {isWrite ? t('permissions.write') : t('permissions.read')}
-                </span>
               </div>
             )}
             {onLogout && (

@@ -70,51 +70,77 @@ export const AuthService = {
   /**
    * Effective access mode used by the UI and write gates.
    * Preference in localStorage, clamped by token capability.
+   * Read-only tokens always resolve to read (and any stored write pref is scrubbed).
    */
   async getPermissions(): Promise<'read' | 'write' | null> {
     const capability = await this.getTokenCapability();
     if (!capability) return null;
 
+    if (capability === 'read') {
+      const preferred = readStoredEffectiveMode();
+      if (preferred === 'write') {
+        this.persistEffectiveMode('read');
+      }
+      return 'read';
+    }
+
     const preferred = readStoredEffectiveMode();
-    if (preferred === 'write' && capability === 'write') return 'write';
+    if (preferred === 'write') return 'write';
     if (preferred === 'read') return 'read';
     // No preference yet: default to full capability of the token
     return capability;
   },
 
-  /**
-   * Soft toggle: set effective mode preference without touching the session/token.
-   * Write preference is ignored when the token is read-only.
-   */
-  setEffectiveMode(mode: 'read' | 'write'): void {
+  /** Persist preference only; callers must enforce capability before choosing write. */
+  persistEffectiveMode(mode: 'read' | 'write'): void {
     try {
       localStorage.setItem(EFFECTIVE_MODE_STORAGE_KEY, mode);
     } catch (error) {
       console.error('Error saving effective mode preference:', error);
     }
-    // Notify same-tab listeners (storage event only fires across tabs)
     window.dispatchEvent(
       new CustomEvent('margea-effective-mode', { detail: { mode } }),
     );
   },
 
-  /** Toggle effective mode; returns the new effective mode. */
+  /**
+   * Soft set: effective mode preference without touching the session/token.
+   * Returns false if write was requested but the token cannot write.
+   */
+  async setEffectiveMode(
+    mode: 'read' | 'write',
+  ): Promise<{ ok: boolean; mode: 'read' | 'write' | null }> {
+    const capability = await this.getTokenCapability();
+    if (!capability) return { ok: false, mode: null };
+
+    if (mode === 'write' && capability !== 'write') {
+      this.persistEffectiveMode('read');
+      return { ok: false, mode: 'read' };
+    }
+
+    this.persistEffectiveMode(mode);
+    return { ok: true, mode };
+  },
+
+  /**
+   * Toggle effective mode; returns the new effective mode.
+   * No-op (stays read) when the token cannot write.
+   */
   async toggleEffectiveMode(): Promise<'read' | 'write' | null> {
     const capability = await this.getTokenCapability();
     if (!capability) return null;
 
-    const current = await this.getPermissions();
-    if (!current) return null;
-
     if (capability === 'read') {
-      // Token cannot write; preference can only be read
-      this.setEffectiveMode('read');
+      this.persistEffectiveMode('read');
       return 'read';
     }
 
+    const current = await this.getPermissions();
+    if (!current) return null;
+
     const next = current === 'write' ? 'read' : 'write';
-    this.setEffectiveMode(next);
-    return next;
+    const result = await this.setEffectiveMode(next);
+    return result.mode;
   },
 
   async hasWritePermission(): Promise<boolean> {

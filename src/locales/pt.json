@@ -210,7 +210,8 @@
     "changeTitle": "Mudar permissões",
     "switchToRead": "Mudar para somente leitura (mantém o token)",
     "switchToWrite": "Mudar para leitura e escrita (mantém o token)",
-    "tokenReadOnly": "Sessão somente leitura; entre com acesso de escrita para habilitar"
+    "tokenReadOnly": "Sessão somente leitura; entre com acesso de escrita para habilitar",
+    "tokenReadOnlyShort": "token sem escrita"
   },
   "common": {
     "viewOnGitHub": "Ver repositório no GitHub",

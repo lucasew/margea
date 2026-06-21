@@ -55,7 +55,7 @@ function App() {
 
   /** Soft feature flag: flip effective mode in localStorage, no token change. */
   const handleToggleMode = async () => {
-    if (!currentMode || tokenCapability === 'read') return;
+    if (!currentMode || tokenCapability !== 'write') return;
     const next = await AuthService.toggleEffectiveMode();
     if (next) setCurrentMode(next);
   };
