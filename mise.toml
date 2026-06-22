@@ -10,8 +10,14 @@ run = "astro dev"
 [tasks.install]
 run = "npm install && npx playwright install --with-deps"
 
-[tasks.codegen]
+[tasks."codegen:relay"]
 run = "npm run relay"
+
+[tasks."codegen:fmt"]
+run = "prettier --write"
+
+[tasks."codegen"]
+depends = ["codegen:*"]
 
 [tasks.build]
 run = "npm run build"
