@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Activity, Eye, Edit, User } from 'react-feather';
 import { rateLimitStore, RateLimitState } from '../services/rateLimitStore';
@@ -218,8 +218,8 @@ export function RateLimitIndicator({
   );
 }
 
-/** Authenticated variant: loads viewer avatar via Relay (must be under Suspense + Relay). */
-function UserAccountMenuInner({
+/** Authenticated header menu; viewer comes from ViewerProvider (App root). */
+export function UserAccountMenu({
   currentMode,
   onToggleMode,
   onLogout,
@@ -240,37 +240,5 @@ function UserAccountMenuInner({
       onLogout={onLogout}
       modeToggleDisabled={modeToggleDisabled}
     />
-  );
-}
-
-export function UserAccountMenu({
-  currentMode,
-  onToggleMode,
-  onLogout,
-  modeToggleDisabled,
-}: {
-  currentMode?: 'read' | 'write' | null;
-  onToggleMode?: () => void;
-  onLogout?: () => void;
-  modeToggleDisabled?: boolean;
-}) {
-  return (
-    <Suspense
-      fallback={
-        <RateLimitIndicator
-          currentMode={currentMode}
-          onToggleMode={onToggleMode}
-          onLogout={onLogout}
-          modeToggleDisabled={modeToggleDisabled}
-        />
-      }
-    >
-      <UserAccountMenuInner
-        currentMode={currentMode}
-        onToggleMode={onToggleMode}
-        onLogout={onLogout}
-        modeToggleDisabled={modeToggleDisabled}
-      />
-    </Suspense>
   );
 }

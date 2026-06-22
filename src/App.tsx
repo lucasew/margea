@@ -1,6 +1,6 @@
 import './i18n';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { RelayEnvironmentProvider } from 'react-relay';
 import { relayEnvironment } from './relay/environment';
@@ -10,6 +10,7 @@ import { HomePage } from './components/HomePage';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { BulkActionProvider } from './context/BulkActionProvider';
 import { PRProvider } from './context/PRProvider';
+import { ViewerProvider } from './context/ViewerProvider';
 import { BulkActionToast } from './components/BulkActionToast';
 import { GlobalBulkActionModal } from './components/GlobalBulkActionModal';
 import { MainLayout } from './components/MainLayout';
@@ -89,32 +90,42 @@ function App() {
   return (
     <ErrorBoundary>
       <RelayEnvironmentProvider environment={relayEnvironment}>
-        <PRProvider>
-          <BulkActionProvider>
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<MainLayout {...mainLayoutProps} />}>
-                  <Route index element={<HomePage />} />
-                  {/* Redirect old routes to home */}
-                  <Route path="/orgs" element={<Navigate to="/" replace />} />
-                  <Route
-                    path="/org/:owner"
-                    element={<Navigate to="/" replace />}
-                  />
-                  <Route
-                    path="/:owner/:repo"
-                    element={<Navigate to="/" replace />}
-                  />
-                </Route>
-              </Routes>
-              <div className="toast toast-end z-50">
-                <BulkActionToast />
-                <FetcherProgressHint />
-              </div>
-              <GlobalBulkActionModal />
-            </BrowserRouter>
-          </BulkActionProvider>
-        </PRProvider>
+        <Suspense
+          fallback={
+            <div className="app-shell items-center justify-center">
+              <span className="loading loading-spinner loading-md text-primary" />
+            </div>
+          }
+        >
+          <ViewerProvider>
+            <PRProvider>
+              <BulkActionProvider>
+                <BrowserRouter>
+                  <Routes>
+                    <Route path="/" element={<MainLayout {...mainLayoutProps} />}>
+                      <Route index element={<HomePage />} />
+                      {/* Redirect old routes to home */}
+                      <Route path="/orgs" element={<Navigate to="/" replace />} />
+                      <Route
+                        path="/org/:owner"
+                        element={<Navigate to="/" replace />}
+                      />
+                      <Route
+                        path="/:owner/:repo"
+                        element={<Navigate to="/" replace />}
+                      />
+                    </Route>
+                  </Routes>
+                  <div className="toast toast-end z-50">
+                    <BulkActionToast />
+                    <FetcherProgressHint />
+                  </div>
+                  <GlobalBulkActionModal />
+                </BrowserRouter>
+              </BulkActionProvider>
+            </PRProvider>
+          </ViewerProvider>
+        </Suspense>
       </RelayEnvironmentProvider>
     </ErrorBoundary>
   );

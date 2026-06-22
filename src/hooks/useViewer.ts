@@ -1,16 +1,11 @@
-import { useLazyLoadQuery } from 'react-relay';
-import { ViewerQuery } from '../queries/ViewerQuery';
-import { ViewerQuery as ViewerQueryType } from '../queries/__generated__/ViewerQuery.graphql';
+import { useContext } from 'react';
+import { ViewerContext } from '../context/ViewerContext';
 
+/** Reads viewer from ViewerProvider (single ViewerQuery at authenticated app root). */
 export function useViewer() {
-  const data = useLazyLoadQuery<ViewerQueryType>(ViewerQuery, {});
-
-  const organizations = data.viewer.organizations?.nodes || [];
-
-  return {
-    viewer: data.viewer,
-    organizations: organizations.filter(
-      (org): org is NonNullable<typeof org> => org != null,
-    ),
-  };
+  const ctx = useContext(ViewerContext);
+  if (!ctx) {
+    throw new Error('useViewer must be used within ViewerProvider');
+  }
+  return ctx;
 }

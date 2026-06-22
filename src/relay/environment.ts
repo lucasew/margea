@@ -107,9 +107,14 @@ const fetchQuery: FetchFunction = async (operation, variables) => {
       );
     }
 
+    // GitHub often returns partial `data` alongside `errors` (e.g. one bad
+    // node in a search page). Normalize usable data; only fail hard when
+    // there is nothing to ingest.
     if (json.errors) {
       console.error('GraphQL errors:', json.errors);
-      throw new Error(json.errors[0]?.message || i18n.t('errors.graphql'));
+      if (json.data == null) {
+        throw new Error(json.errors[0]?.message || i18n.t('errors.graphql'));
+      }
     }
 
     return json;
