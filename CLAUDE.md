@@ -9,6 +9,14 @@
 
 - Se algo estiver faltando ou não for possível peça instruções adicionais
 
+# Relay / dados (thin Relay)
+
+- Estado da lista de PRs: `PRProvider.prMap` (React), não o store do Relay.
+- Relay = transporte GraphQL + um `ViewerQuery` em `ViewerProvider` (raiz autenticada). Viewer só via `useViewer()`.
+- Não adicionar `optimisticUpdater`/`updater` no store para PRs nem outro `ViewerQuery`. Pós-mutação: `optimisticUpdate` no `prMap`.
+- Paginação de search: `AdaptiveScopeFetcher` (limite GitHub), não `@connection`.
+- Respostas GraphQL parciais (`data` + `errors`): environment devolve `data` quando existe; nós inválidos caem no `transformPR`.
+
 # Redução de caos
 
 - Não se esqueca do -y no npx

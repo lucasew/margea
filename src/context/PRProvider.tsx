@@ -17,10 +17,15 @@ interface PRProviderProps {
   children: ReactNode;
 }
 
+/**
+ * Owns PR list UI state (`prMap`). Relay is only used here as a transport
+ * via fetchQuery in prFetchService — not as the render source of truth.
+ * See AGENTS.md "Relay / data ownership".
+ */
 export function PRProvider({ children }: PRProviderProps) {
   const environment = useRelayEnvironment();
 
-  // Map Key: Pull Request ID (Global Node ID)
+  // Map Key: Pull Request ID (Global Node ID) — authoritative for list UI
   const [prMap, setPrMap] = useState<Map<string, PullRequest>>(new Map());
   const [pageInfo, setPageInfo] = useState<{
     endCursor: string | null;

@@ -1,4 +1,4 @@
-import { Suspense, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LogIn } from 'react-feather';
 import { useViewer } from '../hooks/useViewer';
@@ -69,15 +69,6 @@ export function HomePage() {
     );
   }
 
-  return (
-    <Suspense
-      fallback={
-        <div className="flex items-center justify-center min-h-[50vh]">
-          <span className="loading loading-spinner loading-md text-primary" />
-        </div>
-      }
-    >
-      <AuthenticatedDashboard />
-    </Suspense>
-  );
+  // ViewerQuery is owned by ViewerProvider at App root (no per-page Suspense).
+  return <AuthenticatedDashboard />;
 }
