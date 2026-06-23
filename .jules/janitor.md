@@ -34,3 +34,4 @@
 **Root Cause:** Validation and logic were inline, mixing different levels of abstraction in a single function.
 **Solution:** Extracted `isValidPR` for validation and `getCIStatus` for CI status logic into helper functions.
 **Pattern:** Extract complex inline logic and validation checks into small, named helper functions to improve readability and separation of concerns.
+- 2025-02-23: Address linting warnings (e.g. cascading renders and unused variables) and enforce Prettier formatting consistently, ignoring generated `.astro` and test output directories via `.prettierignore` and `eslint.config.js`.

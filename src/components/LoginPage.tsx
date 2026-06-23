@@ -85,7 +85,9 @@ export function LoginPage({ currentMode }: LoginPageProps) {
         <div className="login-surface">
           <div className="flex flex-col items-center mb-7 text-center">
             <Logo size={48} className="text-primary mb-3" />
-            <h1 className="text-2xl font-semibold tracking-tight mb-1">Margea</h1>
+            <h1 className="text-2xl font-semibold tracking-tight mb-1">
+              Margea
+            </h1>
             <p className="text-sm text-base-content/70 max-w-[28ch]">
               {t('loginPage.subtitle')}
             </p>

@@ -1,10 +1,12 @@
 @import 'tailwindcss';
 @plugin "daisyui" {
-  themes: margea-light --default, margea-dark --prefersdark;
+  themes:
+    margea-light --default,
+    margea-dark --prefersdark;
 }
 
 @plugin "daisyui/theme" {
-  name: "margea-light";
+  name: 'margea-light';
   default: true;
   color-scheme: light;
 
@@ -51,7 +53,7 @@
 }
 
 @plugin "daisyui/theme" {
-  name: "margea-dark";
+  name: 'margea-dark';
   prefersdark: true;
   color-scheme: dark;
 

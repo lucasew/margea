@@ -221,7 +221,9 @@ function PRListContent() {
           <div role="alert" className="alert alert-error mb-4 py-2.5 text-sm">
             <AlertCircle size={18} />
             <div>
-              <h3 className="font-semibold text-sm">{t('prList.errorTitle')}</h3>
+              <h3 className="font-semibold text-sm">
+                {t('prList.errorTitle')}
+              </h3>
               <div className="text-xs opacity-90">{error.message}</div>
             </div>
           </div>
@@ -270,7 +272,9 @@ function PRListContent() {
               type="button"
               onClick={() => loadNextPage()}
               className={`btn btn-sm btn-outline btn-primary gap-1.5 ${
-                !hasActiveFilters ? 'opacity-0 hover:opacity-100 focus:opacity-100' : ''
+                !hasActiveFilters
+                  ? 'opacity-0 hover:opacity-100 focus:opacity-100'
+                  : ''
               }`}
               aria-label={t('prList.loadMore')}
               title={t('prList.loadMore')}
@@ -349,7 +353,9 @@ export function PRList() {
         fallback={
           <div className="flex flex-col items-center justify-center min-h-[50vh] gap-2">
             <span className="loading loading-spinner loading-md text-primary" />
-            <p className="text-sm text-base-content/60">{t('prList.loading')}</p>
+            <p className="text-sm text-base-content/60">
+              {t('prList.loading')}
+            </p>
           </div>
         }
       >

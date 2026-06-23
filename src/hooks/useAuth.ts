@@ -9,9 +9,9 @@ export function useAuth() {
   const [hasWritePermission, setHasWritePermission] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [mode, setMode] = useState<'read' | 'write' | null>(null);
-  const [tokenCapability, setTokenCapability] = useState<'read' | 'write' | null>(
-    null,
-  );
+  const [tokenCapability, setTokenCapability] = useState<
+    'read' | 'write' | null
+  >(null);
 
   const refresh = useCallback(async () => {
     setIsLoading(true);
@@ -27,6 +27,8 @@ export function useAuth() {
   }, []);
 
   useEffect(() => {
+    // We intentionally invoke refresh on mount. Disabling the rule to avoid "cascading renders" warning
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     refresh();
   }, [refresh]);
 

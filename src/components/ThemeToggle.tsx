@@ -27,7 +27,6 @@ export function ThemeToggle() {
   const { t } = useTranslation();
   const isDarkMode = theme === THEMES.DARK;
   const title = isDarkMode ? t('theme.toggleToLight') : t('theme.toggleToDark');
-  const label = isDarkMode ? t('theme.light') : t('theme.dark');
 
   return (
     <button

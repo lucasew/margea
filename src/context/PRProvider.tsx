@@ -64,87 +64,89 @@ export function PRProvider({ children }: PRProviderProps) {
    * and ingests them directly into the store as they are yielded.
    * This is the only way data enters prMap for the fetcher system.
    */
-  const pullAndIngest = useCallback(
-    async (isLoadMore: boolean) => {
-      const entries = Array.from(streamsRef.current.entries());
-      if (entries.length === 0) {
-        setIsLoading(false);
-        setIsFetchingNextPage(false);
-        return 0;
-      }
-
-      if (!isLoadMore) {
-        setIsLoading(true);
-      } else {
-        setIsFetchingNextPage(true);
-      }
-      setError(null);
-
-      const phase = { count: 0 };
-      let flipped = false;
-      const errors: { scope: string; error: Error }[] = [];
-
-      const drainers = entries.map(async ([scope, strm]) => {
-        let local = 0;
-        try {
-          while (true) {
-            const { value, done } = await strm.generator.next();
-            if (done) break;
-            if (value) {
-              setPrMap((prev) => {
-                const next = new Map(prev);
-                next.set(value.id, value);
-                return next;
-              });
-              local++;
-              phase.count++;
-
-              if (!isLoadMore && !flipped) {
-                flipped = true;
-                setIsLoading(false);
-                setIsFetchingNextPage(true);
-              }
-            }
-          }
-        } catch (e) {
-          // Per-scope failure. Other scopes keep being pulled.
-          const err = e instanceof Error ? e : new Error(String(e));
-          errors.push({ scope, error: err });
-        }
-        return local;
-      });
-
-      await Promise.allSettled(drainers);
-
+  const pullAndIngest = useCallback(async (isLoadMore: boolean) => {
+    const entries = Array.from(streamsRef.current.entries());
+    if (entries.length === 0) {
       setIsLoading(false);
       setIsFetchingNextPage(false);
+      return 0;
+    }
 
-      const currentStates = getCurrentStates();
-      if (currentStates.size > 0) {
-        const dates = Array.from(currentStates.values()).map((s) => s.oldestFetchedDate.getTime());
-        setOldestFetchedDate(new Date(Math.min(...dates)));
+    if (!isLoadMore) {
+      setIsLoading(true);
+    } else {
+      setIsFetchingNextPage(true);
+    }
+    setError(null);
+
+    const phase = { count: 0 };
+    let flipped = false;
+    const errors: { scope: string; error: Error }[] = [];
+
+    const drainers = entries.map(async ([scope, strm]) => {
+      let local = 0;
+      try {
+        while (true) {
+          const { value, done } = await strm.generator.next();
+          if (done) break;
+          if (value) {
+            setPrMap((prev) => {
+              const next = new Map(prev);
+              next.set(value.id, value);
+              return next;
+            });
+            local++;
+            phase.count++;
+
+            if (!isLoadMore && !flipped) {
+              flipped = true;
+              setIsLoading(false);
+              setIsFetchingNextPage(true);
+            }
+          }
+        }
+      } catch (e) {
+        // Per-scope failure. Other scopes keep being pulled.
+        const err = e instanceof Error ? e : new Error(String(e));
+        errors.push({ scope, error: err });
       }
+      return local;
+    });
 
-      if (isLoadMore) {
-        const hasMore = phase.count > 0;
-        setPageInfo({ endCursor: null, hasNextPage: hasMore });
-      } else {
-        setPageInfo({ endCursor: null, hasNextPage: streamsRef.current.size > 0 });
-      }
+    await Promise.allSettled(drainers);
 
-      if (errors.length > 0) {
-        const scopeNames = errors.map((e) => e.scope).join(', ');
-        setError(
-          new Error(
-            `Failed to fetch PRs for: ${scopeNames}. ${errors[0].error.message}`,
-          ),
-        );
-      }
+    setIsLoading(false);
+    setIsFetchingNextPage(false);
 
-      return phase.count;
-    },
-    [],
-  );
+    const currentStates = getCurrentStates();
+    if (currentStates.size > 0) {
+      const dates = Array.from(currentStates.values()).map((s) =>
+        s.oldestFetchedDate.getTime(),
+      );
+      setOldestFetchedDate(new Date(Math.min(...dates)));
+    }
+
+    if (isLoadMore) {
+      const hasMore = phase.count > 0;
+      setPageInfo({ endCursor: null, hasNextPage: hasMore });
+    } else {
+      setPageInfo({
+        endCursor: null,
+        hasNextPage: streamsRef.current.size > 0,
+      });
+    }
+
+    if (errors.length > 0) {
+      const scopeNames = errors.map((e) => e.scope).join(', ');
+      setError(
+        new Error(
+          `Failed to fetch PRs for: ${scopeNames}. ${errors[0].error.message}`,
+        ),
+      );
+    }
+
+    return phase.count;
+  }, []);
 
   /**
    * Primary entry point: create one generator-backed ScopeStream per scope.
@@ -231,9 +233,7 @@ export function PRProvider({ children }: PRProviderProps) {
     setOldestFetchedDate(null);
 
     const now = new Date();
-    const initialStart = new Date(
-      now.getTime() - INITIAL_FETCH_DAYS * DAY_MS,
-    );
+    const initialStart = new Date(now.getTime() - INITIAL_FETCH_DAYS * DAY_MS);
 
     const master = new AbortController();
     abortRef.current = master;
@@ -262,11 +262,7 @@ export function PRProvider({ children }: PRProviderProps) {
    * operation.
    */
   const loadNextPage = useCallback(() => {
-    if (
-      isLoading ||
-      isFetchingNextPage ||
-      streamsRef.current.size === 0
-    ) {
+    if (isLoading || isFetchingNextPage || streamsRef.current.size === 0) {
       return;
     }
 

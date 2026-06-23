@@ -15,7 +15,10 @@ export function Footer() {
             </span>
             {t('footer.description')}
           </p>
-          <nav className="flex flex-wrap items-center gap-x-4 gap-y-1" aria-label="Footer">
+          <nav
+            className="flex flex-wrap items-center gap-x-4 gap-y-1"
+            aria-label="Footer"
+          >
             <a
               href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens"
               target="_blank"

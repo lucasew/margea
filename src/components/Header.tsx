@@ -33,7 +33,9 @@ export function Header({
             className="flex items-center gap-2.5 min-w-0 hover:opacity-80 transition-opacity duration-150"
           >
             <Logo size={22} className="text-primary flex-shrink-0" />
-            <span className="font-semibold text-base tracking-tight">Margea</span>
+            <span className="font-semibold text-base tracking-tight">
+              Margea
+            </span>
           </Link>
 
           <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">

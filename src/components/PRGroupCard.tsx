@@ -115,7 +115,9 @@ export function PRGroupCard({ group, onExpand }: PRGroupCardProps) {
           <div className="flex items-center gap-1.5">
             <GitBranch size={13} className="flex-shrink-0" aria-hidden />
             <span className="truncate">
-              <span className="text-base-content/50">{t('prGroupCard.base')}:</span>{' '}
+              <span className="text-base-content/50">
+                {t('prGroupCard.base')}:
+              </span>{' '}
               <span className="font-mono">{group.baseRef}</span>
             </span>
           </div>
@@ -169,19 +171,28 @@ export function PRGroupCard({ group, onExpand }: PRGroupCardProps) {
           <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-base-content/55">
             {states.OPEN ? (
               <span className="inline-flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-success" aria-hidden />
+                <span
+                  className="w-1.5 h-1.5 rounded-full bg-success"
+                  aria-hidden
+                />
                 {t('prGroupCard.open')} {states.OPEN}
               </span>
             ) : null}
             {states.MERGED ? (
               <span className="inline-flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-info" aria-hidden />
+                <span
+                  className="w-1.5 h-1.5 rounded-full bg-info"
+                  aria-hidden
+                />
                 {t('prGroupCard.merged')} {states.MERGED}
               </span>
             ) : null}
             {states.CLOSED ? (
               <span className="inline-flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-error" aria-hidden />
+                <span
+                  className="w-1.5 h-1.5 rounded-full bg-error"
+                  aria-hidden
+                />
                 {t('prGroupCard.closed')} {states.CLOSED}
               </span>
             ) : null}
