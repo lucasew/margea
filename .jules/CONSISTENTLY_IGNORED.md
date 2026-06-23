@@ -32,3 +32,27 @@
 **- Pattern:** Modifying files unrelated to the agent's specific persona/mission (e.g., Janitor modifying CI config, Arrumador modifying source code).
 **- Justification:** Agents must strictly adhere to their scope. Mixing concerns increases rejection risk. Observed in PRs #210 and #221.
 **- Files Affected:** `src/**/*`, `.github/**/*`, `mise.toml`, `.jules/*.md`.
+
+## IGNORE: Unrelated Global Formatting and Trivial Changes
+
+**- Pattern:** Running global formatting or linting commands (e.g., `npx prettier --write .`) that result in massive diffs in unrelated files (such as `src/locales/*.json` or tests) not involved in the actual fix.
+**- Justification:** Introduces severe noise, obscures the PR's true intent, and causes merge conflicts. Agents must bypass global checks and format only the specific files they intentionally modified.
+**- Files Affected:** Any file not central to the requested change, commonly `src/locales/*.json` or `tests/*.spec.ts`.
+
+## IGNORE: Denoiser Overstepping Scope (Fixing Code)
+
+**- Pattern:** The Denoiser agent modifying application code, configuration files (e.g., `.prettierignore`, `eslint.config.js`), or tests to fix the observed rejection patterns instead of just documenting them.
+**- Justification:** Denoiser is a meta-agent focused strictly on updating `.jules/CONSISTENTLY_IGNORED.md` with rules. Modifying application code violates its operational contract and execution guardrails.
+**- Files Affected:** Application code, config files, tests (anything outside `.jules/`).
+
+## IGNORE: Deleting Existing Rules
+
+**- Pattern:** Overwriting or deleting existing rules in `.jules/CONSISTENTLY_IGNORED.md` when adding new patterns.
+**- Justification:** Historical knowledge is lost. Agents must only append new rules and must not remove existing ones unless definitively obsolete.
+**- Files Affected:** `.jules/CONSISTENTLY_IGNORED.md`.
+
+## IGNORE: Isolated Dependency Digest Updates
+
+**- Pattern:** Creating PRs for minor GitHub Actions digest updates or isolated transitive security bumps.
+**- Justification:** These generate PR noise and cause massive lockfile churn (e.g., platform-specific `@esbuild` optional dependencies) with low individual value. They should be batched or managed differently.
+**- Files Affected:** `.github/workflows/*.yml`, `package-lock.json`.
