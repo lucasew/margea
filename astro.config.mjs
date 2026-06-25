@@ -3,17 +3,17 @@ import react from '@astrojs/react';
 import vercel from '@astrojs/vercel';
 import relay from 'vite-plugin-relay';
 
+import sentry from '@sentry/astro';
+
 export default defineConfig({
   server: {
     port: 3000,
   },
-  integrations: [
-    react({
-      babel: {
-        plugins: ['babel-plugin-relay'],
-      },
-    }),
-  ],
+  integrations: [react({
+    babel: {
+      plugins: ['babel-plugin-relay'],
+    },
+  }), sentry()],
   adapter: vercel(),
   output: 'server',
   env: {
