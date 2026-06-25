@@ -40,7 +40,10 @@ export const THEMES = {
 export const EFFECTIVE_MODE_STORAGE_KEY = 'margea_effective_mode';
 
 /** Migrate legacy daisyui theme names stored before the redesign. */
-export function resolveTheme(stored: string | null, prefersDark: boolean): string {
+export function resolveTheme(
+  stored: string | null,
+  prefersDark: boolean,
+): string {
   if (stored === THEME_LIGHT || stored === THEME_DARK) return stored;
   if (stored === 'light') return THEME_LIGHT;
   if (stored === 'dark') return THEME_DARK;
