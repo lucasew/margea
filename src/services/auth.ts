@@ -1,4 +1,5 @@
 import { EFFECTIVE_MODE_STORAGE_KEY } from '../constants';
+import { reportError } from '../utils/errorReporting';
 
 /**
  * Represents the authentication data retrieved from the server.
@@ -104,7 +105,7 @@ export const AuthService = {
         loginMode: data.mode === 'write' ? 'write' : 'read',
       };
     } catch (error) {
-      console.error('Error fetching auth data:', error);
+      reportError(error, { context: 'fetching auth data' });
       return null;
     }
   },
@@ -151,7 +152,7 @@ export const AuthService = {
       capabilityCache = { token, capability, scopes };
       return capability;
     } catch (error) {
-      console.error('Error probing token capability:', error);
+      reportError(error, { context: 'probing token capability' });
       // Fail closed: read-only until we know better
       return capabilityCache?.token === token
         ? capabilityCache.capability
@@ -197,7 +198,7 @@ export const AuthService = {
     try {
       localStorage.setItem(EFFECTIVE_MODE_STORAGE_KEY, mode);
     } catch (error) {
-      console.error('Error saving effective mode preference:', error);
+      reportError(error, { context: 'saving effective mode preference' });
     }
     window.dispatchEvent(
       new CustomEvent('margea-effective-mode', { detail: { mode } }),
@@ -250,7 +251,7 @@ export const AuthService = {
       });
       window.location.href = '/';
     } catch (error) {
-      console.error('Error logging out:', error);
+      reportError(error, { context: 'logging out' });
     }
   },
 
