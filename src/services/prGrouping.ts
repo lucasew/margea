@@ -118,10 +118,29 @@ const groupAuthor: GroupingFunction = (prs) => {
   });
 };
 
+/**
+ * Grouping Strategy: Agents
+ * Groups by the emoji on the start of the title.
+ */
+const groupAgents: GroupingFunction = (prs) => {
+  return groupByHelper(prs, (pr) => {
+    let groupName = '(No emoji)';
+    const title = pr.title.trim();
+    if (title.length > 0) {
+      const firstRune = [...title][0];
+      if (firstRune && /^\p{Emoji}$/u.test(firstRune) && firstRune.codePointAt(0)! > 255) {
+        groupName = firstRune;
+      }
+    }
+    return { key: groupName, groupName };
+  });
+};
+
 const STRATEGY_HANDLERS: Record<GroupingStrategy, GroupingFunction> = {
   renovate: groupRenovate,
   repository: groupRepository,
   author: groupAuthor,
+  agents: groupAgents,
 };
 
 /**

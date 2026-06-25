@@ -25,6 +25,7 @@ export const GROUPING_STRATEGIES = {
   renovate: 'renovate',
   repository: 'repository',
   author: 'author',
+  agents: 'agents',
 } as const;
 
 export const THEME_LIGHT = 'margea-light';
