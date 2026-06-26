@@ -41,7 +41,7 @@
     "@types/relay-runtime": "^19.0.3",
     "astro": "^6.4.7",
     "autoprefixer": "^10.4.16",
-    "babel-plugin-relay": "^20.0.0",
+    "babel-plugin-relay": "^21.0.0",
     "daisyui": "^5.0.0",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
