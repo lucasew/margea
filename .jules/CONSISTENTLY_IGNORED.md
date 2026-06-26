@@ -32,3 +32,15 @@
 **- Pattern:** Modifying files unrelated to the agent's specific persona/mission (e.g., Janitor modifying CI config, Arrumador modifying source code).
 **- Justification:** Agents must strictly adhere to their scope. Mixing concerns increases rejection risk. Observed in PRs #210 and #221.
 **- Files Affected:** `src/**/*`, `.github/**/*`, `mise.toml`, `.jules/*.md`.
+
+## IGNORE: Unrelated Global Formatting and Trivial Changes
+
+**- Pattern:** Running global formatting or linting commands (e.g., `npx prettier --write .`) that result in massive diffs in unrelated files (such as `src/locales/*.json` or tests) not involved in the actual fix.
+**- Justification:** Introduces severe noise, obscures the PR's true intent, and causes merge conflicts. Agents must bypass global checks and format only the specific files they intentionally modified.
+**- Files Affected:** Any file not central to the requested change, commonly `src/locales/*.json` or `tests/*.spec.ts`.
+
+## IGNORE: Deleting Existing Rules
+
+**- Pattern:** Overwriting or deleting existing rules in `.jules/CONSISTENTLY_IGNORED.md` when adding new patterns.
+**- Justification:** Historical knowledge is lost. Agents must only append new rules and must not remove existing ones unless definitively obsolete.
+**- Files Affected:** `.jules/CONSISTENTLY_IGNORED.md`.
