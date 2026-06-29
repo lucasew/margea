@@ -14,7 +14,7 @@ export function BulkActionProvider({ children }: { children: ReactNode }) {
 
   const startBulkAction = useCallback(
     async (prs: PullRequest[], type: BulkActionType) => {
-      const operationId = `op_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const operationId = `op_${Date.now()}_${crypto.randomUUID()}`;
       const initialProgress = prs.map((pr) => ({
         prId: pr.id,
         prNumber: pr.number,
