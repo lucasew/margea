@@ -51,7 +51,7 @@
     "globals": "^17.1.0",
     "postcss": "^8.4.32",
     "prettier": "^3.8.1",
-    "relay-compiler": "^20.0.0",
+    "relay-compiler": "^21.0.0",
     "tailwindcss": "^4.0.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.53.1",
