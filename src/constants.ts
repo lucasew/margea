@@ -11,6 +11,13 @@ export const INITIAL_FETCH_DAYS = 7;
 // Each "load more" extends backwards by this many days
 export const LOAD_MORE_DAYS = 7;
 
+export const API_ROUTES = {
+  AUTH_TOKEN: '/api/auth/token',
+  AUTH_LOGOUT: '/api/auth/logout',
+  AUTH_PAT: '/api/auth/pat',
+  AUTH_GITHUB: '/api/auth/github',
+} as const;
+
 export const URL_SEARCH_PARAMS = {
   GROUP: 'group',
   REPO: 'repo',

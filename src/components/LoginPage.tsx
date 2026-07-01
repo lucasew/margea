@@ -6,6 +6,7 @@ import { Footer } from './Footer';
 import { ThemeToggle } from './ThemeToggle';
 import { InfoIcon } from './icons/InfoIcon';
 import { reportError } from '../utils/errorReporting';
+import { API_ROUTES } from '../constants';
 
 interface LoginPageProps {
   currentMode?: 'read' | 'write' | null;
@@ -21,7 +22,7 @@ export function LoginPage({ currentMode }: LoginPageProps) {
   const clearSessionIfNeeded = async () => {
     if (!currentMode) return;
     try {
-      await fetch('/api/auth/logout', {
+      await fetch(API_ROUTES.AUTH_LOGOUT, {
         method: 'POST',
         credentials: 'include',
       });
@@ -32,7 +33,7 @@ export function LoginPage({ currentMode }: LoginPageProps) {
 
   const handleGitHubLogin = async (mode: 'read' | 'write') => {
     await clearSessionIfNeeded();
-    window.location.href = `/api/auth/github?mode=${mode}`;
+    window.location.href = `${API_ROUTES.AUTH_GITHUB}?mode=${mode}`;
   };
 
   const handlePATLogin = async () => {
@@ -47,7 +48,7 @@ export function LoginPage({ currentMode }: LoginPageProps) {
 
     try {
       await clearSessionIfNeeded();
-      const response = await fetch('/api/auth/pat', {
+      const response = await fetch(API_ROUTES.AUTH_PAT, {
         method: 'POST',
         credentials: 'include',
         headers: {

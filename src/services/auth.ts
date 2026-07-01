@@ -1,4 +1,4 @@
-import { EFFECTIVE_MODE_STORAGE_KEY } from '../constants';
+import { EFFECTIVE_MODE_STORAGE_KEY, API_ROUTES } from '../constants';
 import { reportError } from '../utils/errorReporting';
 
 /**
@@ -87,7 +87,7 @@ function invalidateCapabilityCache(): void {
 export const AuthService = {
   async getAuthData(): Promise<AuthData | null> {
     try {
-      const response = await fetch('/api/auth/token', {
+      const response = await fetch(API_ROUTES.AUTH_TOKEN, {
         credentials: 'include',
       });
 
@@ -245,7 +245,7 @@ export const AuthService = {
   async logout(): Promise<void> {
     invalidateCapabilityCache();
     try {
-      await fetch('/api/auth/logout', {
+      await fetch(API_ROUTES.AUTH_LOGOUT, {
         method: 'POST',
         credentials: 'include',
       });
