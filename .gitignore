@@ -37,3 +37,6 @@ verification/
 .env
 .env.local
 .env.*.local
+debt_inventory.json
+debt_priorities.json
+mise
