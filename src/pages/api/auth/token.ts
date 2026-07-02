@@ -1,5 +1,6 @@
 import { jwtVerify } from 'jose';
 import { parse } from 'cookie';
+import { reportError } from '../../../utils/errorReporting';
 
 export async function GET({ request }: { request: Request }) {
   // Parse cookies from header
@@ -17,12 +18,13 @@ export async function GET({ request }: { request: Request }) {
   if (!import.meta.env.SESSION_SECRET) {
     return new Response(
       JSON.stringify({
-        error: 'Server misconfigured: missing SESSION_SECRET. Copy .env.example → .env.local',
+        error:
+          'Server misconfigured: missing SESSION_SECRET. Copy .env.example → .env.local',
       }),
       {
         status: 500,
         headers: { 'Content-Type': 'application/json' },
-      }
+      },
     );
   }
 
@@ -44,7 +46,8 @@ export async function GET({ request }: { request: Request }) {
         },
       },
     );
-  } catch {
+  } catch (error) {
+    reportError(error, { context: 'verifying session token' });
     return new Response(JSON.stringify({ error: 'Invalid session' }), {
       status: 401,
       headers: { 'Content-Type': 'application/json' },
