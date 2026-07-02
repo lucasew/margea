@@ -4,12 +4,8 @@ import { MergePullRequestMutation } from '../queries/MergePullRequestMutation';
 import { ClosePullRequestMutation } from '../queries/ClosePullRequestMutation';
 import { executeWithRetry } from '../utils/retry';
 import type { PullRequest, BulkActionProgress } from '../types';
-import type {
-  MergePullRequestMutation$data,
-} from '../queries/__generated__/MergePullRequestMutation.graphql';
-import type {
-  ClosePullRequestMutation$data,
-} from '../queries/__generated__/ClosePullRequestMutation.graphql';
+import type { MergePullRequestMutation$data } from '../queries/__generated__/MergePullRequestMutation.graphql';
+import type { ClosePullRequestMutation$data } from '../queries/__generated__/ClosePullRequestMutation.graphql';
 import type { RecordSourceSelectorProxy } from 'relay-runtime';
 
 /**
@@ -48,7 +44,8 @@ function toMergeFields(
   data?: MergePullRequestMutation$data | null,
 ): Partial<PullRequest> {
   const mergedPR = data?.mergePullRequest?.pullRequest;
-  if (!mergedPR) return { state: 'MERGED', updatedAt: new Date().toISOString() };
+  if (!mergedPR)
+    return { state: 'MERGED', updatedAt: new Date().toISOString() };
 
   const updatedAt = mergedPR.mergedAt ?? new Date().toISOString();
   return {
@@ -62,7 +59,8 @@ function toCloseFields(
   data?: ClosePullRequestMutation$data | null,
 ): Partial<PullRequest> {
   const closedPR = data?.closePullRequest?.pullRequest;
-  if (!closedPR) return { state: 'CLOSED', updatedAt: new Date().toISOString() };
+  if (!closedPR)
+    return { state: 'CLOSED', updatedAt: new Date().toISOString() };
 
   const updatedAt = closedPR.closedAt ?? new Date().toISOString();
   return {
@@ -70,6 +68,46 @@ function toCloseFields(
     closedAt: closedPR.closedAt ?? null,
     updatedAt,
   };
+}
+
+function performMutation<TData>(
+  prId: string,
+  mutation: GraphQLTaggedNode,
+  optimisticFields: Partial<PullRequest>,
+  toFields: (data?: TData | null) => Partial<PullRequest>,
+): Promise<BulkActionResult> {
+  return new Promise((resolve) => {
+    commitMutation(relayEnvironment, {
+      mutation,
+      variables: {
+        input: {
+          pullRequestId: prId,
+        },
+      },
+      optimisticUpdater: (store) => {
+        updatePullRequestRecord(store, prId, optimisticFields);
+      },
+      updater: (store, data) => {
+        const fields = toFields(data as TData | null | undefined);
+        updatePullRequestRecord(store, prId, fields);
+      },
+      onCompleted: (response) => {
+        const updatedFields = toFields(response as TData | null | undefined);
+        resolve({
+          success: true,
+          prId,
+          updatedFields,
+        });
+      },
+      onError: (error: Error) => {
+        resolve({
+          success: false,
+          prId,
+          error: error.message,
+        });
+      },
+    });
+  });
 }
 
 const performMergeMutation = (prId: string): Promise<BulkActionResult> => {
@@ -80,42 +118,12 @@ const performMergeMutation = (prId: string): Promise<BulkActionResult> => {
     updatedAt: optimisticNow,
   };
 
-  return new Promise((resolve) => {
-    commitMutation(relayEnvironment, {
-      mutation: MergePullRequestMutation,
-      variables: {
-        input: {
-          pullRequestId: prId,
-        },
-      },
-      optimisticUpdater: (store) => {
-        updatePullRequestRecord(store, prId, optimisticFields);
-      },
-      updater: (store, data) => {
-        const fields = toMergeFields(
-          data as MergePullRequestMutation$data | null | undefined,
-        );
-        updatePullRequestRecord(store, prId, fields);
-      },
-      onCompleted: (response) => {
-        const updatedFields = toMergeFields(
-          response as MergePullRequestMutation$data | null | undefined,
-        );
-        resolve({
-          success: true,
-          prId,
-          updatedFields,
-        });
-      },
-      onError: (error: Error) => {
-        resolve({
-          success: false,
-          prId,
-          error: error.message,
-        });
-      },
-    });
-  });
+  return performMutation<MergePullRequestMutation$data>(
+    prId,
+    MergePullRequestMutation,
+    optimisticFields,
+    toMergeFields,
+  );
 };
 
 const performCloseMutation = (prId: string): Promise<BulkActionResult> => {
@@ -126,42 +134,12 @@ const performCloseMutation = (prId: string): Promise<BulkActionResult> => {
     updatedAt: optimisticNow,
   };
 
-  return new Promise((resolve) => {
-    commitMutation(relayEnvironment, {
-      mutation: ClosePullRequestMutation,
-      variables: {
-        input: {
-          pullRequestId: prId,
-        },
-      },
-      optimisticUpdater: (store) => {
-        updatePullRequestRecord(store, prId, optimisticFields);
-      },
-      updater: (store, data) => {
-        const fields = toCloseFields(
-          data as ClosePullRequestMutation$data | null | undefined,
-        );
-        updatePullRequestRecord(store, prId, fields);
-      },
-      onCompleted: (response) => {
-        const updatedFields = toCloseFields(
-          response as ClosePullRequestMutation$data | null | undefined,
-        );
-        resolve({
-          success: true,
-          prId,
-          updatedFields,
-        });
-      },
-      onError: (error: Error) => {
-        resolve({
-          success: false,
-          prId,
-          error: error.message,
-        });
-      },
-    });
-  });
+  return performMutation<ClosePullRequestMutation$data>(
+    prId,
+    ClosePullRequestMutation,
+    optimisticFields,
+    toCloseFields,
+  );
 };
 
 export const BulkActionsService = {
