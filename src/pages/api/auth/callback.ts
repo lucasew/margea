@@ -16,8 +16,8 @@ export async function GET({ request }: { request: Request }) {
   if (!callbackUrl) {
     return new Response(
       'Missing required environment variable GITHUB_CALLBACK_URL. ' +
-      'Copy .env.example → .env.local and fill it (must match the callback URL registered in your GitHub OAuth App).',
-      { status: 500 }
+        'Copy .env.example → .env.local and fill it (must match the callback URL registered in your GitHub OAuth App).',
+      { status: 500 },
     );
   }
 
@@ -55,7 +55,10 @@ export async function GET({ request }: { request: Request }) {
   if (oauthStateCookie) {
     try {
       const { payload } = await jwtVerify(oauthStateCookie, secret);
-      if (typeof payload.nonce !== 'string' || payload.nonce !== nonceFromParamToken) {
+      if (
+        typeof payload.nonce !== 'string' ||
+        payload.nonce !== nonceFromParamToken
+      ) {
         return new Response('Invalid CSRF token (state mismatch).', {
           status: 403,
         });
