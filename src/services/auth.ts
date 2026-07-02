@@ -29,8 +29,8 @@ function readStoredEffectiveMode(): 'read' | 'write' | null {
   try {
     const stored = localStorage.getItem(EFFECTIVE_MODE_STORAGE_KEY);
     if (stored === 'read' || stored === 'write') return stored;
-  } catch {
-    // ignore storage errors
+  } catch (error) {
+    reportError(error, { context: 'reading stored effective mode' });
   }
   return null;
 }
