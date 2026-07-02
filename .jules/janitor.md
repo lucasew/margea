@@ -37,3 +37,4 @@
 - 2026-06-25: Centralize error reporting by creating src/utils/errorReporting.ts and migrating all scattered console.error calls, paving the way for future Sentry integration.
 - 2025-05-18: Replaced Math.random() with crypto.randomUUID() for operation ID generation to adhere to defense-in-depth and secure randomness principles.
 - 2026-07-01: Extracted hardcoded API paths in authentication components and services to centralized constants to improve maintainability and discoverability.
+- 2026-07-02: Extracted duplicate secure request checking logic into `isSecureRequest` in `src/utils/requestUtils.ts` to reduce debt and comply with project conventions.

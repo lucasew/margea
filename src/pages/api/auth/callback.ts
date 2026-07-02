@@ -1,5 +1,6 @@
 import { SignJWT, jwtVerify } from 'jose';
 import { parse } from 'cookie';
+import { isSecureRequest } from '../../../utils/requestUtils';
 
 export async function GET({ request }: { request: Request }) {
   const requestUrl = new URL(request.url);
@@ -10,8 +11,7 @@ export async function GET({ request }: { request: Request }) {
 
   // Determine if we should set Secure cookies.
   // Works for direct https and when behind a proxy (Vercel, etc.) that sets x-forwarded-proto.
-  const forwardedProto = request.headers.get('x-forwarded-proto');
-  const isHttps = requestUrl.protocol === 'https:' || forwardedProto === 'https';
+  const isHttps = isSecureRequest(request);
 
   if (!callbackUrl) {
     return new Response(

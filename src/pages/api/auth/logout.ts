@@ -1,7 +1,7 @@
+import { isSecureRequest } from '../../../utils/requestUtils';
+
 export async function POST({ request }: { request: Request }) {
-  const requestUrl = new URL(request.url);
-  const forwardedProto = request.headers.get('x-forwarded-proto');
-  const isHttps = requestUrl.protocol === 'https:' || forwardedProto === 'https';
+  const isHttps = isSecureRequest(request);
 
   const response = new Response(JSON.stringify({ success: true }), {
     headers: { 'Content-Type': 'application/json' },

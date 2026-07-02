@@ -1,4 +1,5 @@
 import { SignJWT } from 'jose';
+import { isSecureRequest } from '../../../utils/requestUtils';
 
 export async function GET({ request }: { request: Request }) {
   const clientId = import.meta.env.GITHUB_CLIENT_ID;
@@ -43,8 +44,7 @@ export async function GET({ request }: { request: Request }) {
   url.searchParams.set('state', stateToken);
 
   // Keep cookie as an optional second validation channel (double-submit style).
-  const forwardedProto = request.headers.get('x-forwarded-proto');
-  const isHttps = requestUrl.protocol === 'https:' || forwardedProto === 'https';
+  const isHttps = isSecureRequest(request);
 
   const cookie = `oauth_state=${stateToken}; HttpOnly; ${
     isHttps ? 'Secure; ' : ''
