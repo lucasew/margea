@@ -39,7 +39,7 @@
     "@types/react-relay": "^18.2.1",
     "@types/react-router-dom": "^5.3.3",
     "@types/relay-runtime": "^19.0.3",
-    "astro": "^6.4.7",
+    "astro": "^7.0.0",
     "autoprefixer": "^10.4.16",
     "babel-plugin-relay": "^20.0.0",
     "daisyui": "^5.0.0",
