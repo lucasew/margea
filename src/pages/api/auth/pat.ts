@@ -1,4 +1,5 @@
 import { SignJWT } from 'jose';
+import { isSecureRequest } from '../../../utils/requestUtils';
 
 interface PATAuthRequestBody {
   token?: string;
@@ -9,8 +10,8 @@ export async function POST({ request }: { request: Request }) {
   if (!secretValue) {
     return new Response(
       'Missing required environment variable SESSION_SECRET. ' +
-      'Copy .env.example → .env.local and generate one with `openssl rand -hex 32`.',
-      { status: 500 }
+        'Copy .env.example → .env.local and generate one with `openssl rand -hex 32`.',
+      { status: 500 },
     );
   }
 
@@ -42,8 +43,8 @@ export async function POST({ request }: { request: Request }) {
   if (!/^[A-Za-z0-9_.-]+$/.test(token)) {
     return new Response(
       'The PAT you provided contains invalid characters (for example curly quotes “ ”). ' +
-      'Please go back to GitHub → Personal access tokens, copy the token directly (plain text), and paste it again.',
-      { status: 400 }
+        'Please go back to GitHub → Personal access tokens, copy the token directly (plain text), and paste it again.',
+      { status: 400 },
     );
   }
 
@@ -57,9 +58,7 @@ export async function POST({ request }: { request: Request }) {
     .setExpirationTime('7d')
     .sign(secret);
 
-  const requestUrl = new URL(request.url);
-  const forwardedProto = request.headers.get('x-forwarded-proto');
-  const isHttps = requestUrl.protocol === 'https:' || forwardedProto === 'https';
+  const isHttps = isSecureRequest(request);
 
   const response = new Response(JSON.stringify({ success: true }), {
     headers: {
