@@ -1,8 +1,10 @@
 import { GitBranch, User } from 'react-feather';
 import { useTranslation } from 'react-i18next';
+import { KeyboardEvent } from 'react';
 import { PRGroup } from '../types';
 import { CiStatusChart } from './CiStatusChart';
-import { KeyboardEvent } from 'react';
+import { countCiStatuses, formatCiStatusTooltip } from '../services/ciStatus';
+import { calculateStats } from '../services/prStats';
 
 interface PRGroupCardProps {
   group: PRGroup;
@@ -11,46 +13,27 @@ interface PRGroupCardProps {
 
 export function PRGroupCard({ group, onExpand }: PRGroupCardProps) {
   const { t } = useTranslation();
-  const states = group.prs.reduce(
-    (acc, pr) => {
-      acc[pr.state] = (acc[pr.state] || 0) + 1;
-      return acc;
-    },
-    {} as Record<string, number>,
-  );
-
-  const repoCount = new Set(group.prs.map((pr) => pr.repository.nameWithOwner))
-    .size;
-  const author = group.prs[0]?.author;
-
-  const ciStatusCounts = group.prs.reduce(
-    (acc, pr) => {
-      if (pr.ciStatus === 'SUCCESS') acc.success++;
-      if (pr.ciStatus === 'FAILURE') acc.failure++;
-      if (pr.ciStatus === 'PENDING') acc.pending++;
-      return acc;
-    },
-    { success: 0, failure: 0, pending: 0 },
-  );
-
-  const totalCiStatus =
-    ciStatusCounts.success + ciStatusCounts.failure + ciStatusCounts.pending;
-
-  const getTooltipContent = () => {
-    const parts = [];
-    if (ciStatusCounts.success > 0)
-      parts.push(`${ciStatusCounts.success} ${t('ci.success')}`);
-    if (ciStatusCounts.failure > 0)
-      parts.push(`${ciStatusCounts.failure} ${t('ci.failure')}`);
-    if (ciStatusCounts.pending > 0)
-      parts.push(`${ciStatusCounts.pending} ${t('ci.pending')}`);
-    return `${t('ci.status')}: ${parts.join(', ')}`;
+  const stats = calculateStats(group.prs);
+  const states = {
+    OPEN: stats.open,
+    MERGED: stats.merged,
+    CLOSED: stats.closed,
   };
+  const repoCount = stats.repositories;
+  const author = group.prs[0]?.author;
+  const ciStatusCounts = countCiStatuses(group.prs);
+  const ciTooltip = formatCiStatusTooltip(ciStatusCounts, {
+    status: t('ci.status'),
+    success: t('ci.success'),
+    failure: t('ci.failure'),
+    pending: t('ci.pending'),
+  });
 
   const borderTone =
     ciStatusCounts.failure > 0
       ? 'border-error/35'
-      : ciStatusCounts.success === totalCiStatus && totalCiStatus > 0
+      : ciStatusCounts.success === ciStatusCounts.total &&
+          ciStatusCounts.total > 0
         ? 'border-success/35'
         : '';
 
@@ -75,11 +58,8 @@ export function PRGroupCard({ group, onExpand }: PRGroupCardProps) {
           {group.package}
         </h3>
         <div className="flex items-center gap-1.5 flex-shrink-0 self-start">
-          {totalCiStatus > 0 && (
-            <div
-              className="tooltip tooltip-left"
-              data-tip={getTooltipContent()}
-            >
+          {ciStatusCounts.total > 0 && (
+            <div className="tooltip tooltip-left" data-tip={ciTooltip}>
               <CiStatusChart
                 success={ciStatusCounts.success}
                 failure={ciStatusCounts.failure}
@@ -115,7 +95,9 @@ export function PRGroupCard({ group, onExpand }: PRGroupCardProps) {
           <div className="flex items-center gap-1.5">
             <GitBranch size={13} className="flex-shrink-0" aria-hidden />
             <span className="truncate">
-              <span className="text-base-content/50">{t('prGroupCard.base')}:</span>{' '}
+              <span className="text-base-content/50">
+                {t('prGroupCard.base')}:
+              </span>{' '}
               <span className="font-mono">{group.baseRef}</span>
             </span>
           </div>
@@ -169,19 +151,28 @@ export function PRGroupCard({ group, onExpand }: PRGroupCardProps) {
           <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-base-content/55">
             {states.OPEN ? (
               <span className="inline-flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-success" aria-hidden />
+                <span
+                  className="w-1.5 h-1.5 rounded-full bg-success"
+                  aria-hidden
+                />
                 {t('prGroupCard.open')} {states.OPEN}
               </span>
             ) : null}
             {states.MERGED ? (
               <span className="inline-flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-info" aria-hidden />
+                <span
+                  className="w-1.5 h-1.5 rounded-full bg-info"
+                  aria-hidden
+                />
                 {t('prGroupCard.merged')} {states.MERGED}
               </span>
             ) : null}
             {states.CLOSED ? (
               <span className="inline-flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-error" aria-hidden />
+                <span
+                  className="w-1.5 h-1.5 rounded-full bg-error"
+                  aria-hidden
+                />
                 {t('prGroupCard.closed')} {states.CLOSED}
               </span>
             ) : null}

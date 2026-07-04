@@ -1,14 +1,17 @@
 import { X, CheckCircle, AlertCircle, Loader } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import type { BulkActionType, BulkActionProgress } from '../types';
+import { summarizeBulkProgress } from '../services/bulkProgress';
 
 interface BulkActionModalProps {
   isOpen: boolean;
-  actionType: BulkActionType | null;
+  actionType: BulkActionType;
   progress: BulkActionProgress[];
   isExecuting: boolean;
-  onConfirm: () => void;
-  onCancel: () => void;
+  /** Confirm mode shows warning + confirm/cancel. Progress mode omits confirm. */
+  mode: 'confirm' | 'progress';
+  onConfirm?: () => void;
+  onClose: () => void;
 }
 
 export function BulkActionModal({
@@ -16,24 +19,19 @@ export function BulkActionModal({
   actionType,
   progress,
   isExecuting,
+  mode,
   onConfirm,
-  onCancel,
+  onClose,
 }: BulkActionModalProps) {
   const { t } = useTranslation();
-  if (!isOpen || !actionType) return null;
+  if (!isOpen) return null;
 
-  const actionKey = actionType === 'merge' ? 'merge' : 'close';
-  const actionLabel = t(`bulkActionModal.${actionKey}`);
+  const actionLabel = t(`bulkActionModal.${actionType}`);
   const actionColor = actionType === 'merge' ? 'success' : 'error';
-
-  const hasStarted = progress.some((p) => p.status !== 'pending');
-  const isComplete =
-    progress.length > 0 &&
-    progress.every((p) => p.status === 'success' || p.status === 'error');
-  const successCount = progress.filter((p) => p.status === 'success').length;
-  const errorCount = progress.filter((p) => p.status === 'error').length;
-  const count = progress.length;
-  const s = count > 1 ? 's' : '';
+  const { total, successCount, errorCount, hasStarted, isComplete } =
+    summarizeBulkProgress(progress);
+  const s = total > 1 ? 's' : '';
+  const showConfirmActions = mode === 'confirm' && !hasStarted;
 
   return (
     <div className="modal modal-open">
@@ -45,7 +43,8 @@ export function BulkActionModal({
               : `${t('bulkActionModal.confirmPrefix')} ${actionLabel} ${t('common.prs')}`}
           </h3>
           <button
-            onClick={onCancel}
+            type="button"
+            onClick={onClose}
             className="btn btn-sm btn-circle btn-ghost"
             aria-label={t('bulkActionModal.ariaClose')}
           >
@@ -53,13 +52,13 @@ export function BulkActionModal({
           </button>
         </div>
 
-        {!hasStarted && (
+        {showConfirmActions && (
           <div className="alert alert-warning mb-4">
             <AlertCircle size={20} />
             <span>
               {t('bulkActionModal.warning', {
                 action: actionLabel.toLowerCase(),
-                count,
+                count: total,
                 s,
               })}
             </span>
@@ -74,11 +73,8 @@ export function BulkActionModal({
             <span>
               {t('bulkActionModal.successSummary', {
                 success: successCount,
-                total: count,
-                actionPast:
-                  actionType === 'merge'
-                    ? t('bulkActionModal.merge')
-                    : t('bulkActionModal.close'),
+                total,
+                actionPast: actionLabel,
               })}
               {errorCount > 0 &&
                 t('bulkActionModal.errorSuffix', { count: errorCount })}
@@ -137,35 +133,33 @@ export function BulkActionModal({
         </div>
 
         <div className="modal-action">
-          {!hasStarted && (
+          {showConfirmActions && (
             <>
               <button
-                onClick={onCancel}
+                type="button"
+                onClick={onClose}
                 className="btn btn-ghost"
                 disabled={isExecuting}
               >
                 {t('bulkActionModal.cancel')}
               </button>
               <button
+                type="button"
                 onClick={onConfirm}
                 className={`btn btn-${actionColor}`}
-                disabled={isExecuting}
+                disabled={isExecuting || !onConfirm}
               >
-                {actionLabel} {count}{' '}
-                {t('common.prs').replace(
-                  'PRs',
-                  count > 1 ? t('common.prs') : 'PR',
-                )}
+                {t(`prGroupDetail.${actionType}`, { count: total })}
               </button>
             </>
           )}
           {hasStarted && !isComplete && (
-            <button onClick={onCancel} className="btn btn-ghost">
+            <button type="button" onClick={onClose} className="btn btn-ghost">
               {t('bulkActionModal.minimize')}
             </button>
           )}
           {isComplete && (
-            <button onClick={onCancel} className="btn btn-primary">
+            <button type="button" onClick={onClose} className="btn btn-primary">
               {t('bulkActionModal.closeBtn')}
             </button>
           )}

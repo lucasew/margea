@@ -1,10 +1,11 @@
 import { CheckCircle, AlertCircle, X, Maximize2 } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import { useBulkAction } from '../hooks/useBulkAction';
+import { summarizeBulkProgress } from '../services/bulkProgress';
 
 export function BulkActionToast() {
   const { t } = useTranslation();
-  const { operations, openGlobalModal, dismissOperation } = useBulkAction();
+  const { operations, openOperationModal, dismissOperation } = useBulkAction();
 
   if (operations.length === 0) return null;
 
@@ -12,17 +13,12 @@ export function BulkActionToast() {
     <>
       {operations.map((op) => {
         const { progress, isExecuting, id } = op;
-        const successCount = progress.filter(
-          (p) => p.status === 'success',
-        ).length;
-        const errorCount = progress.filter((p) => p.status === 'error').length;
-        const total = progress.length;
-        const isComplete = !isExecuting;
-
-        // If for some reason empty progress, skip rendering this alert
         if (progress.length === 0) return null;
 
-        // Determine color
+        const { successCount, errorCount, doneCount, total } =
+          summarizeBulkProgress(progress);
+        const isComplete = !isExecuting;
+
         let alertClass = 'alert-info';
         if (isComplete) {
           alertClass = errorCount > 0 ? 'alert-warning' : 'alert-success';
@@ -45,7 +41,7 @@ export function BulkActionToast() {
               <div className="font-bold text-sm">
                 {isExecuting
                   ? t('bulkAction.processing', {
-                      done: successCount + errorCount,
+                      done: doneCount,
                       total,
                     })
                   : t('bulkAction.completed', {
@@ -55,13 +51,14 @@ export function BulkActionToast() {
               </div>
               <progress
                 className="progress progress-primary w-full bg-base-200"
-                value={successCount + errorCount}
+                value={doneCount}
                 max={total}
               ></progress>
             </div>
 
             <button
-              onClick={() => openGlobalModal(id)}
+              type="button"
+              onClick={() => openOperationModal(id)}
               className="btn btn-ghost btn-xs btn-circle"
               aria-label={t('bulkAction.detailsAria')}
             >
@@ -70,6 +67,7 @@ export function BulkActionToast() {
 
             {isComplete && (
               <button
+                type="button"
                 onClick={() => dismissOperation(id)}
                 className="btn btn-ghost btn-xs btn-circle"
                 aria-label={t('bulkAction.closeAria')}

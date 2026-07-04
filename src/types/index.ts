@@ -72,14 +72,6 @@ export interface BulkActionOperation {
   timestamp: number;
 }
 
-export interface BulkActionState {
-  isOpen: boolean;
-  actionType: BulkActionType | null;
-  selectedPRs: PullRequest[];
-  progress: BulkActionProgress[];
-  isExecuting: boolean;
-}
-
 export interface MainLayoutContextType {
   onLogout: () => void;
   onLogin: () => void;

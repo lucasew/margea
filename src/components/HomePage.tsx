@@ -1,13 +1,10 @@
 import { Suspense, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LogIn } from 'react-feather';
 import { useViewer } from '../hooks/useViewer';
-import { useMainLayoutContext } from '../hooks/useMainLayoutContext';
 import { usePRContext } from '../context/PRContext';
 import { PRList } from './PRList';
-import { InfoIcon } from './icons/InfoIcon';
 
-function AuthenticatedDashboard() {
+function Dashboard() {
   const { viewer, organizations } = useViewer();
   const { setSearchScopes, searchQuery } = usePRContext();
 
@@ -17,12 +14,7 @@ function AuthenticatedDashboard() {
       `user:${viewer.login}`,
     ];
 
-    if (scopes.length === 0) {
-      setSearchScopes([`involves:${viewer.login}`]);
-      return;
-    }
-
-    setSearchScopes(scopes);
+    setSearchScopes(scopes.length > 0 ? scopes : [`involves:${viewer.login}`]);
   }, [viewer.login, organizations, setSearchScopes]);
 
   if (!searchQuery) {
@@ -36,48 +28,20 @@ function AuthenticatedDashboard() {
   return <PRList />;
 }
 
+/** Rendered only inside the authenticated app shell (see App.tsx). */
 export function HomePage() {
-  const { isAuthenticated, onLogin } = useMainLayoutContext();
   const { t } = useTranslation();
-
-  if (!isAuthenticated) {
-    return (
-      <div className="flex-1 flex flex-col items-center justify-center p-6">
-        <div className="text-center max-w-lg">
-          <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight mb-3">
-            {t('homepage.title')}
-          </h1>
-          <p className="text-base text-base-content/70 mb-6">
-            {t('homepage.subtitle')}
-          </p>
-
-          <div className="alert alert-info mb-6 text-sm text-left py-3">
-            <InfoIcon />
-            <span>{t('homepage.login_prompt')}</span>
-          </div>
-
-          <button
-            type="button"
-            onClick={onLogin}
-            className="btn btn-primary gap-2"
-          >
-            <LogIn size={18} aria-hidden />
-            {t('header.login')}
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <Suspense
       fallback={
-        <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="flex flex-col items-center justify-center min-h-[50vh] gap-2">
           <span className="loading loading-spinner loading-md text-primary" />
+          <p className="text-sm text-base-content/60">{t('prList.loading')}</p>
         </div>
       }
     >
-      <AuthenticatedDashboard />
+      <Dashboard />
     </Suspense>
   );
 }

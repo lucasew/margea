@@ -1,39 +1,56 @@
 import { useState, useCallback, ReactNode } from 'react';
 import { PullRequest, BulkActionType, BulkActionOperation } from '../types';
 import { BulkActionsService } from '../services/bulkActions';
+import {
+  createBulkOperationId,
+  toPendingProgress,
+  type PendingBulkAction,
+} from '../services/bulkProgress';
 import { BulkActionContext } from './BulkActionContext';
 import { usePRContext } from './PRContext';
 
 export function BulkActionProvider({ children }: { children: ReactNode }) {
   const { optimisticUpdate } = usePRContext();
   const [operations, setOperations] = useState<BulkActionOperation[]>([]);
-  const [isGlobalModalOpen, setIsGlobalModalOpen] = useState(false);
-  const [activeModalOperationId, setActiveModalOperationId] = useState<
-    string | null
-  >(null);
+  const [pendingConfirmation, setPendingConfirmation] =
+    useState<PendingBulkAction | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [activeOperationId, setActiveOperationId] = useState<string | null>(
+    null,
+  );
 
-  const startBulkAction = useCallback(
+  const requestBulkAction = useCallback(
+    (prs: PullRequest[], type: BulkActionType) => {
+      if (prs.length === 0) return;
+      setPendingConfirmation({
+        prs,
+        type,
+        progress: toPendingProgress(prs),
+      });
+      setActiveOperationId(null);
+      setIsModalOpen(true);
+    },
+    [],
+  );
+
+  const cancelPendingAction = useCallback(() => {
+    setPendingConfirmation(null);
+    setIsModalOpen(false);
+  }, []);
+
+  const runOperation = useCallback(
     async (prs: PullRequest[], type: BulkActionType) => {
-      const operationId = `op_${Date.now()}_${crypto.randomUUID()}`;
-      const initialProgress = prs.map((pr) => ({
-        prId: pr.id,
-        prNumber: pr.number,
-        prTitle: pr.title,
-        status: 'pending' as const,
-      }));
-
+      const operationId = createBulkOperationId();
       const newOperation: BulkActionOperation = {
         id: operationId,
         type,
-        progress: initialProgress,
+        progress: toPendingProgress(prs),
         isExecuting: true,
         timestamp: Date.now(),
       };
 
       setOperations((prev) => [...prev, newOperation]);
-
-      // We keep modal closed by default to support the toast workflow
-      setIsGlobalModalOpen(false);
+      setActiveOperationId(operationId);
 
       await BulkActionsService.executeBulkAction(
         prs,
@@ -61,56 +78,50 @@ export function BulkActionProvider({ children }: { children: ReactNode }) {
     [optimisticUpdate],
   );
 
-  const openGlobalModal = (operationId?: string) => {
-    if (operationId) {
-      setActiveModalOperationId(operationId);
-    } else if (!activeModalOperationId && operations.length > 0) {
-      // If no ID provided and no active ID, default to the most recent one
-      // or the one that is executing.
-      // Let's pick the last one added.
-      setActiveModalOperationId(operations[operations.length - 1].id);
-    }
-    setIsGlobalModalOpen(true);
-  };
+  const confirmPendingAction = useCallback(() => {
+    if (!pendingConfirmation) return;
+    const { prs, type } = pendingConfirmation;
+    setPendingConfirmation(null);
+    // Hand off to toast workflow; user can re-open details from the toast.
+    setIsModalOpen(false);
+    setActiveOperationId(null);
+    void runOperation(prs, type);
+  }, [pendingConfirmation, runOperation]);
 
-  const closeGlobalModal = () => setIsGlobalModalOpen(false);
-  const minimizeGlobalModal = () => setIsGlobalModalOpen(false);
+  const openOperationModal = useCallback((operationId: string) => {
+    setPendingConfirmation(null);
+    setActiveOperationId(operationId);
+    setIsModalOpen(true);
+  }, []);
+
+  const closeModal = useCallback(() => {
+    setIsModalOpen(false);
+    setPendingConfirmation(null);
+  }, []);
 
   const dismissOperation = useCallback(
     (operationId: string) => {
       setOperations((prev) => prev.filter((op) => op.id !== operationId));
-      if (activeModalOperationId === operationId) {
-        setActiveModalOperationId(null);
-        setIsGlobalModalOpen(false);
+      if (activeOperationId === operationId) {
+        setActiveOperationId(null);
+        setIsModalOpen(false);
       }
     },
-    [activeModalOperationId],
-  );
-
-  const clearState = useCallback(
-    (operationId?: string) => {
-      if (operationId) {
-        dismissOperation(operationId);
-      } else {
-        setOperations([]);
-        setActiveModalOperationId(null);
-        setIsGlobalModalOpen(false);
-      }
-    },
-    [dismissOperation],
+    [activeOperationId],
   );
 
   return (
     <BulkActionContext.Provider
       value={{
         operations,
-        startBulkAction,
-        isGlobalModalOpen,
-        activeModalOperationId,
-        openGlobalModal,
-        closeGlobalModal,
-        minimizeGlobalModal,
-        clearState,
+        pendingConfirmation,
+        isModalOpen,
+        activeOperationId,
+        requestBulkAction,
+        confirmPendingAction,
+        cancelPendingAction,
+        openOperationModal,
+        closeModal,
         dismissOperation,
       }}
     >

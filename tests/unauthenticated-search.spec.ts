@@ -1,65 +1,38 @@
 import { test, expect } from '@playwright/test';
 import { translations } from './utils/translations';
 
-test.describe('Unauthenticated Home Page', () => {
+test.describe('Unauthenticated entry', () => {
   const en = translations.en;
 
   test.beforeEach(async ({ page, context }) => {
-    // Clear localStorage to ensure unauthenticated state
     await context.clearCookies();
     await page.goto('/');
     await page.evaluate(() => localStorage.clear());
     await page.reload();
   });
 
-  test('should display login prompt and buttons', async ({ page }) => {
-    // Check for login required prompt
-    await expect(
-      page.locator(`text=${en.homepage.login_prompt}`),
-    ).toBeVisible();
-
-    // Check for Hero Login button
-    const heroLoginButton = page.locator('button.btn-primary.btn-lg');
-    await expect(heroLoginButton).toBeVisible();
-    await expect(heroLoginButton).toHaveText(en.header.login);
-
-    // Check for Header Login button (filtering by text to avoid matching theme toggle if it uses same class)
-    const headerLoginButton = page
-      .locator('header button.btn-ghost')
-      .filter({ hasText: en.header.login });
-    await expect(headerLoginButton).toBeVisible();
-  });
-
-  test('should navigate to login page when clicking login button in header', async ({
+  test('should render the login page with OAuth access options', async ({
     page,
   }) => {
-    // Click login button in header
-    const loginButton = page
-      .locator('header button.btn-ghost')
-      .filter({ hasText: en.header.login });
-    await expect(loginButton).toBeVisible();
-    await loginButton.click();
-
-    // Should show login page
+    await expect(page.getByRole('heading', { name: 'Margea' })).toBeVisible();
+    await expect(page.getByText(en.loginPage.subtitle)).toBeVisible();
+    await expect(page.getByText(en.loginPage.chooseAccessLevel)).toBeVisible();
     await expect(
-      page.locator(`text=${en.loginPage.readOnly.title}`),
-    ).toBeVisible({ timeout: 5000 });
+      page.getByRole('button', { name: new RegExp(en.loginPage.readOnly) }),
+    ).toBeVisible();
     await expect(
-      page.locator(`text=${en.loginPage.readWrite.title}`),
+      page.getByRole('button', { name: new RegExp(en.loginPage.readWrite) }),
     ).toBeVisible();
   });
 
-  test('should navigate to login page when clicking login button in hero', async ({
-    page,
-  }) => {
-    // Click login button in hero
-    const loginButton = page.locator('button.btn-primary.btn-lg');
-    await expect(loginButton).toBeVisible();
-    await loginButton.click();
-
-    // Should show login page
+  test('should switch to the PAT tab', async ({ page }) => {
+    await page.getByRole('tab', { name: en.loginPage.patLabel }).click();
+    await expect(page.getByText(en.loginPage.enterPAT)).toBeVisible();
     await expect(
-      page.locator(`text=${en.loginPage.readOnly.title}`),
-    ).toBeVisible({ timeout: 5000 });
+      page.getByPlaceholder(en.loginPage.patPlaceholder),
+    ).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: en.loginPage.continueWithPAT }),
+    ).toBeVisible();
   });
 });

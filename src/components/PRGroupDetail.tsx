@@ -13,31 +13,29 @@ import {
   Check,
   AlertCircle,
 } from 'react-feather';
-import { PRGroup, BulkActionType, BulkActionProgress } from '../types';
-import { BulkActionModal } from './BulkActionModal';
-import { useAuth } from '../hooks/useAuth';
+import { PRGroup, BulkActionType } from '../types';
 import { useBulkAction } from '../hooks/useBulkAction';
+import { useMainLayoutContext } from '../hooks/useMainLayoutContext';
 import { CiStatusChart } from './CiStatusChart';
+import { countCiStatuses, formatCiStatusTooltip } from '../services/ciStatus';
 
 interface PRGroupDetailProps {
   group: PRGroup;
   onBack: () => void;
 }
 
+const STATE_COLORS = {
+  OPEN: 'badge-success',
+  MERGED: 'badge-info',
+  CLOSED: 'badge-error',
+} as const;
+
 export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
   const { t, i18n } = useTranslation();
-  const { hasWritePermission, mode } = useAuth();
-  const { startBulkAction } = useBulkAction();
-  const [selectedPRs, setSelectedPRs] = useState<Set<string>>(new Set());
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [actionType, setActionType] = useState<BulkActionType | null>(null);
-  const [progress, setProgress] = useState<BulkActionProgress[]>([]);
-
-  const stateColors = {
-    OPEN: 'badge-success',
-    MERGED: 'badge-info',
-    CLOSED: 'badge-error',
-  };
+  const { currentMode } = useMainLayoutContext();
+  const { requestBulkAction } = useBulkAction();
+  const [selectedPRs, setSelectedPRs] = useState<Set<string>>(() => new Set());
+  const hasWritePermission = currentMode === 'write';
 
   const formatDate = (dateString: string) => {
     const lang = i18n.language || 'en';
@@ -51,49 +49,25 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
   };
 
   const handleTogglePR = (prId: string) => {
-    const newSelected = new Set(selectedPRs);
-    if (newSelected.has(prId)) {
-      newSelected.delete(prId);
-    } else {
-      newSelected.add(prId);
-    }
-    setSelectedPRs(newSelected);
+    setSelectedPRs((prev) => {
+      const next = new Set(prev);
+      if (next.has(prId)) next.delete(prId);
+      else next.add(prId);
+      return next;
+    });
   };
 
   const handleToggleAll = () => {
-    if (selectedPRs.size === group.prs.length) {
-      setSelectedPRs(new Set());
-    } else {
-      setSelectedPRs(new Set(group.prs.map((pr) => pr.id)));
-    }
-  };
-
-  const handleOpenModal = (type: BulkActionType) => {
-    const selected = group.prs.filter((pr) => selectedPRs.has(pr.id));
-    setActionType(type);
-    setProgress(
-      selected.map((pr) => ({
-        prId: pr.id,
-        prNumber: pr.number,
-        prTitle: pr.title,
-        status: 'pending',
-      })),
+    setSelectedPRs((prev) =>
+      prev.size === group.prs.length
+        ? new Set()
+        : new Set(group.prs.map((pr) => pr.id)),
     );
-    setIsModalOpen(true);
   };
 
-  const handleConfirm = async () => {
+  const handleRequestAction = (type: BulkActionType) => {
     const selected = group.prs.filter((pr) => selectedPRs.has(pr.id));
-    if (actionType) {
-      startBulkAction(selected, actionType);
-    }
-    handleCloseModal();
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setActionType(null);
-    setProgress([]);
+    requestBulkAction(selected, type);
     setSelectedPRs(new Set());
   };
 
@@ -101,30 +75,13 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
   const allSelected =
     selectedCount === group.prs.length && group.prs.length > 0;
 
-  // Calculate Group CI Status Counts
-  const ciStatusCounts = group.prs.reduce(
-    (acc, pr) => {
-      if (pr.ciStatus === 'SUCCESS') acc.success++;
-      if (pr.ciStatus === 'FAILURE') acc.failure++;
-      if (pr.ciStatus === 'PENDING') acc.pending++;
-      return acc;
-    },
-    { success: 0, failure: 0, pending: 0 },
-  );
-
-  const totalCiStatus =
-    ciStatusCounts.success + ciStatusCounts.failure + ciStatusCounts.pending;
-
-  const getTooltipContent = () => {
-    const parts = [];
-    if (ciStatusCounts.success > 0)
-      parts.push(`${ciStatusCounts.success} ${t('ci.success')}`);
-    if (ciStatusCounts.failure > 0)
-      parts.push(`${ciStatusCounts.failure} ${t('ci.failure')}`);
-    if (ciStatusCounts.pending > 0)
-      parts.push(`${ciStatusCounts.pending} ${t('ci.pending')}`);
-    return `${t('ci.status')}: ${parts.join(', ')}`;
-  };
+  const ciStatusCounts = countCiStatuses(group.prs);
+  const ciTooltip = formatCiStatusTooltip(ciStatusCounts, {
+    status: t('ci.status'),
+    success: t('ci.success'),
+    failure: t('ci.failure'),
+    pending: t('ci.pending'),
+  });
 
   return (
     <div className="w-full">
@@ -154,11 +111,11 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
                     : t('prGroupDetail.selectAll')}
                 </span>
               </label>
-              {mode && (
+              {currentMode && (
                 <span
-                  className={`badge ${mode === 'write' ? 'badge-success' : 'badge-ghost'}`}
+                  className={`badge ${currentMode === 'write' ? 'badge-success' : 'badge-ghost'}`}
                 >
-                  {mode === 'write'
+                  {currentMode === 'write'
                     ? t('prGroupDetail.readWrite')
                     : t('prGroupDetail.readOnly')}
                 </span>
@@ -168,14 +125,16 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
             {selectedCount > 0 && hasWritePermission && (
               <div className="flex flex-wrap gap-2">
                 <button
-                  onClick={() => handleOpenModal('merge')}
+                  type="button"
+                  onClick={() => handleRequestAction('merge')}
                   className="btn btn-success gap-2"
                 >
                   <Check size={16} />
                   {t('prGroupDetail.merge', { count: selectedCount })}
                 </button>
                 <button
-                  onClick={() => handleOpenModal('close')}
+                  type="button"
+                  onClick={() => handleRequestAction('close')}
                   className="btn btn-error gap-2"
                 >
                   <X size={16} />
@@ -220,8 +179,8 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
             <div className="flex items-center gap-2 text-base-content/80">
               <GitCommit size={18} className="text-primary" />
               <span className="font-semibold">{t('prGroupDetail.total')}:</span>
-              {totalCiStatus > 0 && (
-                <div className="tooltip" data-tip={getTooltipContent()}>
+              {ciStatusCounts.total > 0 && (
+                <div className="tooltip" data-tip={ciTooltip}>
                   <CiStatusChart
                     success={ciStatusCounts.success}
                     failure={ciStatusCounts.failure}
@@ -310,7 +269,7 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
                     </div>
                   )}
 
-                  <div className={`badge ${stateColors[pr.state]}`}>
+                  <div className={`badge ${STATE_COLORS[pr.state]}`}>
                     {pr.state}
                   </div>
                 </div>
@@ -421,16 +380,6 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
           ))}
         </div>
       </div>
-
-      {/* Bulk Action Modal */}
-      <BulkActionModal
-        isOpen={isModalOpen}
-        actionType={actionType}
-        progress={progress}
-        isExecuting={false}
-        onConfirm={handleConfirm}
-        onCancel={handleCloseModal}
-      />
     </div>
   );
 }

@@ -3,32 +3,42 @@ import { useBulkAction } from '../hooks/useBulkAction';
 
 export function GlobalBulkActionModal() {
   const {
-    isGlobalModalOpen,
+    isModalOpen,
     operations,
-    activeModalOperationId,
-    closeGlobalModal,
+    activeOperationId,
+    pendingConfirmation,
+    confirmPendingAction,
+    cancelPendingAction,
+    closeModal,
   } = useBulkAction();
 
-  const activeOperation = operations.find(
-    (op) => op.id === activeModalOperationId,
-  );
+  if (!isModalOpen) return null;
 
-  // If no active operation but modal is open, we should probably close it or show nothing.
-  // However, `BulkActionModal` expects valid props.
-  if (!activeOperation) {
-    // If there are operations, maybe default to the last one?
-    // But the context logic should have handled this.
-    return null;
+  if (pendingConfirmation) {
+    return (
+      <BulkActionModal
+        isOpen
+        mode="confirm"
+        actionType={pendingConfirmation.type}
+        progress={pendingConfirmation.progress}
+        isExecuting={false}
+        onConfirm={confirmPendingAction}
+        onClose={cancelPendingAction}
+      />
+    );
   }
+
+  const activeOperation = operations.find((op) => op.id === activeOperationId);
+  if (!activeOperation) return null;
 
   return (
     <BulkActionModal
-      isOpen={isGlobalModalOpen}
+      isOpen
+      mode="progress"
       actionType={activeOperation.type}
       progress={activeOperation.progress}
       isExecuting={activeOperation.isExecuting}
-      onConfirm={() => {}}
-      onCancel={closeGlobalModal}
+      onClose={closeModal}
     />
   );
 }
