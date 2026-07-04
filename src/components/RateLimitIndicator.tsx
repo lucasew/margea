@@ -2,6 +2,7 @@ import { Suspense, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Activity, Eye, Edit, User } from 'react-feather';
 import { rateLimitStore, RateLimitState } from '../services/rateLimitStore';
+import { useAuth } from '../hooks/useAuth';
 import { useViewer } from '../hooks/useViewer';
 
 interface RateLimitIndicatorProps {
@@ -219,58 +220,33 @@ export function RateLimitIndicator({
 }
 
 /** Authenticated variant: loads viewer avatar via Relay (must be under Suspense + Relay). */
-function UserAccountMenuInner({
-  currentMode,
-  onToggleMode,
-  onLogout,
-  modeToggleDisabled,
-}: {
-  currentMode?: 'read' | 'write' | null;
-  onToggleMode?: () => void;
-  onLogout?: () => void;
-  modeToggleDisabled?: boolean;
-}) {
+function UserAccountMenuInner() {
   const { viewer } = useViewer();
+  const { currentMode, tokenCapability, toggleMode, logout } = useAuth();
   return (
     <RateLimitIndicator
       avatarUrl={viewer.avatarUrl}
       avatarAlt={viewer.login}
       currentMode={currentMode}
-      onToggleMode={onToggleMode}
-      onLogout={onLogout}
-      modeToggleDisabled={modeToggleDisabled}
+      onToggleMode={toggleMode}
+      onLogout={logout}
+      modeToggleDisabled={tokenCapability !== 'write'}
     />
   );
 }
 
-export function UserAccountMenu({
-  currentMode,
-  onToggleMode,
-  onLogout,
-  modeToggleDisabled,
-}: {
-  currentMode?: 'read' | 'write' | null;
-  onToggleMode?: () => void;
-  onLogout?: () => void;
-  modeToggleDisabled?: boolean;
-}) {
+export function UserAccountMenu() {
+  const { currentMode, tokenCapability, toggleMode, logout } = useAuth();
+  const menuProps = {
+    currentMode,
+    onToggleMode: toggleMode,
+    onLogout: logout,
+    modeToggleDisabled: tokenCapability !== 'write',
+  };
+
   return (
-    <Suspense
-      fallback={
-        <RateLimitIndicator
-          currentMode={currentMode}
-          onToggleMode={onToggleMode}
-          onLogout={onLogout}
-          modeToggleDisabled={modeToggleDisabled}
-        />
-      }
-    >
-      <UserAccountMenuInner
-        currentMode={currentMode}
-        onToggleMode={onToggleMode}
-        onLogout={onLogout}
-        modeToggleDisabled={modeToggleDisabled}
-      />
+    <Suspense fallback={<RateLimitIndicator {...menuProps} />}>
+      <UserAccountMenuInner />
     </Suspense>
   );
 }

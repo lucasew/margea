@@ -14,8 +14,8 @@ import {
   AlertCircle,
 } from 'react-feather';
 import { PRGroup, BulkActionType } from '../types';
+import { useAuth } from '../hooks/useAuth';
 import { useBulkAction } from '../hooks/useBulkAction';
-import { useMainLayoutContext } from '../hooks/useMainLayoutContext';
 import { CiStatusChart } from './CiStatusChart';
 import { countCiStatuses, formatCiStatusTooltip } from '../services/ciStatus';
 
@@ -32,10 +32,9 @@ const STATE_COLORS = {
 
 export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
   const { t, i18n } = useTranslation();
-  const { currentMode } = useMainLayoutContext();
+  const { currentMode, hasWritePermission } = useAuth();
   const { requestBulkAction } = useBulkAction();
   const [selectedPRs, setSelectedPRs] = useState<Set<string>>(() => new Set());
-  const hasWritePermission = currentMode === 'write';
 
   const formatDate = (dateString: string) => {
     const lang = i18n.language || 'en';

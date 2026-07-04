@@ -3,25 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { GitHub } from 'react-feather';
 import { ThemeToggle } from './ThemeToggle';
 import { Logo } from './Logo';
-import { RateLimitIndicator, UserAccountMenu } from './RateLimitIndicator';
+import { UserAccountMenu } from './RateLimitIndicator';
 
-interface HeaderProps {
-  onLogout: () => void;
-  onLogin: () => void;
-  onToggleMode?: () => void;
-  isAuthenticated: boolean;
-  currentMode?: 'read' | 'write' | null;
-  tokenCapability?: 'read' | 'write' | null;
-}
-
-export function Header({
-  onLogout,
-  onLogin,
-  onToggleMode,
-  isAuthenticated,
-  currentMode,
-  tokenCapability,
-}: HeaderProps) {
+export function Header() {
   const { t } = useTranslation();
 
   return (
@@ -33,7 +17,9 @@ export function Header({
             className="flex items-center gap-2.5 min-w-0 hover:opacity-80 transition-opacity duration-150"
           >
             <Logo size={22} className="text-primary flex-shrink-0" />
-            <span className="font-semibold text-base tracking-tight">Margea</span>
+            <span className="font-semibold text-base tracking-tight">
+              Margea
+            </span>
           </Link>
 
           <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
@@ -48,26 +34,7 @@ export function Header({
             >
               <GitHub size={18} />
             </a>
-
-            {isAuthenticated ? (
-              <UserAccountMenu
-                currentMode={currentMode}
-                onToggleMode={onToggleMode}
-                onLogout={onLogout}
-                modeToggleDisabled={tokenCapability !== 'write'}
-              />
-            ) : (
-              <>
-                <button
-                  type="button"
-                  onClick={onLogin}
-                  className="btn btn-primary btn-sm"
-                >
-                  {t('header.login')}
-                </button>
-                <RateLimitIndicator />
-              </>
-            )}
+            <UserAccountMenu />
           </div>
         </div>
       </div>

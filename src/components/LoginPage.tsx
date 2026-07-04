@@ -5,22 +5,21 @@ import { Logo } from './Logo';
 import { Footer } from './Footer';
 import { ThemeToggle } from './ThemeToggle';
 import { InfoIcon } from './icons/InfoIcon';
+import { useAuth } from '../hooks/useAuth';
 import { reportError } from '../utils/errorReporting';
 import { API_ROUTES } from '../constants';
 
-interface LoginPageProps {
-  currentMode?: 'read' | 'write' | null;
-}
-
-export function LoginPage({ currentMode }: LoginPageProps) {
+export function LoginPage() {
   const { t } = useTranslation();
+  const { currentMode, isReauthenticating } = useAuth();
+  const reauthMode = isReauthenticating ? currentMode : null;
   const [authTab, setAuthTab] = useState<'oauth' | 'pat'>('oauth');
   const [patToken, setPatToken] = useState('');
   const [patError, setPatError] = useState<string | null>(null);
   const [isPATLoading, setIsPATLoading] = useState(false);
 
   const clearSessionIfNeeded = async () => {
-    if (!currentMode) return;
+    if (!reauthMode) return;
     try {
       await fetch(API_ROUTES.AUTH_LOGOUT, {
         method: 'POST',
@@ -75,8 +74,6 @@ export function LoginPage({ currentMode }: LoginPageProps) {
     }
   };
 
-  const isReauthorizing = !!currentMode;
-
   return (
     <div className="app-shell">
       <div className="app-container flex justify-end py-3">
@@ -95,13 +92,13 @@ export function LoginPage({ currentMode }: LoginPageProps) {
             </p>
           </div>
 
-          {isReauthorizing && (
+          {reauthMode && (
             <div className="alert alert-info mb-5 py-2.5 text-sm">
               <InfoIcon />
               <span>
                 {t('loginPage.reauthorizingMessage', {
                   currentMode:
-                    currentMode === 'read'
+                    reauthMode === 'read'
                       ? t('loginPage.readOnly')
                       : t('loginPage.readWrite'),
                 })}
@@ -133,7 +130,7 @@ export function LoginPage({ currentMode }: LoginPageProps) {
           {authTab === 'oauth' ? (
             <div className="space-y-3">
               <p className="text-xs font-medium text-base-content/60 uppercase tracking-wide">
-                {isReauthorizing
+                {reauthMode
                   ? t('loginPage.chooseNewAccessLevel')
                   : t('loginPage.chooseAccessLevel')}
               </p>

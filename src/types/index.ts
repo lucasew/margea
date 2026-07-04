@@ -72,16 +72,6 @@ export interface BulkActionOperation {
   timestamp: number;
 }
 
-export interface MainLayoutContextType {
-  onLogout: () => void;
-  onLogin: () => void;
-  onToggleMode: () => void;
-  isAuthenticated: boolean;
-  currentMode: 'read' | 'write' | null;
-  /** What the session/token actually allows (OAuth/PAT at login). */
-  tokenCapability?: 'read' | 'write' | null;
-}
-
 export interface PRContextState {
   prMap: Map<string, PullRequest>;
   pageInfo: {

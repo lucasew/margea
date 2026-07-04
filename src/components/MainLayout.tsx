@@ -1,23 +1,15 @@
 import { Outlet } from 'react-router-dom';
-import { MainLayoutContextType } from '../types';
 import { Header } from './Header';
 import { Footer } from './Footer';
 
-export const MainLayout = (props: MainLayoutContextType) => {
+export function MainLayout() {
   return (
     <div className="app-shell">
-      <Header
-        onLogout={props.onLogout}
-        onLogin={props.onLogin}
-        onToggleMode={props.onToggleMode}
-        isAuthenticated={props.isAuthenticated}
-        currentMode={props.currentMode}
-        tokenCapability={props.tokenCapability}
-      />
+      <Header />
       <main className="flex-1 flex flex-col">
-        <Outlet context={props} />
+        <Outlet />
       </main>
       <Footer />
     </div>
   );
-};
+}
