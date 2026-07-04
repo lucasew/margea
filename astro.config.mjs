@@ -9,11 +9,14 @@ export default defineConfig({
   server: {
     port: 3000,
   },
-  integrations: [react({
-    babel: {
-      plugins: ['babel-plugin-relay'],
-    },
-  }), sentry()],
+  integrations: [
+    react({
+      babel: {
+        plugins: ['babel-plugin-relay'],
+      },
+    }),
+    sentry(),
+  ],
   adapter: vercel(),
   output: 'server',
   env: {

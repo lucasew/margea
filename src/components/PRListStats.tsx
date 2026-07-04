@@ -14,10 +14,30 @@ export function PRListStats({ stats }: PRListStatsProps) {
   const { t } = useTranslation();
 
   const items = [
-    { key: 'total', value: stats.total, label: t('prStats.total'), tone: 'text-base-content' },
-    { key: 'open', value: stats.open, label: t('prStats.open'), tone: 'text-success' },
-    { key: 'merged', value: stats.merged, label: t('prStats.merged'), tone: 'text-info' },
-    { key: 'closed', value: stats.closed, label: t('prStats.closed'), tone: 'text-error' },
+    {
+      key: 'total',
+      value: stats.total,
+      label: t('prStats.total'),
+      tone: 'text-base-content',
+    },
+    {
+      key: 'open',
+      value: stats.open,
+      label: t('prStats.open'),
+      tone: 'text-success',
+    },
+    {
+      key: 'merged',
+      value: stats.merged,
+      label: t('prStats.merged'),
+      tone: 'text-info',
+    },
+    {
+      key: 'closed',
+      value: stats.closed,
+      label: t('prStats.closed'),
+      tone: 'text-error',
+    },
     {
       key: 'repos',
       value: stats.repositories,

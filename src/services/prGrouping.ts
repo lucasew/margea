@@ -128,7 +128,11 @@ const groupAgents: GroupingFunction = (prs) => {
     const title = pr.title.trim();
     if (title.length > 0) {
       const firstRune = [...title][0];
-      if (firstRune && /^\p{Emoji}$/u.test(firstRune) && firstRune.codePointAt(0)! > 255) {
+      if (
+        firstRune &&
+        /^\p{Emoji}$/u.test(firstRune) &&
+        firstRune.codePointAt(0)! > 255
+      ) {
         groupName = firstRune;
       }
     }

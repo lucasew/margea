@@ -141,7 +141,11 @@ export function RateLimitIndicator({
               >
                 <span className="flex items-center gap-2 text-sm min-w-0">
                   {isWrite ? (
-                    <Edit size={14} className="text-primary flex-shrink-0" aria-hidden />
+                    <Edit
+                      size={14}
+                      className="text-primary flex-shrink-0"
+                      aria-hidden
+                    />
                   ) : (
                     <Eye
                       size={14}
@@ -166,7 +170,9 @@ export function RateLimitIndicator({
               <div
                 className="flex items-center gap-2 text-sm"
                 title={
-                  modeToggleDisabled ? t('permissions.tokenReadOnly') : undefined
+                  modeToggleDisabled
+                    ? t('permissions.tokenReadOnly')
+                    : undefined
                 }
               >
                 <Eye size={14} className="text-base-content/60" aria-hidden />
@@ -196,8 +202,12 @@ export function RateLimitIndicator({
         </h3>
         <div className="space-y-2">
           <div className="flex justify-between items-center text-xs">
-            <span className="text-base-content/60">{t('rateLimit.remaining')}</span>
-            <span className={`font-mono font-semibold tabular-nums ${colorClass}`}>
+            <span className="text-base-content/60">
+              {t('rateLimit.remaining')}
+            </span>
+            <span
+              className={`font-mono font-semibold tabular-nums ${colorClass}`}
+            >
               {state.remaining} / {state.limit}
             </span>
           </div>
@@ -207,7 +217,9 @@ export function RateLimitIndicator({
             max={100}
           />
           <div className="flex justify-between items-center text-xs">
-            <span className="text-base-content/60">{t('rateLimit.resetsIn')}</span>
+            <span className="text-base-content/60">
+              {t('rateLimit.resetsIn')}
+            </span>
             <span className="font-mono tabular-nums">{timeUntilReset}</span>
           </div>
         </div>

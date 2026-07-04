@@ -9,8 +9,8 @@ export async function GET({ request }: { request: Request }) {
   if (!clientId || !callbackUrl || !sessionSecret) {
     return new Response(
       'Missing required environment variables (GITHUB_CLIENT_ID, GITHUB_CALLBACK_URL, SESSION_SECRET). ' +
-      'Copy .env.example → .env.local and fill them. See README for GitHub OAuth setup.',
-      { status: 500 }
+        'Copy .env.example → .env.local and fill them. See README for GitHub OAuth setup.',
+      { status: 500 },
     );
   }
 
@@ -44,7 +44,8 @@ export async function GET({ request }: { request: Request }) {
 
   // Keep cookie as an optional second validation channel (double-submit style).
   const forwardedProto = request.headers.get('x-forwarded-proto');
-  const isHttps = requestUrl.protocol === 'https:' || forwardedProto === 'https';
+  const isHttps =
+    requestUrl.protocol === 'https:' || forwardedProto === 'https';
 
   const cookie = `oauth_state=${stateToken}; HttpOnly; ${
     isHttps ? 'Secure; ' : ''
