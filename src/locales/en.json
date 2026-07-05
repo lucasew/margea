@@ -64,7 +64,18 @@
   },
   "bulkActionModal": {
     "pending": "Pending",
-    "processing": "Processing..."
+    "processing": "Processing...",
+    "merge": "Merge",
+    "close": "Close",
+    "progress": "Progress",
+    "confirmPrefix": "Confirm",
+    "warning": "You are about to {{action}} {{count}} PR{{s}}. This action cannot be undone.",
+    "successSummary": "{{success}} of {{total}} PRs successfully {{actionPast}}",
+    "errorSuffix": " ({{count}} with error)",
+    "cancel": "Cancel",
+    "minimize": "Minimize",
+    "closeBtn": "Close",
+    "ariaClose": "Close"
   },
   "errorBoundary": {
     "title": "Something went wrong",
@@ -128,7 +139,8 @@
   "grouping": {
     "renovate": "Renovate",
     "repository": "Repository",
-    "author": "Author"
+    "author": "Author",
+    "agents": "Agents"
   },
   "filters": {
     "title": "Filters & Actions",
@@ -138,7 +150,8 @@
     "status": "Status",
     "groupBy": "Group by",
     "refresh": "Refresh",
-    "exportJSON": "Export JSON"
+    "exportJSON": "Export JSON",
+    "clear": "Clear filters"
   },
   "prList": {
     "groups": "PR Groups",
@@ -157,21 +170,6 @@
     "merged": "Merged",
     "closed": "Closed",
     "repositories": "Repositories"
-  },
-  "bulkActionModal": {
-    "pending": "Pending",
-    "processing": "Processing...",
-    "merge": "Merge",
-    "close": "Close",
-    "progress": "Progress",
-    "confirmPrefix": "Confirm",
-    "warning": "You are about to {{action}} {{count}} PR{{s}}. This action cannot be undone.",
-    "successSummary": "{{success}} of {{total}} PRs successfully {{actionPast}}",
-    "errorSuffix": " ({{count}} with error)",
-    "cancel": "Cancel",
-    "minimize": "Minimize",
-    "closeBtn": "Close",
-    "ariaClose": "Close"
   },
   "bulkAction": {
     "processing": "Processing ({{done}}/{{total}})",

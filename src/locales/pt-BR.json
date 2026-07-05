@@ -118,5 +118,11 @@
   "bulkActionModal": {
     "pending": "",
     "processing": ""
+  },
+  "grouping": {
+    "agents": "Agentes"
+  },
+  "filters": {
+    "clear": "Limpar filtros"
   }
 }

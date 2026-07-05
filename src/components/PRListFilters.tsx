@@ -20,6 +20,7 @@ interface PRListFiltersProps {
   uniqueAuthors: string[];
   onRefresh: () => void;
   onExportJSON: () => void;
+  onClearFilters?: () => void;
   updateFilter: (key: string, value: string) => void;
 }
 
@@ -35,6 +36,7 @@ export function PRListFilters({
   onRefresh,
   onExportJSON,
   updateFilter,
+  onClearFilters,
 }: PRListFiltersProps) {
   const { t } = useTranslation();
   return (
@@ -117,6 +119,16 @@ export function PRListFilters({
             <RefreshCw size={15} aria-hidden />
             {t('filters.refresh')}
           </button>
+
+          {onClearFilters && (
+            <button
+              type="button"
+              onClick={onClearFilters}
+              className="btn btn-ghost btn-sm gap-1.5 border border-base-300"
+            >
+              {t('filters.clear')}
+            </button>
+          )}
 
           <button
             type="button"
