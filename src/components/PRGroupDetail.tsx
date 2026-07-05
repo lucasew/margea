@@ -20,6 +20,7 @@ import { CiStatusChart } from './CiStatusChart';
 import { countCiStatuses, formatCiStatusTooltip } from '../services/ciStatus';
 
 interface PRGroupDetailProps {
+  onClearGroup?: () => void;
   group: PRGroup;
   onBack: () => void;
 }
@@ -30,7 +31,11 @@ const STATE_COLORS = {
   CLOSED: 'badge-error',
 } as const;
 
-export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
+export function PRGroupDetail({
+  group,
+  onBack,
+  onClearGroup,
+}: PRGroupDetailProps) {
   const { t, i18n } = useTranslation();
   const { currentMode, hasWritePermission } = useAuth();
   const { requestBulkAction } = useBulkAction();
@@ -86,11 +91,20 @@ export function PRGroupDetail({ group, onBack }: PRGroupDetailProps) {
     <div className="w-full">
       <div className="container mx-auto px-4 py-6 max-w-7xl">
         {/* Back Button */}
-        <div className="mb-6">
+        <div className="mb-6 flex justify-between items-center">
           <button onClick={onBack} className="btn btn-ghost gap-2">
             <ArrowLeft size={20} />
             {t('prGroupDetail.backToGroups')}
           </button>
+
+          {onClearGroup && (
+            <button
+              onClick={onClearGroup}
+              className="btn btn-ghost gap-2 text-base-content/70 hover:text-base-content"
+            >
+              <X size={20} />
+            </button>
+          )}
         </div>
 
         {/* Bulk Actions Bar */}

@@ -143,7 +143,24 @@ function PRListContent() {
   };
 
   const handleSelectGroup = (group: PRGroup) => {
-    setSearchParams({ [URL_SEARCH_PARAMS.GROUP]: group.key });
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set(URL_SEARCH_PARAMS.GROUP, group.key);
+    setSearchParams(newParams);
+  };
+
+  const handleClearFilters = () => {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.delete(URL_SEARCH_PARAMS.REPO);
+    newParams.delete(URL_SEARCH_PARAMS.OWNER);
+    newParams.delete(URL_SEARCH_PARAMS.AUTHOR);
+    newParams.delete(URL_SEARCH_PARAMS.STATE);
+    setSearchParams(newParams);
+  };
+
+  const handleClearGroup = () => {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.delete(URL_SEARCH_PARAMS.GROUP);
+    setSearchParams(newParams);
   };
 
   const handleBackFromGroup = () => {
@@ -195,7 +212,29 @@ function PRListContent() {
     const selectedGroup = groups.find((g) => g.key === groupKey);
     if (selectedGroup) {
       return (
-        <PRGroupDetail group={selectedGroup} onBack={handleBackFromGroup} />
+        <div className="w-full">
+          <div className="app-container py-5 sm:py-6">
+            <PRListFilters
+              filterRepo={filterRepo}
+              filterOwner={filterOwner}
+              filterAuthor={filterAuthor}
+              filterState={filterState}
+              groupBy={groupBy}
+              uniqueRepos={uniqueRepos}
+              uniqueOwners={uniqueOwners}
+              uniqueAuthors={uniqueAuthors}
+              onRefresh={refresh}
+              onExportJSON={handleExportJSON}
+              updateFilter={updateFilter}
+              onClearFilters={hasActiveFilters ? handleClearFilters : undefined}
+            />
+            <PRGroupDetail
+              group={selectedGroup}
+              onBack={handleBackFromGroup}
+              onClearGroup={handleClearGroup}
+            />
+          </div>
+        </div>
       );
     }
   }
@@ -216,6 +255,7 @@ function PRListContent() {
           onRefresh={refresh}
           onExportJSON={handleExportJSON}
           updateFilter={updateFilter}
+          onClearFilters={hasActiveFilters ? handleClearFilters : undefined}
         />
 
         {error && (

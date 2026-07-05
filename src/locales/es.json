@@ -64,7 +64,18 @@
   },
   "bulkActionModal": {
     "pending": "Pendiente",
-    "processing": "Procesando..."
+    "processing": "Procesando...",
+    "merge": "Fusionar",
+    "close": "Cerrar",
+    "progress": "Progreso",
+    "confirmPrefix": "Confirmar",
+    "warning": "Estás a punto de {{action}} {{count}} PR{{s}}. Esta acción no se puede deshacer.",
+    "successSummary": "{{success}} de {{total}} PRs {{actionPast}} con éxito",
+    "errorSuffix": " ({{count}} con error)",
+    "cancel": "Cancelar",
+    "minimize": "Minimizar",
+    "closeBtn": "Cerrar",
+    "ariaClose": "Cerrar"
   },
   "errorBoundary": {
     "title": "Algo salió mal",
@@ -131,7 +142,8 @@
   "grouping": {
     "renovate": "Renovate",
     "repository": "Repositorio",
-    "author": "Autor"
+    "author": "Autor",
+    "agents": "Agentes"
   },
   "filters": {
     "title": "Filtros y Acciones",
@@ -141,7 +153,8 @@
     "status": "Estado",
     "groupBy": "Agrupar por",
     "refresh": "Actualizar",
-    "exportJSON": "Exportar JSON"
+    "exportJSON": "Exportar JSON",
+    "clear": "Limpiar filtros"
   },
   "prList": {
     "groups": "Grupos de PRs",
@@ -160,21 +173,6 @@
     "merged": "Fusionados",
     "closed": "Cerrados",
     "repositories": "Repositorios"
-  },
-  "bulkActionModal": {
-    "pending": "Pendiente",
-    "processing": "Procesando...",
-    "merge": "Fusionar",
-    "close": "Cerrar",
-    "progress": "Progreso",
-    "confirmPrefix": "Confirmar",
-    "warning": "Estás a punto de {{action}} {{count}} PR{{s}}. Esta acción no se puede deshacer.",
-    "successSummary": "{{success}} de {{total}} PRs {{actionPast}} con éxito",
-    "errorSuffix": " ({{count}} con error)",
-    "cancel": "Cancelar",
-    "minimize": "Minimizar",
-    "closeBtn": "Cerrar",
-    "ariaClose": "Cerrar"
   },
   "bulkAction": {
     "processing": "Procesando ({{done}}/{{total}})",
