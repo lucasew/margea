@@ -16,7 +16,6 @@ import {
 import { PRGroup, BulkActionType } from '../types';
 import { useAuth } from '../hooks/useAuth';
 import { useBulkAction } from '../hooks/useBulkAction';
-import { Filter } from 'react-feather';
 import { CiStatusChart } from './CiStatusChart';
 import { countCiStatuses, formatCiStatusTooltip } from '../services/ciStatus';
 
