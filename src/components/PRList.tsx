@@ -143,7 +143,9 @@ function PRListContent() {
   };
 
   const handleSelectGroup = (group: PRGroup) => {
-    setSearchParams({ [URL_SEARCH_PARAMS.GROUP]: group.key });
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set(URL_SEARCH_PARAMS.GROUP, group.key);
+    setSearchParams(newParams);
   };
 
   const handleClearFilters = () => {
