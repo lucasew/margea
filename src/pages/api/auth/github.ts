@@ -32,6 +32,7 @@ export async function GET({ request }: { request: Request }) {
   url.searchParams.set('client_id', clientId);
   url.searchParams.set('redirect_uri', callbackUrl);
   url.searchParams.set('scope', scopes);
+  url.searchParams.set('prompt', 'consent');
   // Put a signed JWT directly in `state`, so callback validation does not
   // depend on browser cookies surviving the provider redirect.
   const secret = new TextEncoder().encode(sessionSecret);
