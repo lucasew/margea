@@ -28,7 +28,7 @@ function PRListContent() {
   const {
     prMap,
     loadNextPage,
-    pageInfo,
+    hasNextPage,
     isFetchingNextPage,
     refresh,
     isLoading,
@@ -164,7 +164,7 @@ function PRListContent() {
       (entries) => {
         if (
           entries[0].isIntersecting &&
-          pageInfo.hasNextPage &&
+          hasNextPage &&
           !isFetchingNextPage &&
           !isLoading
         ) {
@@ -180,7 +180,7 @@ function PRListContent() {
 
     return () => observer.disconnect();
   }, [
-    pageInfo.hasNextPage,
+    hasNextPage,
     isFetchingNextPage,
     isLoading,
     loadNextPage,
@@ -268,7 +268,7 @@ function PRListContent() {
               <span className="loading loading-spinner loading-sm text-primary" />
               {t('prList.loadingMore')}
             </div>
-          ) : pageInfo.hasNextPage ? (
+          ) : hasNextPage ? (
             <button
               type="button"
               onClick={() => loadNextPage()}

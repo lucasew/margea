@@ -1,4 +1,5 @@
 import { PullRequest } from '../types';
+import { isAbortError } from '../utils/abort';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const MIN_INTERVAL_MS = DAY_MS;
@@ -37,6 +38,7 @@ export interface PageResult {
 export type PageFetcher = (
   query: string,
   cursor: string | null,
+  signal: AbortSignal,
 ) => Promise<PageResult>;
 
 export interface ScopeStream {
@@ -97,9 +99,6 @@ export function createScopeStream(
     try {
       while (!signal.aborted) {
         if (!(windowEnd > targetStart)) {
-          // Caught up. Stay suspended here until the consumer pulls again
-          // after extendTarget (or abort). Re-yielding idle is safe and avoids
-          // permanently completing the generator.
           yield SCOPE_STREAM_IDLE;
           continue;
         }
@@ -113,7 +112,7 @@ export function createScopeStream(
         )}`;
         const query = `${baseQuery} ${dateFilter}`;
 
-        const firstPage = await fetchPage(query, null);
+        const firstPage = await fetchPage(query, null, signal);
         if (signal.aborted) break;
 
         if (
@@ -131,7 +130,7 @@ export function createScopeStream(
         let cursor = firstPage.endCursor;
         let hasNext = firstPage.hasNextPage;
         while (hasNext && !signal.aborted) {
-          const page = await fetchPage(query, cursor);
+          const page = await fetchPage(query, cursor, signal);
           for (const pr of page.prs) {
             yield pr;
           }
@@ -145,10 +144,7 @@ export function createScopeStream(
         windowEnd = windowStart;
       }
     } catch (err) {
-      if (
-        signal.aborted ||
-        (err instanceof Error && err.name === 'AbortError')
-      ) {
+      if (signal.aborted || isAbortError(err)) {
         return;
       }
       throw err instanceof Error

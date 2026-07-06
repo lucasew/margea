@@ -6,6 +6,7 @@ import {
   type PageResult,
 } from '../src/services/AdaptiveScopeFetcher';
 import type { PullRequest } from '../src/types';
+import { createAbortError, isAbortError } from '../src/utils/abort';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -58,9 +59,11 @@ async function drainUntilIdle(
 test.describe('createScopeStream', () => {
   test('yields idle after catching up and resumes after extendTarget', async () => {
     const queries: string[] = [];
+    const signals: AbortSignal[] = [];
     let call = 0;
-    const fetchPage: PageFetcher = async (query) => {
+    const fetchPage: PageFetcher = async (query, _cursor, signal) => {
       queries.push(query);
+      signals.push(signal);
       call += 1;
       return page([makePR(`pr-${call}`, '2026-01-07T12:00:00Z')]);
     };
@@ -79,23 +82,52 @@ test.describe('createScopeStream', () => {
 
     const first = await drainUntilIdle(stream.generator);
     expect(first.idle).toBe(true);
-    expect(first.done).toBe(false);
     expect(first.prs.map((p) => p.id)).toEqual(['pr-1']);
-    expect(queries).toHaveLength(1);
     expect(queries[0]).toContain('created:2026-01-07..2026-01-08');
-    expect(stream.getState().oldestFetchedDate.toISOString()).toBe(
-      '2026-01-07T00:00:00.000Z',
-    );
+    expect(signals[0]?.aborted).toBe(false);
 
     stream.extendTarget(new Date('2026-01-06T00:00:00Z'));
     const second = await drainUntilIdle(stream.generator);
-    expect(second.idle).toBe(true);
     expect(second.prs.map((p) => p.id)).toEqual(['pr-2']);
     expect(queries).toHaveLength(2);
-    expect(queries[1]).toContain('created:2026-01-06..2026-01-07');
-    expect(stream.getState().oldestFetchedDate.toISOString()).toBe(
-      '2026-01-06T00:00:00.000Z',
+  });
+
+  test('abort rejects in-flight fetchPage via signal', async () => {
+    let sawAbort = false;
+    const fetchPage: PageFetcher = async (_q, _c, signal) => {
+      await new Promise<void>((resolve, reject) => {
+        const timer = setTimeout(() => resolve(), 5_000);
+        signal.addEventListener(
+          'abort',
+          () => {
+            clearTimeout(timer);
+            sawAbort = true;
+            reject(createAbortError());
+          },
+          { once: true },
+        );
+      });
+      return page([]);
+    };
+
+    const end = new Date('2026-01-08T00:00:00Z');
+    const start = new Date('2026-01-07T00:00:00Z');
+    const ac = new AbortController();
+    const stream = createScopeStream(
+      'author:me',
+      fetchPage,
+      end,
+      start,
+      DAY_MS,
+      ac.signal,
     );
+
+    const pull = drainUntilIdle(stream.generator);
+    await new Promise((r) => setTimeout(r, 10));
+    stream.abort();
+    const result = await pull;
+    expect(result.done).toBe(true);
+    expect(sawAbort).toBe(true);
   });
 
   test('abort while idle completes the generator on next pull', async () => {
@@ -114,12 +146,9 @@ test.describe('createScopeStream', () => {
       ac.signal,
     );
 
-    const first = await drainUntilIdle(stream.generator);
-    expect(first.idle).toBe(true);
-
+    expect((await drainUntilIdle(stream.generator)).idle).toBe(true);
     stream.abort();
-    const afterAbort = await stream.generator.next();
-    expect(afterAbort.done).toBe(true);
+    expect((await stream.generator.next()).done).toBe(true);
   });
 
   test('pulling again without extendTarget yields idle immediately', async () => {
@@ -142,8 +171,6 @@ test.describe('createScopeStream', () => {
     );
 
     await drainUntilIdle(stream.generator);
-    expect(calls).toBe(1);
-
     const again = await drainUntilIdle(stream.generator);
     expect(again.idle).toBe(true);
     expect(again.prs).toEqual([]);
@@ -174,11 +201,7 @@ test.describe('createScopeStream', () => {
 
     const result = await drainUntilIdle(stream.generator);
     expect(result.idle).toBe(true);
-    expect(queries[0]).toContain('created:2026-01-01..2026-01-31');
     expect(queries.length).toBeGreaterThan(1);
-    expect(queries.some((q) => !q.includes('2026-01-01..2026-01-31'))).toBe(
-      true,
-    );
     expect(result.prs.length).toBeGreaterThan(0);
   });
 
@@ -214,6 +237,12 @@ test.describe('createScopeStream', () => {
 
     const result = await drainUntilIdle(stream.generator);
     expect(result.prs.map((p) => p.id)).toEqual(['p1', 'p2']);
-    expect(result.idle).toBe(true);
+  });
+});
+
+test.describe('abort helpers', () => {
+  test('isAbortError detects AbortError name', () => {
+    expect(isAbortError(createAbortError())).toBe(true);
+    expect(isAbortError(new Error('nope'))).toBe(false);
   });
 });

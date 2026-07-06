@@ -12,11 +12,12 @@ import { PRContextType, PullRequest } from '../types';
 import {
   createScopeStream,
   createPageFetcher,
-  SCOPE_STREAM_IDLE,
   type ScopeStream,
   type AdaptiveFetchState,
   INITIAL_INTERVAL_MS,
 } from '../services/prFetchService';
+import { createSerialQueue } from '../services/serialQueue';
+import { pullStreamsUntilIdle } from '../services/prStorePull';
 import { INITIAL_FETCH_DAYS, LOAD_MORE_DAYS } from '../constants';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -56,13 +57,7 @@ export function PRProvider({ children }: PRProviderProps) {
   const environment = useRelayEnvironment();
 
   const [prMap, setPrMap] = useState<Map<string, PullRequest>>(new Map());
-  const [pageInfo, setPageInfo] = useState<{
-    endCursor: string | null;
-    hasNextPage: boolean;
-  }>({
-    endCursor: null,
-    hasNextPage: false,
-  });
+  const [hasNextPage, setHasNextPage] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
   const [searchQuery, setSearchQueryState] = useState('');
@@ -73,7 +68,7 @@ export function PRProvider({ children }: PRProviderProps) {
   const scopesRef = useRef<string[]>([]);
   const scopeKeyRef = useRef('');
   const streamsRef = useRef<Map<string, ScopeStream>>(new Map());
-  const pullChainRef = useRef<Promise<number>>(Promise.resolve(0));
+  const enqueuePullRef = useRef(createSerialQueue());
 
   function getCurrentStates(): Map<string, AdaptiveFetchState> {
     const out = new Map<string, AdaptiveFetchState>();
@@ -105,16 +100,13 @@ export function PRProvider({ children }: PRProviderProps) {
     });
   }
 
-  /**
-   * Pulls PRs from all active generators until each reports idle (caught up to
-   * its current target). Serialized so two callers never interleave .next().
-   */
   const pullAndIngest = useCallback((isLoadMore: boolean) => {
-    const run = async (): Promise<number> => {
-      const entries = Array.from(streamsRef.current.entries());
-      if (entries.length === 0) {
+    return enqueuePullRef.current(async () => {
+      const streams = streamsRef.current;
+      if (streams.size === 0) {
         setIsLoading(false);
         setIsFetchingNextPage(false);
+        setHasNextPage(false);
         return 0;
       }
 
@@ -125,51 +117,17 @@ export function PRProvider({ children }: PRProviderProps) {
       }
       setError(null);
 
-      const phase = { count: 0 };
       let flipped = false;
-      const errors: { scope: string; error: Error }[] = [];
-
-      const drainers = entries.map(async ([scope, strm]) => {
-        let local = 0;
-        const batch: PullRequest[] = [];
-        try {
-          while (true) {
-            const { value, done } = await strm.generator.next();
-            if (done) break;
-            if (value === SCOPE_STREAM_IDLE) {
-              ingestBatch(batch);
-              batch.length = 0;
-              break;
-            }
-            if (value) {
-              batch.push(value);
-              local++;
-              phase.count++;
-
-              if (batch.length >= 20) {
-                ingestBatch(batch);
-                batch.length = 0;
-              }
-
-              if (!isLoadMore && !flipped) {
-                flipped = true;
-                setIsLoading(false);
-                setIsFetchingNextPage(true);
-              }
-            }
+      const result = await pullStreamsUntilIdle(streams, {
+        onBatch: ingestBatch,
+        onFirstPr: () => {
+          if (!isLoadMore && !flipped) {
+            flipped = true;
+            setIsLoading(false);
+            setIsFetchingNextPage(true);
           }
-          ingestBatch(batch);
-        } catch (e) {
-          ingestBatch(batch);
-          const err = e instanceof Error ? e : new Error(String(e));
-          if (err.name !== 'AbortError') {
-            errors.push({ scope, error: err });
-          }
-        }
-        return local;
+        },
       });
-
-      await Promise.allSettled(drainers);
 
       setIsLoading(false);
       setIsFetchingNextPage(false);
@@ -182,35 +140,19 @@ export function PRProvider({ children }: PRProviderProps) {
         setOldestFetchedDate(new Date(Math.min(...dates)));
       }
 
-      const hasActiveStreams = streamsRef.current.size > 0;
-      if (isLoadMore) {
-        const hasMore = phase.count > 0 || hasActiveStreams;
-        setPageInfo({ endCursor: null, hasNextPage: hasMore });
-      } else {
-        setPageInfo({
-          endCursor: null,
-          hasNextPage: hasActiveStreams,
-        });
-      }
+      setHasNextPage(result.hasActiveStreams);
 
-      if (errors.length > 0) {
-        const scopeNames = errors.map((e) => e.scope).join(', ');
+      if (result.errors.length > 0) {
+        const scopeNames = result.errors.map((e) => e.scope).join(', ');
         setError(
           new Error(
-            `Failed to fetch PRs for: ${scopeNames}. ${errors[0].error.message}`,
+            `Failed to fetch PRs for: ${scopeNames}. ${result.errors[0].error.message}`,
           ),
         );
       }
 
-      return phase.count;
-    };
-
-    const queued = pullChainRef.current.then(run, run);
-    pullChainRef.current = queued.then(
-      () => 0,
-      () => 0,
-    );
-    return queued;
+      return result.count;
+    });
   }, []);
 
   const startStreams = useCallback(
@@ -219,7 +161,7 @@ export function PRProvider({ children }: PRProviderProps) {
 
       if (scopes.length === 0) {
         setPrMap(new Map());
-        setPageInfo({ endCursor: null, hasNextPage: false });
+        setHasNextPage(false);
         setOldestFetchedDate(null);
         setError(null);
         return;
@@ -270,19 +212,12 @@ export function PRProvider({ children }: PRProviderProps) {
     [setSearchScopes],
   );
 
-  /**
-   * Refresh: recreate streams for the recent window only. Existing deep-history
-   * PRs stay in the map; recent rows are re-ingested (merge by id).
-   */
   const refresh = useCallback(() => {
     const scopes = scopesRef.current;
     if (scopes.length === 0) return;
     startStreams(scopes, false);
   }, [startStreams]);
 
-  /**
-   * Extend every live generator further into the past, then pull until idle.
-   */
   const loadNextPage = useCallback(() => {
     if (isLoading || isFetchingNextPage || streamsRef.current.size === 0) {
       return;
@@ -329,7 +264,7 @@ export function PRProvider({ children }: PRProviderProps) {
 
   const contextValue: PRContextType = {
     prMap,
-    pageInfo,
+    hasNextPage,
     isLoading,
     isFetchingNextPage,
     searchQuery,

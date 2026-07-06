@@ -8,7 +8,7 @@ export function FetcherProgressHint() {
     isLoading,
     loadNextPage,
     oldestFetchedDate,
-    pageInfo,
+    hasNextPage,
   } = usePRContext();
 
   const isFetching = isFetchingNextPage || isLoading;
@@ -17,7 +17,7 @@ export function FetcherProgressHint() {
     return null;
   }
 
-  const canAskForMore = !isFetching && pageInfo.hasNextPage;
+  const canAskForMore = !isFetching && hasNextPage;
 
   const handleAskMore = () => {
     if (canAskForMore) {
