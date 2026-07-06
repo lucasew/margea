@@ -1,5 +1,6 @@
 import { SignJWT, jwtVerify } from 'jose';
 import { parse } from 'cookie';
+import { reportError } from '../../../utils/errorReporting';
 
 export async function GET({ request }: { request: Request }) {
   const requestUrl = new URL(request.url);
@@ -15,6 +16,12 @@ export async function GET({ request }: { request: Request }) {
     requestUrl.protocol === 'https:' || forwardedProto === 'https';
 
   if (!callbackUrl) {
+    reportError(
+      new Error('Missing required environment variable GITHUB_CALLBACK_URL'),
+      {
+        context: 'github auth callback',
+      },
+    );
     return new Response(
       'Missing required environment variable GITHUB_CALLBACK_URL. ' +
         'Copy .env.example → .env.local and fill it (must match the callback URL registered in your GitHub OAuth App).',
@@ -28,6 +35,11 @@ export async function GET({ request }: { request: Request }) {
   const oauthStateCookie = cookies.oauth_state;
 
   if (!code || !stateTokenFromParam) {
+    reportError(new Error('Invalid request: missing parameters'), {
+      context: 'github auth callback',
+      missingCode: !code,
+      missingStateToken: !stateTokenFromParam,
+    });
     return new Response('Invalid request: missing parameters.', {
       status: 400,
     });
@@ -46,7 +58,10 @@ export async function GET({ request }: { request: Request }) {
     }
     nonceFromParamToken = payload.nonce;
     mode = payload.mode;
-  } catch {
+  } catch (error) {
+    reportError(error, {
+      context: 'github auth callback verify state param',
+    });
     return new Response('Invalid or expired OAuth state.', {
       status: 403,
     });
@@ -60,11 +75,17 @@ export async function GET({ request }: { request: Request }) {
         typeof payload.nonce !== 'string' ||
         payload.nonce !== nonceFromParamToken
       ) {
+        reportError(new Error('Invalid CSRF token (state mismatch)'), {
+          context: 'github auth callback strict cookie check',
+        });
         return new Response('Invalid CSRF token (state mismatch).', {
           status: 403,
         });
       }
-    } catch {
+    } catch (error) {
+      reportError(error, {
+        context: 'github auth callback strict cookie check verify',
+      });
       return new Response('Invalid OAuth state cookie.', {
         status: 403,
       });
@@ -90,6 +111,16 @@ export async function GET({ request }: { request: Request }) {
   const access_token = data.access_token;
 
   if (!access_token) {
+    reportError(
+      new Error(
+        `Failed to get github access token: ${data.error_description || data.error || 'Unknown error'}`,
+      ),
+      {
+        context: 'github auth callback token exchange',
+        error: data.error,
+        errorDescription: data.error_description,
+      },
+    );
     return new Response(
       `Failed to get token: ${data.error_description || data.error || 'Unknown error'}`,
       { status: 500 },
