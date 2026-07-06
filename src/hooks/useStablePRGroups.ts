@@ -1,30 +1,36 @@
 import { useState, useMemo } from 'react';
-import { PullRequest, PRGroup, GroupingStrategy } from '../types';
+import {
+  PullRequest,
+  PRGroup,
+  GroupingStrategy,
+  SortStrategy,
+} from '../types';
+import { DEFAULT_SORT_STRATEGY } from '../constants';
 import { groupPullRequests } from '../services/prGrouping';
+import { sortGroups } from '../services/prSort';
 
 /**
  * A hook that groups Pull Requests but maintains a stable order of groups
  * to prevent UI jumping ("teleportation") when new data is loaded (Infinite Scroll).
  *
  * Behavior:
- * 1. When `filterKey` changes (e.g. user changes filters), it resets to the default
- *    sorted order (Count Descending).
+ * 1. When `filterKey` changes (e.g. user changes filters or sort), it resets to the
+ *    strategy-sorted order.
  * 2. When `prs` updates (e.g. loading more pages), existing groups stay in their
- *    current position. New groups are appended to the end.
+ *    current position. New groups are appended in strategy order among newcomers.
  */
 export function useStablePRGroups(
   prs: PullRequest[],
   filterKey: string,
   groupingStrategy: GroupingStrategy = 'renovate',
+  sortStrategy: SortStrategy = DEFAULT_SORT_STRATEGY,
 ): PRGroup[] {
   const [orderedKeys, setOrderedKeys] = useState<string[]>([]);
   const [prevFilterKey, setPrevFilterKey] = useState(filterKey);
 
-  // Calculate fresh groups from PRs
-  // This gives us the latest data for each group, sorted by count (default from service)
   const freshGroups = useMemo(
-    () => groupPullRequests(prs, groupingStrategy),
-    [prs, groupingStrategy],
+    () => sortGroups(groupPullRequests(prs, groupingStrategy), sortStrategy),
+    [prs, groupingStrategy, sortStrategy],
   );
 
   const freshGroupsMap = useMemo(() => {

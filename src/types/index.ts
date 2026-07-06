@@ -1,6 +1,7 @@
-import { GROUPING_STRATEGIES } from '../constants';
+import { GROUPING_STRATEGIES, SORT_STRATEGIES } from '../constants';
 
 export type GroupingStrategy = keyof typeof GROUPING_STRATEGIES;
+export type SortStrategy = keyof typeof SORT_STRATEGIES;
 
 export interface PullRequest {
   id: string;

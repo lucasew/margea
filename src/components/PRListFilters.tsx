@@ -6,8 +6,9 @@ import {
   URL_SEARCH_PARAMS,
   PRState,
   GROUPING_STRATEGIES,
+  SORT_STRATEGIES,
 } from '../constants';
-import { GroupingStrategy } from '../types';
+import { GroupingStrategy, SortStrategy } from '../types';
 
 interface PRListFiltersProps {
   filterRepo: string;
@@ -15,6 +16,7 @@ interface PRListFiltersProps {
   filterAuthor: string;
   filterState: PRState;
   groupBy: GroupingStrategy;
+  sortBy: SortStrategy;
   uniqueRepos: string[];
   uniqueOwners: string[];
   uniqueAuthors: string[];
@@ -30,6 +32,7 @@ export function PRListFilters({
   filterAuthor,
   filterState,
   groupBy,
+  sortBy,
   uniqueRepos,
   uniqueOwners,
   uniqueAuthors,
@@ -42,7 +45,7 @@ export function PRListFilters({
   return (
     <div className="app-toolbar p-3 sm:p-4 mb-5">
       <div className="flex flex-col gap-3">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2.5">
           <FilterDropdown
             label={t('filters.repository')}
             value={filterRepo}
@@ -104,6 +107,27 @@ export function PRListFilters({
               {Object.keys(GROUPING_STRATEGIES).map((key) => (
                 <option key={key} value={key}>
                   {t(`grouping.${key}`)}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-control">
+            <label className="label py-0.5 min-h-0">
+              <span className="label-text text-xs font-medium text-base-content/70">
+                {t('filters.sortBy')}
+              </span>
+            </label>
+            <select
+              className="select select-bordered select-sm w-full"
+              value={sortBy}
+              onChange={(e) =>
+                updateFilter(URL_SEARCH_PARAMS.SORT_BY, e.target.value)
+              }
+            >
+              {Object.keys(SORT_STRATEGIES).map((key) => (
+                <option key={key} value={key}>
+                  {t(`sorting.${key}`)}
                 </option>
               ))}
             </select>

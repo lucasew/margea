@@ -26,6 +26,7 @@ export const URL_SEARCH_PARAMS = {
   OWNER: 'owner',
   LIMIT: 'limit',
   GROUP_BY: 'group_by',
+  SORT_BY: 'sort_by',
 } as const;
 
 export const GROUPING_STRATEGIES = {
@@ -34,6 +35,18 @@ export const GROUPING_STRATEGIES = {
   author: 'author',
   agents: 'agents',
 } as const;
+
+export const SORT_STRATEGIES = {
+  count: 'count',
+  updated: 'updated',
+  oldest: 'oldest',
+  name: 'name',
+  ci_failures: 'ci_failures',
+  repos: 'repos',
+  created: 'created',
+} as const;
+
+export const DEFAULT_SORT_STRATEGY = SORT_STRATEGIES.count;
 
 export const THEME_LIGHT = 'margea-light';
 export const THEME_DARK = 'margea-dark';

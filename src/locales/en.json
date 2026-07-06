@@ -142,6 +142,15 @@
     "author": "Author",
     "agents": "Agents"
   },
+  "sorting": {
+    "count": "PR count",
+    "updated": "Recently updated",
+    "oldest": "Oldest activity",
+    "name": "Name A–Z",
+    "ci_failures": "CI failures",
+    "repos": "Repos touched",
+    "created": "Newest created"
+  },
   "filters": {
     "title": "Filters & Actions",
     "repository": "Repository",
@@ -149,6 +158,7 @@
     "author": "Author",
     "status": "Status",
     "groupBy": "Group by",
+    "sortBy": "Sort by",
     "refresh": "Refresh",
     "exportJSON": "Export JSON",
     "clear": "Clear filters"

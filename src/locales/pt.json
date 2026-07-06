@@ -145,6 +145,15 @@
     "author": "Autor",
     "agents": "Agentes"
   },
+  "sorting": {
+    "count": "Qtd. de PRs",
+    "updated": "Atualizados recentemente",
+    "oldest": "Atividade mais antiga",
+    "name": "Nome A–Z",
+    "ci_failures": "Falhas de CI",
+    "repos": "Repositórios afetados",
+    "created": "Criados recentemente"
+  },
   "filters": {
     "title": "Filtros e Ações",
     "repository": "Repositório",
@@ -152,6 +161,7 @@
     "author": "Autor",
     "status": "Status",
     "groupBy": "Agrupar por",
+    "sortBy": "Ordenar por",
     "refresh": "Atualizar",
     "exportJSON": "Exportar JSON",
     "clear": "Limpar filtros"

@@ -74,13 +74,7 @@ function groupByHelper(
     group.count++;
   }
 
-  // Sort groups by count (descending), then title
-  return Array.from(groups.values()).sort((a, b) => {
-    if (b.count !== a.count) {
-      return b.count - a.count;
-    }
-    return a.package.localeCompare(b.package);
-  });
+  return Array.from(groups.values());
 }
 
 /**
@@ -152,7 +146,7 @@ const STRATEGY_HANDLERS: Record<GroupingStrategy, GroupingFunction> = {
  *
  * @param prs - The list of Pull Requests to group.
  * @param strategy - The strategy to use for grouping.
- * @returns An array of `PRGroup` objects, sorted by relevance.
+ * @returns An array of `PRGroup` objects in insertion order (unsorted).
  */
 export function groupPullRequests(
   prs: PullRequest[],

@@ -14,6 +14,7 @@ import { InfoIcon } from './icons/InfoIcon';
 import { reportError } from '../utils/errorReporting';
 import { PRGroup, GroupingStrategy } from '../types';
 import { PRState, URL_SEARCH_PARAMS } from '../constants';
+import { parseSortStrategy } from '../services/prSort';
 import { PRListStats } from './PRListStats';
 import { PRListFilters } from './PRListFilters';
 import { usePRContext } from '../context/PRContext';
@@ -46,6 +47,9 @@ function PRListContent() {
   const groupBy =
     (searchParams.get(URL_SEARCH_PARAMS.GROUP_BY) as GroupingStrategy) ||
     'renovate';
+  const sortBy = parseSortStrategy(
+    searchParams.get(URL_SEARCH_PARAMS.SORT_BY),
+  );
 
   // Persist filters in sessionStorage
   const [isRestored, setIsRestored] = useState(false);
@@ -114,9 +118,9 @@ function PRListContent() {
   const stats = calculateStats(filteredPrs);
 
   // Use stable grouping
-  // Construct a filter hash to reset stability if filters change
-  const filterHash = `${filterRepo}|${filterState}|${filterAuthor}|${filterOwner}|${groupBy}`;
-  const groups = useStablePRGroups(filteredPrs, filterHash, groupBy);
+  // Construct a filter hash to reset stability if filters or sort change
+  const filterHash = `${filterRepo}|${filterState}|${filterAuthor}|${filterOwner}|${groupBy}|${sortBy}`;
+  const groups = useStablePRGroups(filteredPrs, filterHash, groupBy, sortBy);
 
   // Extract unique values for dropdowns from ALL PRs (not filtered)
   const uniqueRepos = Array.from(
@@ -220,6 +224,7 @@ function PRListContent() {
               filterAuthor={filterAuthor}
               filterState={filterState}
               groupBy={groupBy}
+              sortBy={sortBy}
               uniqueRepos={uniqueRepos}
               uniqueOwners={uniqueOwners}
               uniqueAuthors={uniqueAuthors}
@@ -253,6 +258,7 @@ function PRListContent() {
           filterAuthor={filterAuthor}
           filterState={filterState}
           groupBy={groupBy}
+          sortBy={sortBy}
           uniqueRepos={uniqueRepos}
           uniqueOwners={uniqueOwners}
           uniqueAuthors={uniqueAuthors}
