@@ -1,4 +1,9 @@
-import type { BulkActionProgress, BulkActionType, PullRequest } from '../types';
+import type {
+  BulkActionProgress,
+  BulkActionType,
+  MergeMethod,
+  PullRequest,
+} from '../types';
 
 export interface BulkProgressSummary {
   total: number;
@@ -80,4 +85,5 @@ export type PendingBulkAction = {
   prs: PullRequest[];
   type: BulkActionType;
   progress: BulkActionProgress[];
+  mergeMethod?: MergeMethod;
 };

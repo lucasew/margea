@@ -13,7 +13,11 @@ export interface BulkActionContextType {
   isModalOpen: boolean;
   activeOperationId: string | null;
   /** Open confirm dialog for a set of PRs. */
-  requestBulkAction: (prs: PullRequest[], type: BulkActionType) => void;
+  requestBulkAction: (
+    prs: PullRequest[],
+    type: BulkActionType,
+    options?: ConfirmBulkActionOptions,
+  ) => void;
   confirmPendingAction: (options?: ConfirmBulkActionOptions) => void;
   cancelPendingAction: () => void;
   openOperationModal: (operationId: string) => void;

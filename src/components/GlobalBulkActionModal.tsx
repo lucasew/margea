@@ -20,6 +20,7 @@ export function GlobalBulkActionModal() {
         actionType={pendingConfirmation.type}
         progress={pendingConfirmation.progress}
         isExecuting={false}
+        mergeMethod={pendingConfirmation.mergeMethod}
         onConfirm={confirmPendingAction}
         onClose={cancelPendingAction}
       />

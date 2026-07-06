@@ -35,12 +35,17 @@ export function BulkActionProvider({ children }: { children: ReactNode }) {
   }, [pendingConfirmation]);
 
   const requestBulkAction = useCallback(
-    (prs: PullRequest[], type: BulkActionType) => {
+    (
+      prs: PullRequest[],
+      type: BulkActionType,
+      options?: ConfirmBulkActionOptions,
+    ) => {
       if (prs.length === 0) return;
-      const pending = {
+      const pending: PendingBulkAction = {
         prs,
         type,
         progress: toPendingProgress(prs),
+        mergeMethod: type === 'merge' ? options?.mergeMethod : undefined,
       };
       pendingConfirmationRef.current = pending;
       setPendingConfirmation(pending);
@@ -126,7 +131,7 @@ export function BulkActionProvider({ children }: { children: ReactNode }) {
       // Hand off to toast workflow; user can re-open details from the toast.
       setIsModalOpen(false);
       setActiveOperationId(null);
-      void runOperation(prs, type, options?.mergeMethod);
+      void runOperation(prs, type, options?.mergeMethod ?? pending.mergeMethod);
     },
     [runOperation],
   );

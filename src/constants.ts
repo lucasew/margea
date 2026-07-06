@@ -49,6 +49,8 @@ export const SORT_STRATEGIES = {
 export const DEFAULT_SORT_STRATEGY = SORT_STRATEGIES.count;
 
 export const MERGE_METHODS = ['MERGE', 'SQUASH', 'REBASE'] as const;
+/** Display order for split merge actions: rebase, squash, merge. */
+export const MERGE_METHOD_ACTIONS = ['REBASE', 'SQUASH', 'MERGE'] as const;
 export const DEFAULT_MERGE_METHOD = MERGE_METHODS[0];
 export const MERGE_METHOD_STORAGE_KEY = 'margea_merge_method';
 
