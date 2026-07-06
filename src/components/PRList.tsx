@@ -110,7 +110,7 @@ function PRListContent() {
     owner: filterOwner,
   });
 
-  // Calculate stats from the filtered set
+  const totalStats = calculateStats(allPRs);
   const stats = calculateStats(filteredPrs);
 
   // Use stable grouping
@@ -242,7 +242,11 @@ function PRListContent() {
   return (
     <div className="w-full">
       <div className="app-container py-5 sm:py-6">
-        <PRListStats stats={stats} />
+        <PRListStats
+          stats={stats}
+          totalStats={totalStats}
+          hasActiveFilters={hasActiveFilters}
+        />
         <PRListFilters
           filterRepo={filterRepo}
           filterOwner={filterOwner}

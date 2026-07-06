@@ -168,11 +168,13 @@
     "loading": "Cargando Pull Requests..."
   },
   "prStats": {
+    "regionLabel": "Estadísticas de pull requests",
     "total": "Total PRs",
     "open": "Abiertos",
     "merged": "Fusionados",
     "closed": "Cerrados",
-    "repositories": "Repositorios"
+    "repositories": "Repositorios",
+    "filteredOfTotal": "{{filtered}} de {{total}} {{label}}"
   },
   "bulkAction": {
     "processing": "Procesando ({{done}}/{{total}})",

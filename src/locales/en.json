@@ -165,11 +165,13 @@
     "loading": "Loading Pull Requests..."
   },
   "prStats": {
+    "regionLabel": "Pull request statistics",
     "total": "Total PRs",
     "open": "Open",
     "merged": "Merged",
     "closed": "Closed",
-    "repositories": "Repositories"
+    "repositories": "Repositories",
+    "filteredOfTotal": "{{filtered}} of {{total}} {{label}}"
   },
   "bulkAction": {
     "processing": "Processing ({{done}}/{{total}})",

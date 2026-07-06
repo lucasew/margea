@@ -152,6 +152,10 @@
   @apply text-lg font-semibold tabular-nums leading-none;
 }
 
+.stat-chip-total {
+  @apply text-sm font-normal text-base-content/45;
+}
+
 .stat-chip-label {
   @apply text-xs text-base-content/65 leading-tight;
 }

@@ -1,5 +1,13 @@
 import { PullRequest } from '../types';
 
+export type PRStats = {
+  total: number;
+  open: number;
+  merged: number;
+  closed: number;
+  repositories: number;
+};
+
 /**
  * Calculates aggregate statistics for a given set of Pull Requests.
  *
@@ -15,7 +23,7 @@ import { PullRequest } from '../types';
  *  - `closed`: Count of closed (but not merged) PRs.
  *  - `repositories`: Count of unique repositories represented in the list.
  */
-export function calculateStats(prs: PullRequest[]) {
+export function calculateStats(prs: PullRequest[]): PRStats {
   const initialStats = {
     open: 0,
     merged: 0,
