@@ -7,7 +7,9 @@ import { PullRequest } from '../types';
 import { BATCH_SIZE } from '../constants';
 import {
   createScopeStream,
+  SCOPE_STREAM_IDLE,
   type ScopeStream,
+  type ScopeStreamYield,
   type AdaptiveFetchState,
   type PageResult,
   type PageFetcher,
@@ -18,7 +20,9 @@ import {
 // The store (PRProvider) creates ScopeStreams and pulls PRs from their generators.
 export {
   createScopeStream,
+  SCOPE_STREAM_IDLE,
   type ScopeStream,
+  type ScopeStreamYield,
   type AdaptiveFetchState,
   type PageFetcher,
   INITIAL_INTERVAL_MS,
