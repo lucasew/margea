@@ -18,6 +18,13 @@ export const API_ROUTES = {
   AUTH_GITHUB: '/api/auth/github',
 } as const;
 
+export const APP_ROUTES = {
+  HOME: '/',
+  ORGS: '/orgs',
+  ORG_DETAIL: '/org/:owner',
+  REPO_DETAIL: '/:owner/:repo',
+} as const;
+
 export const URL_SEARCH_PARAMS = {
   GROUP: 'group',
   REPO: 'repo',
