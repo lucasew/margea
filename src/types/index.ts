@@ -74,10 +74,8 @@ export interface BulkActionOperation {
 
 export interface PRContextState {
   prMap: Map<string, PullRequest>;
-  pageInfo: {
-    endCursor: string | null;
-    hasNextPage: boolean;
-  };
+  /** True while live scope streams can be extended further into the past. */
+  hasNextPage: boolean;
   isLoading: boolean;
   isFetchingNextPage: boolean;
   searchQuery: string;

@@ -1,4 +1,5 @@
 import { PullRequest } from '../types';
+import { isAbortError } from '../utils/abort';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const MIN_INTERVAL_MS = DAY_MS;
@@ -8,6 +9,11 @@ const NARROW_THRESHOLD = 500;
 const GITHUB_SEARCH_LIMIT = 1000;
 
 export const INITIAL_INTERVAL_MS = DAY_MS;
+
+/** Yielded when a scope stream has caught up to its current targetStart. */
+export const SCOPE_STREAM_IDLE = Symbol('SCOPE_STREAM_IDLE');
+export type ScopeStreamIdle = typeof SCOPE_STREAM_IDLE;
+export type ScopeStreamYield = PullRequest | ScopeStreamIdle;
 
 function formatDate(date: Date): string {
   return [
@@ -32,13 +38,24 @@ export interface PageResult {
 export type PageFetcher = (
   query: string,
   cursor: string | null,
+  signal: AbortSignal,
 ) => Promise<PageResult>;
 
 export interface ScopeStream {
-  generator: AsyncGenerator<PullRequest>;
+  generator: AsyncGenerator<ScopeStreamYield>;
   getState: () => AdaptiveFetchState;
   extendTarget: (newStartDate: Date) => void;
   abort: () => void;
+}
+
+function adaptInterval(intervalMs: number, issueCount: number): number {
+  if (issueCount > NARROW_THRESHOLD) {
+    return Math.max(Math.floor(intervalMs / 2), MIN_INTERVAL_MS);
+  }
+  if (issueCount < WIDEN_THRESHOLD) {
+    return Math.min(intervalMs * 2, MAX_INTERVAL_MS);
+  }
+  return intervalMs;
 }
 
 export function createScopeStream(
@@ -76,15 +93,16 @@ export function createScopeStream(
     controller.abort();
   }
 
-  async function* generator(): AsyncGenerator<PullRequest> {
+  async function* generator(): AsyncGenerator<ScopeStreamYield> {
     const baseQuery = `is:pr ${scope}`;
 
-    const doFetch = async (query: string, cursor: string | null) => {
-      return fetchPage(query, cursor);
-    };
-
     try {
-      while (windowEnd > targetStart && !signal.aborted) {
+      while (!signal.aborted) {
+        if (!(windowEnd > targetStart)) {
+          yield SCOPE_STREAM_IDLE;
+          continue;
+        }
+
         const windowStart = new Date(
           Math.max(windowEnd.getTime() - intervalMs, targetStart.getTime()),
         );
@@ -94,11 +112,9 @@ export function createScopeStream(
         )}`;
         const query = `${baseQuery} ${dateFilter}`;
 
-        // Probe: fetch first page to get issueCount + first results
-        const firstPage = await doFetch(query, null);
+        const firstPage = await fetchPage(query, null, signal);
         if (signal.aborted) break;
 
-        // GitHub hard cap guard: split window and retry
         if (
           firstPage.issueCount > GITHUB_SEARCH_LIMIT &&
           intervalMs > MIN_INTERVAL_MS
@@ -107,16 +123,14 @@ export function createScopeStream(
           continue;
         }
 
-        // Yield PRs from the probe page immediately (stream as found)
         for (const pr of firstPage.prs) {
           yield pr;
         }
 
-        // Yield the rest of the pages for this window (stream as found)
         let cursor = firstPage.endCursor;
         let hasNext = firstPage.hasNextPage;
         while (hasNext && !signal.aborted) {
-          const page = await doFetch(query, cursor);
+          const page = await fetchPage(query, cursor, signal);
           for (const pr of page.prs) {
             yield pr;
           }
@@ -124,25 +138,21 @@ export function createScopeStream(
           cursor = page.endCursor;
         }
 
-        // Adapt interval based on density from the probe
-        if (firstPage.issueCount > NARROW_THRESHOLD) {
-          intervalMs = Math.max(Math.floor(intervalMs / 2), MIN_INTERVAL_MS);
-        } else if (firstPage.issueCount < WIDEN_THRESHOLD) {
-          intervalMs = Math.min(intervalMs * 2, MAX_INTERVAL_MS);
-        }
+        if (signal.aborted) break;
 
-        // Advance frontier
+        intervalMs = adaptInterval(intervalMs, firstPage.issueCount);
         windowEnd = windowStart;
       }
     } catch (err) {
-      // Preserve frontier in getState(), surface failure to the puller
+      if (signal.aborted || isAbortError(err)) {
+        return;
+      }
       throw err instanceof Error
         ? err
         : new Error('Unknown error in scope stream');
     } finally {
       abortSignal.removeEventListener('abort', linkAbort);
     }
-    // Natural end: no more yields for current targetStart. Consumer can extendTarget and pull again.
   }
 
   return {

@@ -1,5 +1,12 @@
-import { useState, useCallback, useRef, ReactNode } from 'react';
+import {
+  useState,
+  useCallback,
+  useRef,
+  startTransition,
+  ReactNode,
+} from 'react';
 import { useRelayEnvironment } from 'react-relay';
+import { Environment } from 'relay-runtime';
 import { PRContext } from './PRContext';
 import { PRContextType, PullRequest } from '../types';
 import {
@@ -9,6 +16,8 @@ import {
   type AdaptiveFetchState,
   INITIAL_INTERVAL_MS,
 } from '../services/prFetchService';
+import { createSerialQueue } from '../services/serialQueue';
+import { pullStreamsUntilIdle } from '../services/prStorePull';
 import { INITIAL_FETCH_DAYS, LOAD_MORE_DAYS } from '../constants';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -17,30 +26,49 @@ interface PRProviderProps {
   children: ReactNode;
 }
 
+function createStreamsForScopes(
+  scopes: string[],
+  environment: Environment,
+  signal: AbortSignal,
+): Map<string, ScopeStream> {
+  const pageFetcher = createPageFetcher(environment);
+  const now = new Date();
+  const initialStart = new Date(now.getTime() - INITIAL_FETCH_DAYS * DAY_MS);
+  const streams = new Map<string, ScopeStream>();
+
+  for (const scope of scopes) {
+    streams.set(
+      scope,
+      createScopeStream(
+        scope,
+        pageFetcher,
+        now,
+        initialStart,
+        INITIAL_INTERVAL_MS,
+        signal,
+      ),
+    );
+  }
+
+  return streams;
+}
+
 export function PRProvider({ children }: PRProviderProps) {
   const environment = useRelayEnvironment();
 
-  // Map Key: Pull Request ID (Global Node ID)
   const [prMap, setPrMap] = useState<Map<string, PullRequest>>(new Map());
-  const [pageInfo, setPageInfo] = useState<{
-    endCursor: string | null;
-    hasNextPage: boolean;
-  }>({
-    endCursor: null,
-    hasNextPage: false,
-  });
+  const [hasNextPage, setHasNextPage] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
   const [searchQuery, setSearchQueryState] = useState('');
   const [error, setError] = useState<Error | null>(null);
   const [oldestFetchedDate, setOldestFetchedDate] = useState<Date | null>(null);
 
-  // Active search scopes + the live generators/streams we pull from.
-  // The store drives everything by creating streams and pulling PRs out of them.
   const abortRef = useRef<AbortController | null>(null);
   const scopesRef = useRef<string[]>([]);
   const scopeKeyRef = useRef('');
   const streamsRef = useRef<Map<string, ScopeStream>>(new Map());
+  const enqueuePullRef = useRef(createSerialQueue());
 
   function getCurrentStates(): Map<string, AdaptiveFetchState> {
     const out = new Map<string, AdaptiveFetchState>();
@@ -59,156 +87,121 @@ export function PRProvider({ children }: PRProviderProps) {
     streamsRef.current.clear();
   }
 
-  /**
-   * Pulls PRs from all active generators (store pulls from generators)
-   * and ingests them directly into the store as they are yielded.
-   * This is the only way data enters prMap for the fetcher system.
-   */
-  const pullAndIngest = useCallback(async (isLoadMore: boolean) => {
-    const entries = Array.from(streamsRef.current.entries());
-    if (entries.length === 0) {
+  function ingestBatch(prs: PullRequest[]) {
+    if (prs.length === 0) return;
+    startTransition(() => {
+      setPrMap((prev) => {
+        const next = new Map(prev);
+        for (const pr of prs) {
+          next.set(pr.id, pr);
+        }
+        return next;
+      });
+    });
+  }
+
+  const pullAndIngest = useCallback((isLoadMore: boolean) => {
+    return enqueuePullRef.current(async () => {
+      const streams = streamsRef.current;
+      if (streams.size === 0) {
+        setIsLoading(false);
+        setIsFetchingNextPage(false);
+        setHasNextPage(false);
+        return 0;
+      }
+
+      if (!isLoadMore) {
+        setIsLoading(true);
+      } else {
+        setIsFetchingNextPage(true);
+      }
+      setError(null);
+
+      let flipped = false;
+      const result = await pullStreamsUntilIdle(streams, {
+        onBatch: ingestBatch,
+        onFirstPr: () => {
+          if (!isLoadMore && !flipped) {
+            flipped = true;
+            setIsLoading(false);
+            setIsFetchingNextPage(true);
+          }
+        },
+      });
+
       setIsLoading(false);
       setIsFetchingNextPage(false);
-      return 0;
-    }
 
-    if (!isLoadMore) {
-      setIsLoading(true);
-    } else {
-      setIsFetchingNextPage(true);
-    }
-    setError(null);
-
-    const phase = { count: 0 };
-    let flipped = false;
-    const errors: { scope: string; error: Error }[] = [];
-
-    const drainers = entries.map(async ([scope, strm]) => {
-      let local = 0;
-      try {
-        while (true) {
-          const { value, done } = await strm.generator.next();
-          if (done) break;
-          if (value) {
-            setPrMap((prev) => {
-              const next = new Map(prev);
-              next.set(value.id, value);
-              return next;
-            });
-            local++;
-            phase.count++;
-
-            if (!isLoadMore && !flipped) {
-              flipped = true;
-              setIsLoading(false);
-              setIsFetchingNextPage(true);
-            }
-          }
-        }
-      } catch (e) {
-        // Per-scope failure. Other scopes keep being pulled.
-        const err = e instanceof Error ? e : new Error(String(e));
-        errors.push({ scope, error: err });
+      const currentStates = getCurrentStates();
+      if (currentStates.size > 0) {
+        const dates = Array.from(currentStates.values()).map((s) =>
+          s.oldestFetchedDate.getTime(),
+        );
+        setOldestFetchedDate(new Date(Math.min(...dates)));
       }
-      return local;
+
+      setHasNextPage(result.hasActiveStreams);
+
+      if (result.errors.length > 0) {
+        const scopeNames = result.errors.map((e) => e.scope).join(', ');
+        setError(
+          new Error(
+            `Failed to fetch PRs for: ${scopeNames}. ${result.errors[0].error.message}`,
+          ),
+        );
+      }
+
+      return result.count;
     });
-
-    await Promise.allSettled(drainers);
-
-    setIsLoading(false);
-    setIsFetchingNextPage(false);
-
-    const currentStates = getCurrentStates();
-    if (currentStates.size > 0) {
-      const dates = Array.from(currentStates.values()).map((s) =>
-        s.oldestFetchedDate.getTime(),
-      );
-      setOldestFetchedDate(new Date(Math.min(...dates)));
-    }
-
-    if (isLoadMore) {
-      const hasMore = phase.count > 0;
-      setPageInfo({ endCursor: null, hasNextPage: hasMore });
-    } else {
-      setPageInfo({
-        endCursor: null,
-        hasNextPage: streamsRef.current.size > 0,
-      });
-    }
-
-    if (errors.length > 0) {
-      const scopeNames = errors.map((e) => e.scope).join(', ');
-      setError(
-        new Error(
-          `Failed to fetch PRs for: ${scopeNames}. ${errors[0].error.message}`,
-        ),
-      );
-    }
-
-    return phase.count;
   }, []);
 
-  /**
-   * Primary entry point: create one generator-backed ScopeStream per scope.
-   * The store will immediately pull all PRs the generators produce for the
-   * initial target window. PRs are yielded by the generator as pages arrive.
-   */
+  const startStreams = useCallback(
+    (scopes: string[], clearMap: boolean) => {
+      abortAllStreams();
+
+      if (scopes.length === 0) {
+        setPrMap(new Map());
+        setHasNextPage(false);
+        setOldestFetchedDate(null);
+        setError(null);
+        return;
+      }
+
+      if (clearMap) {
+        setPrMap(new Map());
+      }
+      setError(null);
+      setOldestFetchedDate(null);
+
+      const master = new AbortController();
+      abortRef.current = master;
+      streamsRef.current = createStreamsForScopes(
+        scopes,
+        environment,
+        master.signal,
+      );
+
+      pullAndIngest(false);
+    },
+    [environment, pullAndIngest],
+  );
+
   const setSearchScopes = useCallback(
     (scopes: string[]) => {
       const newKey = scopes.slice().sort().join('\n');
       if (newKey === scopeKeyRef.current) return;
       scopeKeyRef.current = newKey;
-
       scopesRef.current = scopes;
 
       const syntheticQuery =
         scopes.length > 0 ? `is:pr ${scopes.join(' or ')}` : '';
       setSearchQueryState(syntheticQuery);
 
-      abortAllStreams();
-
-      if (scopes.length === 0) {
-        setPrMap(new Map());
-        setPageInfo({ endCursor: null, hasNextPage: false });
-        setOldestFetchedDate(null);
-        return;
-      }
-
-      setPrMap(new Map());
-      setError(null);
-      setOldestFetchedDate(null);
-
-      const now = new Date();
-      const initialStart = new Date(
-        now.getTime() - INITIAL_FETCH_DAYS * DAY_MS,
-      );
-
-      const master = new AbortController();
-      abortRef.current = master;
-
-      const pageFetcher = createPageFetcher(environment);
-
-      scopes.forEach((scope) => {
-        const stream = createScopeStream(
-          scope,
-          pageFetcher,
-          now,
-          initialStart,
-          INITIAL_INTERVAL_MS,
-          master.signal,
-        );
-        streamsRef.current.set(scope, stream);
-      });
-
-      // The store pulls from the generators. This drives ingestion.
-      pullAndIngest(false);
+      startStreams(scopes, true);
     },
-    [environment, pullAndIngest],
+    [startStreams],
   );
 
-  /**
-   * Convenience wrapper for backward compatibility.
-   */
   const setSearchQuery = useCallback(
     (query: string) => {
       const scope = query.replace(/^is:pr\s+/, '');
@@ -219,48 +212,12 @@ export function PRProvider({ children }: PRProviderProps) {
     [setSearchScopes],
   );
 
-  /**
-   * Refresh: recreate streams for the *recent* window only (last N days)
-   * and pull from them. Existing deep history PRs (from prior load-more)
-   * stay in the map; only the recent slice is re-ingested (merge by id).
-   */
   const refresh = useCallback(() => {
     const scopes = scopesRef.current;
     if (scopes.length === 0) return;
+    startStreams(scopes, false);
+  }, [startStreams]);
 
-    abortAllStreams();
-    setError(null);
-    setOldestFetchedDate(null);
-
-    const now = new Date();
-    const initialStart = new Date(now.getTime() - INITIAL_FETCH_DAYS * DAY_MS);
-
-    const master = new AbortController();
-    abortRef.current = master;
-
-    const pageFetcher = createPageFetcher(environment);
-
-    scopes.forEach((scope) => {
-      const stream = createScopeStream(
-        scope,
-        pageFetcher,
-        now,
-        initialStart,
-        INITIAL_INTERVAL_MS,
-        master.signal,
-      );
-      streamsRef.current.set(scope, stream);
-    });
-
-    pullAndIngest(false);
-  }, [environment, pullAndIngest]);
-
-  /**
-   * Load more / "keep looking": tell every live generator to extend its
-   * internal target further into the past, then the store pulls more PRs
-   * out of the same generators. This is the "consume more from the generator"
-   * operation.
-   */
   const loadNextPage = useCallback(() => {
     if (isLoading || isFetchingNextPage || streamsRef.current.size === 0) {
       return;
@@ -277,10 +234,7 @@ export function PRProvider({ children }: PRProviderProps) {
       minOldest.getTime() - LOAD_MORE_DAYS * DAY_MS,
     );
 
-    // Tell the generators (the source of truth) they can now go further back.
     streamsRef.current.forEach((strm) => strm.extendTarget(newTargetStart));
-
-    // Store pulls more from the (now extended) generators.
     pullAndIngest(true);
   }, [isLoading, isFetchingNextPage, pullAndIngest]);
 
@@ -310,7 +264,7 @@ export function PRProvider({ children }: PRProviderProps) {
 
   const contextValue: PRContextType = {
     prMap,
-    pageInfo,
+    hasNextPage,
     isLoading,
     isFetchingNextPage,
     searchQuery,
