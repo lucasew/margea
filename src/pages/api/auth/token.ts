@@ -1,5 +1,6 @@
 import { jwtVerify } from 'jose';
 import { parse } from 'cookie';
+import { reportError } from '../../../utils/errorReporting';
 
 export async function GET({ request }: { request: Request }) {
   // Parse cookies from header
@@ -8,6 +9,8 @@ export async function GET({ request }: { request: Request }) {
   const sessionCookie = cookies.session;
 
   if (!sessionCookie) {
+    // Sentry will report error to unhandled console errors when playwright tests run which will fail the test
+    // So we don't report this error.
     return new Response(JSON.stringify({ error: 'Not authenticated' }), {
       status: 401,
       headers: { 'Content-Type': 'application/json' },
@@ -15,6 +18,9 @@ export async function GET({ request }: { request: Request }) {
   }
 
   if (!import.meta.env.SESSION_SECRET) {
+    reportError(new Error('Server misconfigured: missing SESSION_SECRET'), {
+      context: 'github auth token GET',
+    });
     return new Response(
       JSON.stringify({
         error:
@@ -45,7 +51,10 @@ export async function GET({ request }: { request: Request }) {
         },
       },
     );
-  } catch {
+  } catch (error) {
+    reportError(error, {
+      context: 'github auth token GET jwt verify',
+    });
     return new Response(JSON.stringify({ error: 'Invalid session' }), {
       status: 401,
       headers: { 'Content-Type': 'application/json' },

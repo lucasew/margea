@@ -1,4 +1,5 @@
 import { SignJWT } from 'jose';
+import { reportError } from '../../../utils/errorReporting';
 
 export async function GET({ request }: { request: Request }) {
   const clientId = import.meta.env.GITHUB_CLIENT_ID;
@@ -7,6 +8,12 @@ export async function GET({ request }: { request: Request }) {
   const requestUrl = new URL(request.url);
 
   if (!clientId || !callbackUrl || !sessionSecret) {
+    reportError(new Error('Missing required environment variables'), {
+      context: 'github auth endpoint',
+      missingClientId: !clientId,
+      missingCallbackUrl: !callbackUrl,
+      missingSessionSecret: !sessionSecret,
+    });
     return new Response(
       'Missing required environment variables (GITHUB_CLIENT_ID, GITHUB_CALLBACK_URL, SESSION_SECRET). ' +
         'Copy .env.example → .env.local and fill them. See README for GitHub OAuth setup.',
