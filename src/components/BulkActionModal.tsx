@@ -1,8 +1,18 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { X, CheckCircle, AlertCircle, Loader } from 'react-feather';
 import { useTranslation } from 'react-i18next';
-import type { BulkActionType, BulkActionProgress } from '../types';
+import { MERGE_METHODS } from '../constants';
+import type {
+  BulkActionType,
+  BulkActionProgress,
+  ConfirmBulkActionOptions,
+  MergeMethod,
+} from '../types';
 import { summarizeBulkProgress } from '../services/bulkProgress';
+import {
+  parseMergeMethod,
+  readStoredMergeMethod,
+} from '../services/mergeMethod';
 
 interface BulkActionModalProps {
   isOpen: boolean;
@@ -11,7 +21,8 @@ interface BulkActionModalProps {
   isExecuting: boolean;
   /** Confirm mode shows warning + confirm/cancel. Progress mode omits confirm. */
   mode: 'confirm' | 'progress';
-  onConfirm?: () => void;
+  mergeMethod?: MergeMethod;
+  onConfirm?: (options?: ConfirmBulkActionOptions) => void;
   onClose: () => void;
 }
 
@@ -21,6 +32,7 @@ export function BulkActionModal({
   progress,
   isExecuting,
   mode,
+  mergeMethod: mergeMethodProp,
   onConfirm,
   onClose,
 }: BulkActionModalProps) {
@@ -30,12 +42,31 @@ export function BulkActionModal({
   const onCloseRef = useRef(onClose);
   const onConfirmRef = useRef(onConfirm);
   const suppressCloseCallbackRef = useRef(false);
+  const selectionKey = `${isOpen}|${mode}|${actionType}|${mergeMethodProp ?? ''}`;
+  const [prevSelectionKey, setPrevSelectionKey] = useState(selectionKey);
+  const [mergeMethod, setMergeMethod] = useState<MergeMethod>(
+    () => mergeMethodProp ?? readStoredMergeMethod(),
+  );
+  const mergeMethodRef = useRef(mergeMethod);
+
+  if (selectionKey !== prevSelectionKey) {
+    setPrevSelectionKey(selectionKey);
+    if (mergeMethodProp) {
+      setMergeMethod(mergeMethodProp);
+    } else if (isOpen && mode === 'confirm' && actionType === 'merge') {
+      setMergeMethod(readStoredMergeMethod());
+    }
+  }
 
   useEffect(() => {
     isOpenRef.current = isOpen;
     onCloseRef.current = onClose;
     onConfirmRef.current = onConfirm;
   }, [isOpen, onClose, onConfirm]);
+
+  useEffect(() => {
+    mergeMethodRef.current = mergeMethod;
+  }, [mergeMethod]);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -76,7 +107,11 @@ export function BulkActionModal({
   const handleConfirmClick = () => {
     if (!onConfirmRef.current) return;
     suppressCloseCallbackRef.current = true;
-    onConfirmRef.current();
+    onConfirmRef.current(
+      actionType === 'merge'
+        ? { mergeMethod: mergeMethodRef.current }
+        : undefined,
+    );
     const dialog = dialogRef.current;
     if (dialog?.open) dialog.close();
   };
@@ -88,6 +123,10 @@ export function BulkActionModal({
     summarizeBulkProgress(progress);
   const s = total > 1 ? 's' : '';
   const showConfirmActions = mode === 'confirm' && !hasStarted;
+  const showMergeMethodPicker =
+    actionType === 'merge' && mode === 'confirm' && !hasStarted;
+  const shownMergeMethod =
+    actionType === 'merge' ? (mergeMethodProp ?? mergeMethod) : undefined;
 
   return (
     <dialog
@@ -122,6 +161,45 @@ export function BulkActionModal({
                 count: total,
                 s,
               })}
+            </span>
+          </div>
+        )}
+
+        {showMergeMethodPicker && (
+          <div className="form-control mb-4">
+            <label
+              className="label py-0.5 min-h-0"
+              htmlFor="bulk-action-merge-method"
+            >
+              <span className="label-text text-xs font-medium text-base-content/70">
+                {t('bulkActionModal.mergeMethod')}
+              </span>
+            </label>
+            <select
+              id="bulk-action-merge-method"
+              className="select select-bordered select-sm w-full"
+              value={mergeMethod}
+              onChange={(e) => setMergeMethod(parseMergeMethod(e.target.value))}
+            >
+              {MERGE_METHODS.map((method) => (
+                <option key={method} value={method}>
+                  {t(`mergeMethods.${method}`)}
+                </option>
+              ))}
+            </select>
+            <p className="mt-1 text-xs text-base-content/60">
+              {t(`mergeMethods.${mergeMethod}Description`)}
+            </p>
+          </div>
+        )}
+
+        {shownMergeMethod && !showMergeMethodPicker && (
+          <div className="mb-4 text-sm text-base-content/70">
+            <span className="font-medium">
+              {t('bulkActionModal.mergeMethod')}:
+            </span>{' '}
+            <span className="badge badge-outline badge-sm align-middle">
+              {t(`mergeMethods.${shownMergeMethod}`)}
             </span>
           </div>
         )}

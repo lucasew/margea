@@ -3,7 +3,13 @@ import { relayEnvironment } from '../relay/environment';
 import { MergePullRequestMutation } from '../queries/MergePullRequestMutation';
 import { ClosePullRequestMutation } from '../queries/ClosePullRequestMutation';
 import { executeWithRetry } from '../utils/retry';
-import type { PullRequest, BulkActionProgress } from '../types';
+import { DEFAULT_MERGE_METHOD } from '../constants';
+import type {
+  PullRequest,
+  BulkActionProgress,
+  BulkActionType,
+  MergeMethod,
+} from '../types';
 import type { MergePullRequestMutation$data } from '../queries/__generated__/MergePullRequestMutation.graphql';
 import type { ClosePullRequestMutation$data } from '../queries/__generated__/ClosePullRequestMutation.graphql';
 import type { RecordSourceSelectorProxy } from 'relay-runtime';
@@ -70,7 +76,10 @@ function toCloseFields(
   };
 }
 
-const performMergeMutation = (prId: string): Promise<BulkActionResult> => {
+const performMergeMutation = (
+  prId: string,
+  mergeMethod: MergeMethod = DEFAULT_MERGE_METHOD,
+): Promise<BulkActionResult> => {
   const optimisticNow = new Date().toISOString();
   const optimisticFields: Partial<PullRequest> = {
     state: 'MERGED',
@@ -84,6 +93,7 @@ const performMergeMutation = (prId: string): Promise<BulkActionResult> => {
       variables: {
         input: {
           pullRequestId: prId,
+          mergeMethod,
         },
       },
       optimisticUpdater: (store) => {
@@ -169,8 +179,11 @@ export const BulkActionsService = {
    * @param prId - The ID of the Pull Request to merge.
    * @returns The result of the merge operation.
    */
-  async mergePullRequest(prId: string): Promise<BulkActionResult> {
-    return performMergeMutation(prId);
+  async mergePullRequest(
+    prId: string,
+    mergeMethod: MergeMethod = DEFAULT_MERGE_METHOD,
+  ): Promise<BulkActionResult> {
+    return performMergeMutation(prId, mergeMethod);
   },
 
   /**
@@ -195,14 +208,18 @@ export const BulkActionsService = {
    * @param prs - List of Pull Requests to process.
    * @param actionType - The action to perform ('merge' or 'close').
    * @param onProgress - Callback function to report progress updates.
+   * @param onResult - Optional callback invoked after each PR finishes.
+   * @param options - Extra options such as the GitHub merge method.
    */
   async executeBulkAction(
     prs: PullRequest[],
-    actionType: 'merge' | 'close',
+    actionType: BulkActionType,
     onProgress: (progress: BulkActionProgress[]) => void,
     onResult?: (result: BulkActionResult) => void,
+    options?: { mergeMethod?: MergeMethod },
   ): Promise<void> {
     const progressMap = new Map<string, BulkActionProgress>();
+    const mergeMethod = options?.mergeMethod ?? DEFAULT_MERGE_METHOD;
 
     // Inicializar progresso
     prs.forEach((pr) => {
@@ -218,7 +235,7 @@ export const BulkActionsService = {
 
     const performAction =
       actionType === 'merge'
-        ? (id: string) => this.mergePullRequest(id)
+        ? (id: string) => this.mergePullRequest(id, mergeMethod)
         : (id: string) => this.closePullRequest(id);
 
     // Executar ações sequencialmente com retry e exponential backoff

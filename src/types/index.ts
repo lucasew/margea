@@ -1,7 +1,12 @@
-import { GROUPING_STRATEGIES, SORT_STRATEGIES } from '../constants';
+import {
+  GROUPING_STRATEGIES,
+  MERGE_METHODS,
+  SORT_STRATEGIES,
+} from '../constants';
 
 export type GroupingStrategy = keyof typeof GROUPING_STRATEGIES;
 export type SortStrategy = keyof typeof SORT_STRATEGIES;
+export type MergeMethod = (typeof MERGE_METHODS)[number];
 
 export interface PullRequest {
   id: string;
@@ -57,6 +62,10 @@ export interface FilterOptions {
 
 export type BulkActionType = 'merge' | 'close';
 
+export type ConfirmBulkActionOptions = {
+  mergeMethod?: MergeMethod;
+};
+
 export interface BulkActionProgress {
   prId: string;
   prNumber: number;
@@ -71,6 +80,7 @@ export interface BulkActionOperation {
   progress: BulkActionProgress[];
   isExecuting: boolean;
   timestamp: number;
+  mergeMethod?: MergeMethod;
 }
 
 export interface PRContextState {

@@ -75,7 +75,16 @@
     "cancel": "Cancel",
     "minimize": "Minimize",
     "closeBtn": "Close",
-    "ariaClose": "Close"
+    "ariaClose": "Close",
+    "mergeMethod": "Merge strategy"
+  },
+  "mergeMethods": {
+    "MERGE": "Create a merge commit",
+    "SQUASH": "Squash and merge",
+    "REBASE": "Rebase and merge",
+    "MERGEDescription": "All commits from the head branch are added to the base branch via a merge commit.",
+    "SQUASHDescription": "All commits are combined into one and merged with a single commit.",
+    "REBASEDescription": "Commits from the head branch are rebased onto the base branch without a merge commit."
   },
   "errorBoundary": {
     "title": "Something went wrong",

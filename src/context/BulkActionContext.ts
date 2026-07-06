@@ -1,5 +1,10 @@
 import { createContext } from 'react';
-import { PullRequest, BulkActionType, BulkActionOperation } from '../types';
+import {
+  PullRequest,
+  BulkActionType,
+  BulkActionOperation,
+  ConfirmBulkActionOptions,
+} from '../types';
 import type { PendingBulkAction } from '../services/bulkProgress';
 
 export interface BulkActionContextType {
@@ -9,7 +14,7 @@ export interface BulkActionContextType {
   activeOperationId: string | null;
   /** Open confirm dialog for a set of PRs. */
   requestBulkAction: (prs: PullRequest[], type: BulkActionType) => void;
-  confirmPendingAction: () => void;
+  confirmPendingAction: (options?: ConfirmBulkActionOptions) => void;
   cancelPendingAction: () => void;
   openOperationModal: (operationId: string) => void;
   closeModal: () => void;

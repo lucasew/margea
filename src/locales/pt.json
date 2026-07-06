@@ -75,7 +75,16 @@
     "cancel": "Cancelar",
     "minimize": "Minimizar",
     "closeBtn": "Fechar",
-    "ariaClose": "Fechar"
+    "ariaClose": "Fechar",
+    "mergeMethod": "Estratégia de merge"
+  },
+  "mergeMethods": {
+    "MERGE": "Criar um commit de merge",
+    "SQUASH": "Squash and merge",
+    "REBASE": "Rebase and merge",
+    "MERGEDescription": "Todos os commits da branch de origem são adicionados à base com um commit de merge.",
+    "SQUASHDescription": "Todos os commits são combinados em um só e aplicados na base.",
+    "REBASEDescription": "Os commits da branch de origem são reaplicados na base sem commit de merge."
   },
   "errorBoundary": {
     "title": "Algo deu errado",

@@ -3,6 +3,12 @@ import {
   createBulkOperationId,
   toPendingProgress,
 } from '../src/services/bulkProgress';
+import {
+  parseMergeMethod,
+  readStoredMergeMethod,
+  storeMergeMethod,
+} from '../src/services/mergeMethod';
+import { MERGE_METHOD_STORAGE_KEY } from '../src/constants';
 import type { PullRequest } from '../src/types';
 
 function makePR(id: string): PullRequest {
@@ -98,6 +104,23 @@ test.describe('bulk action confirm handoff', () => {
     });
     expect(confirmed).toBe(false);
     expect(called).toBe(false);
+  });
+
+  test('parseMergeMethod accepts GitHub strategies and defaults invalid values', () => {
+    expect(parseMergeMethod('MERGE')).toBe('MERGE');
+    expect(parseMergeMethod('SQUASH')).toBe('SQUASH');
+    expect(parseMergeMethod('REBASE')).toBe('REBASE');
+    expect(parseMergeMethod('nope')).toBe('MERGE');
+    expect(parseMergeMethod(null)).toBe('MERGE');
+  });
+
+  test('stores and reads the last selected merge method', () => {
+    sessionStorage.removeItem(MERGE_METHOD_STORAGE_KEY);
+    expect(readStoredMergeMethod()).toBe('MERGE');
+    storeMergeMethod('SQUASH');
+    expect(readStoredMergeMethod()).toBe('SQUASH');
+    storeMergeMethod('REBASE');
+    expect(sessionStorage.getItem(MERGE_METHOD_STORAGE_KEY)).toBe('REBASE');
   });
 
   test('createBulkOperationId works without crypto.randomUUID', () => {

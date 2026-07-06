@@ -1,11 +1,21 @@
 import { useState, useCallback, useEffect, useRef, ReactNode } from 'react';
-import { PullRequest, BulkActionType, BulkActionOperation } from '../types';
+import {
+  PullRequest,
+  BulkActionType,
+  BulkActionOperation,
+  ConfirmBulkActionOptions,
+  MergeMethod,
+} from '../types';
 import { BulkActionsService } from '../services/bulkActions';
 import {
   createBulkOperationId,
   toPendingProgress,
   type PendingBulkAction,
 } from '../services/bulkProgress';
+import {
+  readStoredMergeMethod,
+  storeMergeMethod,
+} from '../services/mergeMethod';
 import { BulkActionContext } from './BulkActionContext';
 import { usePRContext } from './PRContext';
 
@@ -47,8 +57,19 @@ export function BulkActionProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const runOperation = useCallback(
-    async (prs: PullRequest[], type: BulkActionType) => {
+    async (
+      prs: PullRequest[],
+      type: BulkActionType,
+      mergeMethod?: MergeMethod,
+    ) => {
       if (prs.length === 0) return;
+
+      const resolvedMergeMethod =
+        type === 'merge' ? (mergeMethod ?? readStoredMergeMethod()) : undefined;
+
+      if (resolvedMergeMethod) {
+        storeMergeMethod(resolvedMergeMethod);
+      }
 
       const operationId = createBulkOperationId();
       const newOperation: BulkActionOperation = {
@@ -57,6 +78,7 @@ export function BulkActionProvider({ children }: { children: ReactNode }) {
         progress: toPendingProgress(prs),
         isExecuting: true,
         timestamp: Date.now(),
+        mergeMethod: resolvedMergeMethod,
       };
 
       // Toast workflow: keep the detail modal closed until the user re-opens it.
@@ -78,6 +100,9 @@ export function BulkActionProvider({ children }: { children: ReactNode }) {
               optimisticUpdate(result.prId, result.updatedFields);
             }
           },
+          resolvedMergeMethod
+            ? { mergeMethod: resolvedMergeMethod }
+            : undefined,
         );
       } finally {
         setOperations((prev) =>
@@ -90,18 +115,21 @@ export function BulkActionProvider({ children }: { children: ReactNode }) {
     [optimisticUpdate],
   );
 
-  const confirmPendingAction = useCallback(() => {
-    const pending = pendingConfirmationRef.current;
-    if (!pending) return;
+  const confirmPendingAction = useCallback(
+    (options?: ConfirmBulkActionOptions) => {
+      const pending = pendingConfirmationRef.current;
+      if (!pending) return;
 
-    const { prs, type } = pending;
-    pendingConfirmationRef.current = null;
-    setPendingConfirmation(null);
-    // Hand off to toast workflow; user can re-open details from the toast.
-    setIsModalOpen(false);
-    setActiveOperationId(null);
-    void runOperation(prs, type);
-  }, [runOperation]);
+      const { prs, type } = pending;
+      pendingConfirmationRef.current = null;
+      setPendingConfirmation(null);
+      // Hand off to toast workflow; user can re-open details from the toast.
+      setIsModalOpen(false);
+      setActiveOperationId(null);
+      void runOperation(prs, type, options?.mergeMethod);
+    },
+    [runOperation],
+  );
 
   const openOperationModal = useCallback((operationId: string) => {
     pendingConfirmationRef.current = null;

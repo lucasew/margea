@@ -36,6 +36,7 @@ export function GlobalBulkActionModal() {
       actionType={activeOperation.type}
       progress={activeOperation.progress}
       isExecuting={activeOperation.isExecuting}
+      mergeMethod={activeOperation.mergeMethod}
       onClose={closeModal}
     />
   );

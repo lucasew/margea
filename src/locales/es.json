@@ -75,7 +75,16 @@
     "cancel": "Cancelar",
     "minimize": "Minimizar",
     "closeBtn": "Cerrar",
-    "ariaClose": "Cerrar"
+    "ariaClose": "Cerrar",
+    "mergeMethod": "Estrategia de fusión"
+  },
+  "mergeMethods": {
+    "MERGE": "Crear un commit de fusión",
+    "SQUASH": "Squash and merge",
+    "REBASE": "Rebase and merge",
+    "MERGEDescription": "Todos los commits de la rama de origen se añaden a la base con un commit de fusión.",
+    "SQUASHDescription": "Todos los commits se combinan en uno solo y se aplican en la base.",
+    "REBASEDescription": "Los commits de la rama de origen se reaplican sobre la base sin commit de fusión."
   },
   "errorBoundary": {
     "title": "Algo salió mal",
