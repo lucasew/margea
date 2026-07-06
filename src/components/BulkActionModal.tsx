@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { X, CheckCircle, AlertCircle, Loader } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import type { BulkActionType, BulkActionProgress } from '../types';
@@ -24,27 +25,87 @@ export function BulkActionModal({
   onClose,
 }: BulkActionModalProps) {
   const { t } = useTranslation();
-  if (!isOpen) return null;
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const isOpenRef = useRef(isOpen);
+  const onCloseRef = useRef(onClose);
+  const onConfirmRef = useRef(onConfirm);
+  const suppressCloseCallbackRef = useRef(false);
+
+  useEffect(() => {
+    isOpenRef.current = isOpen;
+    onCloseRef.current = onClose;
+    onConfirmRef.current = onConfirm;
+  }, [isOpen, onClose, onConfirm]);
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+
+    if (isOpen) {
+      if (!dialog.open) dialog.showModal();
+    } else if (dialog.open) {
+      suppressCloseCallbackRef.current = true;
+      dialog.close();
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    return () => {
+      if (dialog?.open) {
+        suppressCloseCallbackRef.current = true;
+        dialog.close();
+      }
+    };
+  }, []);
+
+  const requestClose = () => {
+    const dialog = dialogRef.current;
+    if (dialog?.open) dialog.close();
+    else onCloseRef.current();
+  };
+
+  const handleDialogClose = () => {
+    if (suppressCloseCallbackRef.current) {
+      suppressCloseCallbackRef.current = false;
+      return;
+    }
+    if (isOpenRef.current) onCloseRef.current();
+  };
+
+  const handleConfirmClick = () => {
+    if (!onConfirmRef.current) return;
+    suppressCloseCallbackRef.current = true;
+    onConfirmRef.current();
+    const dialog = dialogRef.current;
+    if (dialog?.open) dialog.close();
+  };
 
   const actionLabel = t(`bulkActionModal.${actionType}`);
-  const actionColor = actionType === 'merge' ? 'success' : 'error';
+  const confirmBtnClass =
+    actionType === 'merge' ? 'btn btn-success' : 'btn btn-error';
   const { total, successCount, errorCount, hasStarted, isComplete } =
     summarizeBulkProgress(progress);
   const s = total > 1 ? 's' : '';
   const showConfirmActions = mode === 'confirm' && !hasStarted;
 
   return (
-    <div className="modal modal-open">
+    <dialog
+      ref={dialogRef}
+      className="modal"
+      onClose={handleDialogClose}
+      aria-labelledby="bulk-action-modal-title"
+    >
       <div className="modal-box max-w-3xl">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold">
+          <h3 id="bulk-action-modal-title" className="text-lg font-bold">
             {hasStarted
               ? `${actionLabel} ${t('common.prs')} - ${t('bulkActionModal.progress')}`
               : `${t('bulkActionModal.confirmPrefix')} ${actionLabel} ${t('common.prs')}`}
           </h3>
           <button
             type="button"
-            onClick={onClose}
+            onClick={requestClose}
             className="btn btn-sm btn-circle btn-ghost"
             aria-label={t('bulkActionModal.ariaClose')}
           >
@@ -137,7 +198,7 @@ export function BulkActionModal({
             <>
               <button
                 type="button"
-                onClick={onClose}
+                onClick={requestClose}
                 className="btn btn-ghost"
                 disabled={isExecuting}
               >
@@ -145,8 +206,8 @@ export function BulkActionModal({
               </button>
               <button
                 type="button"
-                onClick={onConfirm}
-                className={`btn btn-${actionColor}`}
+                onClick={handleConfirmClick}
+                className={confirmBtnClass}
                 disabled={isExecuting || !onConfirm}
               >
                 {t(`prGroupDetail.${actionType}`, { count: total })}
@@ -154,17 +215,30 @@ export function BulkActionModal({
             </>
           )}
           {hasStarted && !isComplete && (
-            <button type="button" onClick={onClose} className="btn btn-ghost">
+            <button
+              type="button"
+              onClick={requestClose}
+              className="btn btn-ghost"
+            >
               {t('bulkActionModal.minimize')}
             </button>
           )}
           {isComplete && (
-            <button type="button" onClick={onClose} className="btn btn-primary">
+            <button
+              type="button"
+              onClick={requestClose}
+              className="btn btn-primary"
+            >
               {t('bulkActionModal.closeBtn')}
             </button>
           )}
         </div>
       </div>
-    </div>
+      <form method="dialog" className="modal-backdrop">
+        <button type="submit" aria-label={t('bulkActionModal.ariaClose')}>
+          {t('bulkActionModal.closeBtn')}
+        </button>
+      </form>
+    </dialog>
   );
 }

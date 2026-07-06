@@ -35,7 +35,7 @@ function AuthenticatedApp() {
                 />
               </Route>
             </Routes>
-            <div className="toast toast-end z-50">
+            <div className="toast toast-end z-[1000]">
               <BulkActionToast />
               <FetcherProgressHint />
             </div>

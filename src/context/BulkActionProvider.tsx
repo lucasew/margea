@@ -1,4 +1,4 @@
-import { useState, useCallback, ReactNode } from 'react';
+import { useState, useCallback, useEffect, useRef, ReactNode } from 'react';
 import { PullRequest, BulkActionType, BulkActionOperation } from '../types';
 import { BulkActionsService } from '../services/bulkActions';
 import {
@@ -18,15 +18,22 @@ export function BulkActionProvider({ children }: { children: ReactNode }) {
   const [activeOperationId, setActiveOperationId] = useState<string | null>(
     null,
   );
+  const pendingConfirmationRef = useRef<PendingBulkAction | null>(null);
+
+  useEffect(() => {
+    pendingConfirmationRef.current = pendingConfirmation;
+  }, [pendingConfirmation]);
 
   const requestBulkAction = useCallback(
     (prs: PullRequest[], type: BulkActionType) => {
       if (prs.length === 0) return;
-      setPendingConfirmation({
+      const pending = {
         prs,
         type,
         progress: toPendingProgress(prs),
-      });
+      };
+      pendingConfirmationRef.current = pending;
+      setPendingConfirmation(pending);
       setActiveOperationId(null);
       setIsModalOpen(true);
     },
@@ -34,12 +41,15 @@ export function BulkActionProvider({ children }: { children: ReactNode }) {
   );
 
   const cancelPendingAction = useCallback(() => {
+    pendingConfirmationRef.current = null;
     setPendingConfirmation(null);
     setIsModalOpen(false);
   }, []);
 
   const runOperation = useCallback(
     async (prs: PullRequest[], type: BulkActionType) => {
+      if (prs.length === 0) return;
+
       const operationId = createBulkOperationId();
       const newOperation: BulkActionOperation = {
         id: operationId,
@@ -49,46 +59,52 @@ export function BulkActionProvider({ children }: { children: ReactNode }) {
         timestamp: Date.now(),
       };
 
+      // Toast workflow: keep the detail modal closed until the user re-opens it.
       setOperations((prev) => [...prev, newOperation]);
-      setActiveOperationId(operationId);
 
-      await BulkActionsService.executeBulkAction(
-        prs,
-        type,
-        (newProgress) => {
-          setOperations((prev) =>
-            prev.map((op) =>
-              op.id === operationId ? { ...op, progress: newProgress } : op,
-            ),
-          );
-        },
-        (result) => {
-          if (result.success && result.updatedFields) {
-            optimisticUpdate(result.prId, result.updatedFields);
-          }
-        },
-      );
-
-      setOperations((prev) =>
-        prev.map((op) =>
-          op.id === operationId ? { ...op, isExecuting: false } : op,
-        ),
-      );
+      try {
+        await BulkActionsService.executeBulkAction(
+          prs,
+          type,
+          (newProgress) => {
+            setOperations((prev) =>
+              prev.map((op) =>
+                op.id === operationId ? { ...op, progress: newProgress } : op,
+              ),
+            );
+          },
+          (result) => {
+            if (result.success && result.updatedFields) {
+              optimisticUpdate(result.prId, result.updatedFields);
+            }
+          },
+        );
+      } finally {
+        setOperations((prev) =>
+          prev.map((op) =>
+            op.id === operationId ? { ...op, isExecuting: false } : op,
+          ),
+        );
+      }
     },
     [optimisticUpdate],
   );
 
   const confirmPendingAction = useCallback(() => {
-    if (!pendingConfirmation) return;
-    const { prs, type } = pendingConfirmation;
+    const pending = pendingConfirmationRef.current;
+    if (!pending) return;
+
+    const { prs, type } = pending;
+    pendingConfirmationRef.current = null;
     setPendingConfirmation(null);
     // Hand off to toast workflow; user can re-open details from the toast.
     setIsModalOpen(false);
     setActiveOperationId(null);
     void runOperation(prs, type);
-  }, [pendingConfirmation, runOperation]);
+  }, [runOperation]);
 
   const openOperationModal = useCallback((operationId: string) => {
+    pendingConfirmationRef.current = null;
     setPendingConfirmation(null);
     setActiveOperationId(operationId);
     setIsModalOpen(true);
@@ -96,6 +112,7 @@ export function BulkActionProvider({ children }: { children: ReactNode }) {
 
   const closeModal = useCallback(() => {
     setIsModalOpen(false);
+    pendingConfirmationRef.current = null;
     setPendingConfirmation(null);
   }, []);
 

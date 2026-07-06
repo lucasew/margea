@@ -12,12 +12,10 @@ export function GlobalBulkActionModal() {
     closeModal,
   } = useBulkAction();
 
-  if (!isModalOpen) return null;
-
   if (pendingConfirmation) {
     return (
       <BulkActionModal
-        isOpen
+        isOpen={isModalOpen}
         mode="confirm"
         actionType={pendingConfirmation.type}
         progress={pendingConfirmation.progress}
@@ -33,7 +31,7 @@ export function GlobalBulkActionModal() {
 
   return (
     <BulkActionModal
-      isOpen
+      isOpen={isModalOpen}
       mode="progress"
       actionType={activeOperation.type}
       progress={activeOperation.progress}
