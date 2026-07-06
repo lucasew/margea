@@ -27,7 +27,7 @@ export function BulkActionToast() {
         return (
           <div
             key={id}
-            className={`alert ${alertClass} shadow-lg flex-row gap-2 min-w-[300px]`}
+            className={`alert ${alertClass} shadow-lg flex-row gap-2 w-80 max-w-[calc(100vw-2rem)] shrink-0`}
           >
             {isExecuting ? (
               <span className="loading loading-spinner loading-sm"></span>

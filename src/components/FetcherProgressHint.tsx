@@ -39,7 +39,7 @@ export function FetcherProgressHint() {
       type="button"
       onClick={handleAskMore}
       disabled={!canAskForMore}
-      className={`inline-flex items-center gap-2.5 rounded-full px-4 py-1.5 text-base font-medium shadow-md border transition active:scale-[0.985] select-none
+      className={`inline-flex w-fit max-w-fit shrink-0 items-center gap-2.5 rounded-full px-4 py-1.5 text-base font-medium shadow-md border transition active:scale-[0.985] select-none
         ${
           isFetching
             ? 'bg-base-300 border-base-300 text-base-content cursor-default'
