@@ -1,7 +1,9 @@
 import { test, expect } from '@playwright/test';
-import en from '../src/locales/en.json' assert { type: 'json' };
+import { translations } from './utils/translations';
 
 test.describe('Unauthenticated entry', () => {
+  const en = translations.en;
+
   test.beforeEach(async ({ page, context }) => {
     await context.clearCookies();
     await page.goto('/');

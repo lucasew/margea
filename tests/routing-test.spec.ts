@@ -2,13 +2,11 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Routing Tests', () => {
   test('home page loads correctly', async ({ page }) => {
-    test.fixme();
     await page.goto('http://localhost:3000/');
     await expect(page.locator('h1')).toContainText('Margea');
   });
 
   test('orgs route loads correctly on refresh', async ({ page }) => {
-    test.fixme();
     await page.goto('http://localhost:3000/orgs');
 
     // Wait for page to load
@@ -23,7 +21,6 @@ test.describe('Routing Tests', () => {
   });
 
   test('org/:owner route loads correctly on refresh', async ({ page }) => {
-    test.fixme();
     await page.goto('http://localhost:3000/org/facebook');
 
     await page.waitForLoadState('networkidle');
@@ -35,7 +32,6 @@ test.describe('Routing Tests', () => {
   });
 
   test('/:owner/:repo route loads correctly on refresh', async ({ page }) => {
-    test.fixme();
     await page.goto('http://localhost:3000/facebook/react');
 
     await page.waitForLoadState('networkidle');
