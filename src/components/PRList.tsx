@@ -1,6 +1,6 @@
 import { Suspense, useState, useEffect, useRef } from 'react';
 import { useSearchParams, useLocation, useNavigate } from 'react-router-dom';
-import { RefreshCw, AlertTriangle, AlertCircle, Plus } from 'react-feather';
+import { RefreshCw, AlertTriangle, AlertCircle, Plus, Info } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import {
   ErrorBoundary as ReactErrorBoundary,
@@ -10,7 +10,6 @@ import { filterPullRequests } from '../services/prFilter';
 import { calculateStats } from '../services/prStats';
 import { PRGroupCard } from './PRGroupCard';
 import { PRGroupDetail } from './PRGroupDetail';
-import { InfoIcon } from './icons/InfoIcon';
 import { reportError } from '../utils/errorReporting';
 import { PRGroup, GroupingStrategy } from '../types';
 import { PRState, URL_SEARCH_PARAMS } from '../constants';
@@ -294,7 +293,7 @@ function PRListContent() {
 
         {groups.length === 0 && !isLoading && !error ? (
           <div role="alert" className="alert alert-info py-2.5 text-sm">
-            <InfoIcon />
+            <Info size={18} />
             <span>{t('prList.noPRs')}</span>
           </div>
         ) : (
