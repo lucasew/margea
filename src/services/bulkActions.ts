@@ -3,6 +3,7 @@ import { relayEnvironment } from '../relay/environment';
 import { MergePullRequestMutation } from '../queries/MergePullRequestMutation';
 import { ClosePullRequestMutation } from '../queries/ClosePullRequestMutation';
 import { executeWithRetry } from '../utils/retry';
+import { isRateLimitErrorMessage } from '../utils/rateLimitError';
 import { DEFAULT_MERGE_METHOD } from '../constants';
 import type {
   PullRequest,
@@ -12,7 +13,10 @@ import type {
 } from '../types';
 import type { MergePullRequestMutation$data } from '../queries/__generated__/MergePullRequestMutation.graphql';
 import type { ClosePullRequestMutation$data } from '../queries/__generated__/ClosePullRequestMutation.graphql';
-import type { RecordSourceSelectorProxy } from 'relay-runtime';
+import type {
+  GraphQLTaggedNode,
+  RecordSourceSelectorProxy,
+} from 'relay-runtime';
 
 /**
  * Represents the result of a single bulk action operation on a Pull Request.
@@ -27,6 +31,9 @@ export interface BulkActionResult {
   /** Error message if the operation failed. */
   error?: string;
 }
+
+type TerminalPrState = 'MERGED' | 'CLOSED';
+type TerminalTimestampKey = 'mergedAt' | 'closedAt';
 
 function updatePullRequestRecord(
   store: RecordSourceSelectorProxy,
@@ -46,131 +53,120 @@ function updatePullRequestRecord(
   if (fields.updatedAt) prRecord.setValue(fields.updatedAt, 'updatedAt');
 }
 
+function optimisticTerminalFields(
+  state: TerminalPrState,
+  timestampKey: TerminalTimestampKey,
+): Partial<PullRequest> {
+  const now = new Date().toISOString();
+  return { state, [timestampKey]: now, updatedAt: now };
+}
+
+function toTerminalFields(
+  state: TerminalPrState,
+  timestampKey: TerminalTimestampKey,
+  pullRequest: { [K in TerminalTimestampKey]?: string | null } | null | undefined,
+): Partial<PullRequest> {
+  const now = new Date().toISOString();
+  if (!pullRequest) return { state, updatedAt: now };
+
+  const timestamp = pullRequest[timestampKey] ?? null;
+  return {
+    state,
+    [timestampKey]: timestamp,
+    updatedAt: timestamp ?? now,
+  };
+}
+
 function toMergeFields(
   data?: MergePullRequestMutation$data | null,
 ): Partial<PullRequest> {
-  const mergedPR = data?.mergePullRequest?.pullRequest;
-  if (!mergedPR)
-    return { state: 'MERGED', updatedAt: new Date().toISOString() };
-
-  const updatedAt = mergedPR.mergedAt ?? new Date().toISOString();
-  return {
-    state: 'MERGED',
-    mergedAt: mergedPR.mergedAt ?? null,
-    updatedAt,
-  };
+  return toTerminalFields(
+    'MERGED',
+    'mergedAt',
+    data?.mergePullRequest?.pullRequest,
+  );
 }
 
 function toCloseFields(
   data?: ClosePullRequestMutation$data | null,
 ): Partial<PullRequest> {
-  const closedPR = data?.closePullRequest?.pullRequest;
-  if (!closedPR)
-    return { state: 'CLOSED', updatedAt: new Date().toISOString() };
+  return toTerminalFields(
+    'CLOSED',
+    'closedAt',
+    data?.closePullRequest?.pullRequest,
+  );
+}
 
-  const updatedAt = closedPR.closedAt ?? new Date().toISOString();
-  return {
-    state: 'CLOSED',
-    closedAt: closedPR.closedAt ?? null,
-    updatedAt,
-  };
+function commitPullRequestMutation(options: {
+  prId: string;
+  mutation: GraphQLTaggedNode;
+  variables: { input: Record<string, unknown> };
+  optimisticFields: Partial<PullRequest>;
+  toFields: (data: unknown) => Partial<PullRequest>;
+}): Promise<BulkActionResult> {
+  const { prId, mutation, variables, optimisticFields, toFields } = options;
+
+  return new Promise((resolve) => {
+    commitMutation(relayEnvironment, {
+      mutation,
+      variables,
+      optimisticUpdater: (store) => {
+        updatePullRequestRecord(store, prId, optimisticFields);
+      },
+      updater: (store, data) => {
+        updatePullRequestRecord(store, prId, toFields(data));
+      },
+      onCompleted: (response) => {
+        resolve({
+          success: true,
+          prId,
+          updatedFields: toFields(response),
+        });
+      },
+      onError: (error: Error) => {
+        resolve({
+          success: false,
+          prId,
+          error: error.message,
+        });
+      },
+      // Relay's commitMutation is generic over mutation payloads; merge/close
+      // share one control flow with a narrow toFields adapter per action.
+    } as Parameters<typeof commitMutation>[1]);
+  });
 }
 
 const performMergeMutation = (
   prId: string,
   mergeMethod: MergeMethod = DEFAULT_MERGE_METHOD,
-): Promise<BulkActionResult> => {
-  const optimisticNow = new Date().toISOString();
-  const optimisticFields: Partial<PullRequest> = {
-    state: 'MERGED',
-    mergedAt: optimisticNow,
-    updatedAt: optimisticNow,
-  };
-
-  return new Promise((resolve) => {
-    commitMutation(relayEnvironment, {
-      mutation: MergePullRequestMutation,
-      variables: {
-        input: {
-          pullRequestId: prId,
-          mergeMethod,
-        },
+): Promise<BulkActionResult> =>
+  commitPullRequestMutation({
+    prId,
+    mutation: MergePullRequestMutation,
+    variables: {
+      input: {
+        pullRequestId: prId,
+        mergeMethod,
       },
-      optimisticUpdater: (store) => {
-        updatePullRequestRecord(store, prId, optimisticFields);
-      },
-      updater: (store, data) => {
-        const fields = toMergeFields(
-          data as MergePullRequestMutation$data | null | undefined,
-        );
-        updatePullRequestRecord(store, prId, fields);
-      },
-      onCompleted: (response) => {
-        const updatedFields = toMergeFields(
-          response as MergePullRequestMutation$data | null | undefined,
-        );
-        resolve({
-          success: true,
-          prId,
-          updatedFields,
-        });
-      },
-      onError: (error: Error) => {
-        resolve({
-          success: false,
-          prId,
-          error: error.message,
-        });
-      },
-    });
+    },
+    optimisticFields: optimisticTerminalFields('MERGED', 'mergedAt'),
+    toFields: (data) =>
+      toMergeFields(data as MergePullRequestMutation$data | null | undefined),
   });
-};
 
-const performCloseMutation = (prId: string): Promise<BulkActionResult> => {
-  const optimisticNow = new Date().toISOString();
-  const optimisticFields: Partial<PullRequest> = {
-    state: 'CLOSED',
-    closedAt: optimisticNow,
-    updatedAt: optimisticNow,
-  };
-
-  return new Promise((resolve) => {
-    commitMutation(relayEnvironment, {
-      mutation: ClosePullRequestMutation,
-      variables: {
-        input: {
-          pullRequestId: prId,
-        },
+const performCloseMutation = (prId: string): Promise<BulkActionResult> =>
+  commitPullRequestMutation({
+    prId,
+    mutation: ClosePullRequestMutation,
+    variables: {
+      input: {
+        pullRequestId: prId,
       },
-      optimisticUpdater: (store) => {
-        updatePullRequestRecord(store, prId, optimisticFields);
-      },
-      updater: (store, data) => {
-        const fields = toCloseFields(
-          data as ClosePullRequestMutation$data | null | undefined,
-        );
-        updatePullRequestRecord(store, prId, fields);
-      },
-      onCompleted: (response) => {
-        const updatedFields = toCloseFields(
-          response as ClosePullRequestMutation$data | null | undefined,
-        );
-        resolve({
-          success: true,
-          prId,
-          updatedFields,
-        });
-      },
-      onError: (error: Error) => {
-        resolve({
-          success: false,
-          prId,
-          error: error.message,
-        });
-      },
-    });
+    },
+    optimisticFields: optimisticTerminalFields('CLOSED', 'closedAt'),
+    toFields: (data) =>
+      toCloseFields(data as ClosePullRequestMutation$data | null | undefined),
   });
-};
 
 export const BulkActionsService = {
   /**
@@ -254,15 +250,7 @@ export const BulkActionsService = {
           async () => {
             const res = await performAction(pr.id);
 
-            // Verificar se é erro de rate limit
-            const isRateLimitError =
-              res.error &&
-              (res.error.toLowerCase().includes('rate limit') ||
-                res.error.toLowerCase().includes('ratelimit') ||
-                res.error.toLowerCase().includes('too many requests') ||
-                res.error.includes('429'));
-
-            if (!res.success && isRateLimitError) {
+            if (!res.success && res.error && isRateLimitErrorMessage(res.error)) {
               throw new Error(res.error);
             }
 
@@ -272,18 +260,8 @@ export const BulkActionsService = {
             maxRetries: 5,
             initialDelayMs: 2000,
             backoffFactor: 2,
-            shouldRetry: (error) => {
-              if (error instanceof Error) {
-                const msg = error.message.toLowerCase();
-                return (
-                  msg.includes('rate limit') ||
-                  msg.includes('ratelimit') ||
-                  msg.includes('too many requests') ||
-                  msg.includes('429')
-                );
-              }
-              return false;
-            },
+            shouldRetry: (error) =>
+              error instanceof Error && isRateLimitErrorMessage(error.message),
             onRetry: (attempt, delayMs) => {
               progressMap.set(pr.id, {
                 ...progressMap.get(pr.id)!,
