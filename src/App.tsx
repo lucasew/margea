@@ -3,6 +3,7 @@ import './i18n';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { RelayEnvironmentProvider } from 'react-relay';
 import { relayEnvironment } from './relay/environment';
+import { APP_ROUTES } from './constants';
 import { LoginPage } from './components/LoginPage';
 import { HomePage } from './components/HomePage';
 import { ErrorBoundary } from './components/ErrorBoundary';
@@ -22,16 +23,19 @@ function AuthenticatedApp() {
         <BulkActionProvider>
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<MainLayout />}>
+              <Route path={APP_ROUTES.HOME} element={<MainLayout />}>
                 <Route index element={<HomePage />} />
-                <Route path="/orgs" element={<Navigate to="/" replace />} />
                 <Route
-                  path="/org/:owner"
-                  element={<Navigate to="/" replace />}
+                  path={APP_ROUTES.ORGS}
+                  element={<Navigate to={APP_ROUTES.HOME} replace />}
                 />
                 <Route
-                  path="/:owner/:repo"
-                  element={<Navigate to="/" replace />}
+                  path={APP_ROUTES.ORG_DETAIL}
+                  element={<Navigate to={APP_ROUTES.HOME} replace />}
+                />
+                <Route
+                  path={APP_ROUTES.REPO_DETAIL}
+                  element={<Navigate to={APP_ROUTES.HOME} replace />}
                 />
               </Route>
             </Routes>
