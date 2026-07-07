@@ -46,9 +46,7 @@ function PRListContent() {
   const groupBy =
     (searchParams.get(URL_SEARCH_PARAMS.GROUP_BY) as GroupingStrategy) ||
     'renovate';
-  const sortBy = parseSortStrategy(
-    searchParams.get(URL_SEARCH_PARAMS.SORT_BY),
-  );
+  const sortBy = parseSortStrategy(searchParams.get(URL_SEARCH_PARAMS.SORT_BY));
 
   // Persist filters in sessionStorage
   const [isRestored, setIsRestored] = useState(false);
