@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { Eye, Edit, Key } from 'react-feather';
+import { Eye, Edit, Key, Info } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import { Logo } from './Logo';
 import { Footer } from './Footer';
 import { ThemeToggle } from './ThemeToggle';
-import { InfoIcon } from './icons/InfoIcon';
 import { useAuth } from '../hooks/useAuth';
 import { reportError } from '../utils/errorReporting';
 import { API_ROUTES } from '../constants';
@@ -94,7 +93,7 @@ export function LoginPage() {
 
           {reauthMode && (
             <div className="alert alert-info mb-5 py-2.5 text-sm">
-              <InfoIcon />
+              <Info size={18} />
               <span>
                 {t('loginPage.reauthorizingMessage', {
                   currentMode:
