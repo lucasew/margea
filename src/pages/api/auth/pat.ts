@@ -1,4 +1,5 @@
 import { SignJWT } from 'jose';
+import { isSecureRequest } from '../../../utils/requestUtils';
 
 interface PATAuthRequestBody {
   token?: string;
@@ -57,10 +58,7 @@ export async function POST({ request }: { request: Request }) {
     .setExpirationTime('7d')
     .sign(secret);
 
-  const requestUrl = new URL(request.url);
-  const forwardedProto = request.headers.get('x-forwarded-proto');
-  const isHttps =
-    requestUrl.protocol === 'https:' || forwardedProto === 'https';
+  const isHttps = isSecureRequest(request);
 
   const response = new Response(JSON.stringify({ success: true }), {
     headers: {
