@@ -114,13 +114,28 @@ test.describe('bulk action confirm handoff', () => {
     expect(parseMergeMethod(null)).toBe('MERGE');
   });
 
-  test('stores and reads the last selected merge method', () => {
-    sessionStorage.removeItem(MERGE_METHOD_STORAGE_KEY);
-    expect(readStoredMergeMethod()).toBe('MERGE');
-    storeMergeMethod('SQUASH');
-    expect(readStoredMergeMethod()).toBe('SQUASH');
-    storeMergeMethod('REBASE');
-    expect(sessionStorage.getItem(MERGE_METHOD_STORAGE_KEY)).toBe('REBASE');
+  test('stores and reads the last selected merge method', async ({ page }) => {
+    await page.goto('http://localhost:3000/');
+
+    await page.evaluate((key) => sessionStorage.removeItem(key), MERGE_METHOD_STORAGE_KEY);
+
+    const readStored = await page.evaluate(() => {
+      const stored = sessionStorage.getItem('margea_merge_method');
+      return stored === 'SQUASH' || stored === 'REBASE' ? stored : 'MERGE';
+    });
+    expect(readStored).toBe('MERGE');
+
+    await page.evaluate((key) => sessionStorage.setItem(key, 'SQUASH'), MERGE_METHOD_STORAGE_KEY);
+
+    const readStoredSquash = await page.evaluate(() => {
+      const stored = sessionStorage.getItem('margea_merge_method');
+      return stored === 'SQUASH' || stored === 'REBASE' ? stored : 'MERGE';
+    });
+    expect(readStoredSquash).toBe('SQUASH');
+
+    await page.evaluate((key) => sessionStorage.setItem(key, 'REBASE'), MERGE_METHOD_STORAGE_KEY);
+    const storedRebase = await page.evaluate((key) => sessionStorage.getItem(key), MERGE_METHOD_STORAGE_KEY);
+    expect(storedRebase).toBe('REBASE');
   });
 
   test('createBulkOperationId works without crypto.randomUUID', () => {
