@@ -1,10 +1,5 @@
 import { useState, useMemo } from 'react';
-import {
-  PullRequest,
-  PRGroup,
-  GroupingStrategy,
-  SortStrategy,
-} from '../types';
+import { PullRequest, PRGroup, GroupingStrategy, SortStrategy } from '../types';
 import { DEFAULT_SORT_STRATEGY } from '../constants';
 import { groupPullRequests } from '../services/prGrouping';
 import { sortGroups } from '../services/prSort';
