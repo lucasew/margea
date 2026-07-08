@@ -11,6 +11,42 @@ import {
 import { MERGE_METHOD_STORAGE_KEY } from '../src/constants';
 import type { PullRequest } from '../src/types';
 
+/** Minimal sessionStorage for unit-testing merge method helpers outside the browser. */
+function installMemorySessionStorage(): () => void {
+  const store = new Map<string, string>();
+  const previous = globalThis.sessionStorage;
+  const memoryStorage: Storage = {
+    get length() {
+      return store.size;
+    },
+    clear() {
+      store.clear();
+    },
+    getItem(key: string) {
+      return store.has(key) ? store.get(key)! : null;
+    },
+    key(index: number) {
+      return [...store.keys()][index] ?? null;
+    },
+    removeItem(key: string) {
+      store.delete(key);
+    },
+    setItem(key: string, value: string) {
+      store.set(key, value);
+    },
+  };
+  Object.defineProperty(globalThis, 'sessionStorage', {
+    configurable: true,
+    value: memoryStorage,
+  });
+  return () => {
+    Object.defineProperty(globalThis, 'sessionStorage', {
+      configurable: true,
+      value: previous,
+    });
+  };
+}
+
 function makePR(id: string): PullRequest {
   return {
     id,
@@ -114,28 +150,23 @@ test.describe('bulk action confirm handoff', () => {
     expect(parseMergeMethod(null)).toBe('MERGE');
   });
 
-  test('stores and reads the last selected merge method', async ({ page }) => {
-    await page.goto('http://localhost:3000/');
+  test('stores and reads the last selected merge method', () => {
+    const restore = installMemorySessionStorage();
+    try {
+      expect(readStoredMergeMethod()).toBe('MERGE');
 
-    await page.evaluate((key) => sessionStorage.removeItem(key), MERGE_METHOD_STORAGE_KEY);
+      storeMergeMethod('SQUASH');
+      expect(readStoredMergeMethod()).toBe('SQUASH');
+      expect(sessionStorage.getItem(MERGE_METHOD_STORAGE_KEY)).toBe('SQUASH');
 
-    const readStored = await page.evaluate(() => {
-      const stored = sessionStorage.getItem('margea_merge_method');
-      return stored === 'SQUASH' || stored === 'REBASE' ? stored : 'MERGE';
-    });
-    expect(readStored).toBe('MERGE');
+      storeMergeMethod('REBASE');
+      expect(readStoredMergeMethod()).toBe('REBASE');
 
-    await page.evaluate((key) => sessionStorage.setItem(key, 'SQUASH'), MERGE_METHOD_STORAGE_KEY);
-
-    const readStoredSquash = await page.evaluate(() => {
-      const stored = sessionStorage.getItem('margea_merge_method');
-      return stored === 'SQUASH' || stored === 'REBASE' ? stored : 'MERGE';
-    });
-    expect(readStoredSquash).toBe('SQUASH');
-
-    await page.evaluate((key) => sessionStorage.setItem(key, 'REBASE'), MERGE_METHOD_STORAGE_KEY);
-    const storedRebase = await page.evaluate((key) => sessionStorage.getItem(key), MERGE_METHOD_STORAGE_KEY);
-    expect(storedRebase).toBe('REBASE');
+      sessionStorage.setItem(MERGE_METHOD_STORAGE_KEY, 'nope');
+      expect(readStoredMergeMethod()).toBe('MERGE');
+    } finally {
+      restore();
+    }
   });
 
   test('createBulkOperationId works without crypto.randomUUID', () => {
