@@ -1,4 +1,8 @@
-import { EFFECTIVE_MODE_STORAGE_KEY, API_ROUTES, APP_ROUTES } from '../constants';
+import {
+  EFFECTIVE_MODE_STORAGE_KEY,
+  API_ROUTES,
+  APP_ROUTES,
+} from '../constants';
 import { reportError } from '../utils/errorReporting';
 
 /**
