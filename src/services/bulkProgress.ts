@@ -74,7 +74,11 @@ function createRandomIdSuffix(): string {
   }
 
   fallbackIdCounter += 1;
-  return `fallback_${fallbackIdCounter}_${Math.random().toString(36).slice(2, 11)}`;
+  // If we reach this point, the environment lacks crypto APIs.
+  // We use Date.now() for uniqueness, but we need entropy to avoid collisions across instances.
+  // We cannot use Math.random() due to security/linting rules, so we'll throw an Error if crypto is unavailable.
+  // In any modern browser or Node.js environment, crypto is available.
+  throw new Error('crypto API is required to securely generate random IDs');
 }
 
 export function createBulkOperationId(): string {
