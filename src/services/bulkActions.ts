@@ -14,10 +14,7 @@ import type {
 } from '../types';
 import type { MergePullRequestMutation$data } from '../queries/__generated__/MergePullRequestMutation.graphql';
 import type { ClosePullRequestMutation$data } from '../queries/__generated__/ClosePullRequestMutation.graphql';
-import type {
-  GraphQLTaggedNode,
-  RecordSourceSelectorProxy,
-} from 'relay-runtime';
+import type { GraphQLTaggedNode } from 'relay-runtime';
 
 /** Retries after the first rate-limit failure during a bulk action. */
 const BULK_RATE_LIMIT_MAX_RETRIES = 5;
@@ -31,7 +28,11 @@ export interface BulkActionResult {
   success: boolean;
   /** The ID of the Pull Request involved. */
   prId: string;
-  /** Fields confirmed by backend and suitable for local state update. */
+  /**
+   * Fields confirmed by the backend for prMap (list SoT).
+   * Relay store is not used for PR list state — adaptive multi-scope
+   * search does not fit connection pagination.
+   */
   updatedFields?: Partial<PullRequest>;
   /** Error message if the operation failed. */
   error?: string;
@@ -39,32 +40,6 @@ export interface BulkActionResult {
 
 type TerminalPrState = 'MERGED' | 'CLOSED';
 type TerminalTimestampKey = 'mergedAt' | 'closedAt';
-
-function updatePullRequestRecord(
-  store: RecordSourceSelectorProxy,
-  prId: string,
-  fields: Partial<PullRequest>,
-) {
-  const prRecord = store.get(prId);
-  if (!prRecord) return;
-
-  if (fields.state) prRecord.setValue(fields.state, 'state');
-  if (typeof fields.mergedAt !== 'undefined') {
-    prRecord.setValue(fields.mergedAt, 'mergedAt');
-  }
-  if (typeof fields.closedAt !== 'undefined') {
-    prRecord.setValue(fields.closedAt, 'closedAt');
-  }
-  if (fields.updatedAt) prRecord.setValue(fields.updatedAt, 'updatedAt');
-}
-
-function optimisticTerminalFields(
-  state: TerminalPrState,
-  timestampKey: TerminalTimestampKey,
-): Partial<PullRequest> {
-  const now = new Date().toISOString();
-  return { state, [timestampKey]: now, updatedAt: now };
-}
 
 function toTerminalFields(
   state: TerminalPrState,
@@ -105,25 +80,22 @@ function toCloseFields(
   );
 }
 
+/**
+ * Runs a merge/close mutation. Relay is the network layer only — list UI
+ * updates flow through updatedFields → BulkActionProvider → prMap.
+ */
 function commitPullRequestMutation(options: {
   prId: string;
   mutation: GraphQLTaggedNode;
   variables: { input: Record<string, unknown> };
-  optimisticFields: Partial<PullRequest>;
   toFields: (data: unknown) => Partial<PullRequest>;
 }): Promise<BulkActionResult> {
-  const { prId, mutation, variables, optimisticFields, toFields } = options;
+  const { prId, mutation, variables, toFields } = options;
 
   return new Promise((resolve) => {
     commitMutation(relayEnvironment, {
       mutation,
       variables,
-      optimisticUpdater: (store) => {
-        updatePullRequestRecord(store, prId, optimisticFields);
-      },
-      updater: (store, data) => {
-        updatePullRequestRecord(store, prId, toFields(data));
-      },
       onCompleted: (response) => {
         resolve({
           success: true,
@@ -157,7 +129,6 @@ const performMergeMutation = (
         mergeMethod,
       },
     },
-    optimisticFields: optimisticTerminalFields('MERGED', 'mergedAt'),
     toFields: (data) =>
       toMergeFields(data as MergePullRequestMutation$data | null | undefined),
   });
@@ -171,7 +142,6 @@ const performCloseMutation = (prId: string): Promise<BulkActionResult> =>
         pullRequestId: prId,
       },
     },
-    optimisticFields: optimisticTerminalFields('CLOSED', 'closedAt'),
     toFields: (data) =>
       toCloseFields(data as ClosePullRequestMutation$data | null | undefined),
   });
