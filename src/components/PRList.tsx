@@ -1,6 +1,12 @@
 import { Suspense, useState, useEffect, useRef } from 'react';
 import { useSearchParams, useLocation } from 'react-router-dom';
-import { RefreshCw, AlertTriangle, AlertCircle, Plus, Info } from 'react-feather';
+import {
+  RefreshCw,
+  AlertTriangle,
+  AlertCircle,
+  Plus,
+  Info,
+} from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import {
   ErrorBoundary as ReactErrorBoundary,
