@@ -15,7 +15,7 @@ export const translations = {
       patLabel: 'Personal Access Token (PAT)',
       enterPAT: 'Enter your access token',
       patPlaceholder: 'Paste your GitHub token',
-      continueWithPAT: 'Continue with PAT'
+      continueWithPAT: 'Continue with PAT',
     },
   },
 };

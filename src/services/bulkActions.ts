@@ -64,7 +64,10 @@ function optimisticTerminalFields(
 function toTerminalFields(
   state: TerminalPrState,
   timestampKey: TerminalTimestampKey,
-  pullRequest: { [K in TerminalTimestampKey]?: string | null } | null | undefined,
+  pullRequest:
+    | { [K in TerminalTimestampKey]?: string | null }
+    | null
+    | undefined,
 ): Partial<PullRequest> {
   const now = new Date().toISOString();
   if (!pullRequest) return { state, updatedAt: now };
@@ -250,7 +253,11 @@ export const BulkActionsService = {
           async () => {
             const res = await performAction(pr.id);
 
-            if (!res.success && res.error && isRateLimitErrorMessage(res.error)) {
+            if (
+              !res.success &&
+              res.error &&
+              isRateLimitErrorMessage(res.error)
+            ) {
               throw new Error(res.error);
             }
 
