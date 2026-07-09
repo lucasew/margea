@@ -5,6 +5,7 @@ import { ClosePullRequestMutation } from '../queries/ClosePullRequestMutation';
 import { executeWithRetry } from '../utils/retry';
 import { isRateLimitErrorMessage } from '../utils/rateLimitError';
 import { DEFAULT_MERGE_METHOD } from '../constants';
+import i18n from '../i18n';
 import type {
   PullRequest,
   BulkActionProgress,
@@ -17,6 +18,10 @@ import type {
   GraphQLTaggedNode,
   RecordSourceSelectorProxy,
 } from 'relay-runtime';
+
+/** Retries after the first rate-limit failure during a bulk action. */
+const BULK_RATE_LIMIT_MAX_RETRIES = 5;
+const BULK_RATE_LIMIT_INITIAL_DELAY_MS = 2000;
 
 /**
  * Represents the result of a single bulk action operation on a Pull Request.
@@ -64,7 +69,10 @@ function optimisticTerminalFields(
 function toTerminalFields(
   state: TerminalPrState,
   timestampKey: TerminalTimestampKey,
-  pullRequest: { [K in TerminalTimestampKey]?: string | null } | null | undefined,
+  pullRequest:
+    | { [K in TerminalTimestampKey]?: string | null }
+    | null
+    | undefined,
 ): Partial<PullRequest> {
   const now = new Date().toISOString();
   if (!pullRequest) return { state, updatedAt: now };
@@ -250,15 +258,19 @@ export const BulkActionsService = {
           async () => {
             const res = await performAction(pr.id);
 
-            if (!res.success && res.error && isRateLimitErrorMessage(res.error)) {
+            if (
+              !res.success &&
+              res.error &&
+              isRateLimitErrorMessage(res.error)
+            ) {
               throw new Error(res.error);
             }
 
             return res;
           },
           {
-            maxRetries: 5,
-            initialDelayMs: 2000,
+            maxRetries: BULK_RATE_LIMIT_MAX_RETRIES,
+            initialDelayMs: BULK_RATE_LIMIT_INITIAL_DELAY_MS,
             backoffFactor: 2,
             shouldRetry: (error) =>
               error instanceof Error && isRateLimitErrorMessage(error.message),
@@ -266,9 +278,11 @@ export const BulkActionsService = {
               progressMap.set(pr.id, {
                 ...progressMap.get(pr.id)!,
                 status: 'processing',
-                error: `Rate limit - tentativa ${attempt}/5 (aguardando ${
-                  delayMs / 1000
-                }s)`,
+                error: i18n.t('bulkAction.rateLimitRetry', {
+                  attempt,
+                  max: BULK_RATE_LIMIT_MAX_RETRIES,
+                  seconds: delayMs / 1000,
+                }),
               });
               onProgress(Array.from(progressMap.values()));
             },

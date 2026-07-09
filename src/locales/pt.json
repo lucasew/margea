@@ -207,7 +207,8 @@
     "processing": "Processando ({{done}}/{{total}})",
     "completed": "Concluído: {{success}} sucesso, {{error}} erro",
     "detailsAria": "Detalhes",
-    "closeAria": "Fechar"
+    "closeAria": "Fechar",
+    "rateLimitRetry": "Rate limit — tentativa {{attempt}}/{{max}} (aguardando {{seconds}}s)"
   },
   "fetcher": {
     "ready": "Pronto",

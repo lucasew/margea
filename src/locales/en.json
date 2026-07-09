@@ -203,7 +203,8 @@
     "processing": "Processing ({{done}}/{{total}})",
     "completed": "Done: {{success}} success, {{error}} error",
     "detailsAria": "Details",
-    "closeAria": "Close"
+    "closeAria": "Close",
+    "rateLimitRetry": "Rate limit — attempt {{attempt}}/{{max}} (waiting {{seconds}}s)"
   },
   "fetcher": {
     "ready": "Ready",
