@@ -25,6 +25,18 @@ let capabilityCache: {
   scopes: string[];
 } | null = null;
 
+/**
+ * In-memory session token from /api/auth/token.
+ * undefined = cold; null = known unauthenticated; AuthData = logged in.
+ * Adaptive multi-scope GraphQL would otherwise re-hit the session endpoint
+ * on every page.
+ */
+let sessionAuthCache: AuthData | null | undefined = undefined;
+/** Bumped on invalidate so in-flight fetches do not repopulate a cleared cache. */
+let sessionAuthEpoch = 0;
+/** Single-flight: parallel getAuthData/getToken share one session request. */
+let sessionAuthInFlight: Promise<AuthData | null> | null = null;
+
 function readStoredEffectiveMode(): 'read' | 'write' | null {
   try {
     const stored = localStorage.getItem(EFFECTIVE_MODE_STORAGE_KEY);
@@ -73,8 +85,38 @@ export function noteTokenScopesFromHeaders(
   return capability;
 }
 
-function invalidateCapabilityCache(): void {
+/**
+ * Drop session token + capability caches (logout, 401, re-auth).
+ * Exported for tests; production callers use AuthService.logout().
+ */
+export function invalidateAuthSessionCache(): void {
+  sessionAuthEpoch += 1;
+  sessionAuthCache = undefined;
+  sessionAuthInFlight = null;
   capabilityCache = null;
+}
+
+async function loadAuthDataFromServer(): Promise<AuthData | null> {
+  const response = await fetch(API_ROUTES.AUTH_TOKEN, {
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    return null;
+  }
+
+  const data = (await response.json()) as {
+    token?: string;
+    mode?: string;
+  };
+  if (!data.token) {
+    return null;
+  }
+
+  return {
+    token: data.token,
+    loginMode: data.mode === 'write' ? 'write' : 'read',
+  };
 }
 
 /**
@@ -83,31 +125,41 @@ function invalidateCapabilityCache(): void {
  * Login read/write only steers OAuth authorize scopes. Actual write capability
  * is always derived from the live token (X-OAuth-Scopes), not session JWT mode.
  * Effective UI mode is a soft localStorage flag clamped by that capability.
+ *
+ * Session token is cached in memory and single-flighted: multi-scope PR
+ * fetches reuse one /api/auth/token round-trip until logout or 401.
  */
 export const AuthService = {
   async getAuthData(): Promise<AuthData | null> {
-    try {
-      const response = await fetch(API_ROUTES.AUTH_TOKEN, {
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        return null;
-      }
-
-      const data = await response.json();
-      if (!data.token) {
-        return null;
-      }
-
-      return {
-        token: data.token,
-        loginMode: data.mode === 'write' ? 'write' : 'read',
-      };
-    } catch (error) {
-      reportError(error, { context: 'fetching auth data' });
-      return null;
+    if (sessionAuthCache !== undefined) {
+      return sessionAuthCache;
     }
+
+    if (sessionAuthInFlight) {
+      return sessionAuthInFlight;
+    }
+
+    const epochAtStart = sessionAuthEpoch;
+
+    sessionAuthInFlight = (async () => {
+      try {
+        const data = await loadAuthDataFromServer();
+        if (epochAtStart === sessionAuthEpoch) {
+          sessionAuthCache = data;
+        }
+        return data;
+      } catch (error) {
+        reportError(error, { context: 'fetching auth data' });
+        // Transient network errors: do not cache null (retry next call).
+        return null;
+      } finally {
+        if (epochAtStart === sessionAuthEpoch) {
+          sessionAuthInFlight = null;
+        }
+      }
+    })();
+
+    return sessionAuthInFlight;
   },
 
   async getToken(): Promise<string | null> {
@@ -134,7 +186,7 @@ export const AuthService = {
       });
 
       if (response.status === 401) {
-        invalidateCapabilityCache();
+        invalidateAuthSessionCache();
         return 'read';
       }
 
@@ -243,7 +295,7 @@ export const AuthService = {
   },
 
   async logout(): Promise<void> {
-    invalidateCapabilityCache();
+    invalidateAuthSessionCache();
     try {
       await fetch(API_ROUTES.AUTH_LOGOUT, {
         method: 'POST',

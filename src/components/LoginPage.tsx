@@ -5,6 +5,7 @@ import { Logo } from './Logo';
 import { Footer } from './Footer';
 import { ThemeToggle } from './ThemeToggle';
 import { useAuth } from '../hooks/useAuth';
+import { invalidateAuthSessionCache } from '../services/auth';
 import { reportError } from '../utils/errorReporting';
 import { API_ROUTES } from '../constants';
 
@@ -26,6 +27,9 @@ export function LoginPage() {
       });
     } catch (error) {
       reportError(error, { context: 'logging out before re-auth' });
+    } finally {
+      // Cookie may be gone while JS still holds the old token — drop caches.
+      invalidateAuthSessionCache();
     }
   };
 
