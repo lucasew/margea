@@ -1,5 +1,5 @@
 import { Suspense, useState, useEffect, useRef } from 'react';
-import { useSearchParams, useLocation, useNavigate } from 'react-router-dom';
+import { useSearchParams, useLocation } from 'react-router-dom';
 import { RefreshCw, AlertTriangle, AlertCircle, Plus, Info } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 import {
@@ -21,7 +21,6 @@ import { useStablePRGroups } from '../hooks/useStablePRGroups';
 
 function PRListContent() {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
 
@@ -165,7 +164,9 @@ function PRListContent() {
   };
 
   const handleBackFromGroup = () => {
-    navigate(-1);
+    const newParams = new URLSearchParams(searchParams);
+    newParams.delete(URL_SEARCH_PARAMS.GROUP);
+    setSearchParams(newParams);
   };
 
   // Infinite Scroll Sentinel
