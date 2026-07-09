@@ -5,31 +5,12 @@ import { SearchPRsQuery as SearchPRsQueryType } from '../queries/__generated__/S
 import { transformPR } from './prTransformer';
 import { PullRequest } from '../types';
 import { BATCH_SIZE } from '../constants';
-import {
-  createScopeStream,
-  SCOPE_STREAM_IDLE,
-  type ScopeStream,
-  type ScopeStreamYield,
-  type AdaptiveFetchState,
-  type PageResult,
-  type PageFetcher,
-  INITIAL_INTERVAL_MS,
-} from './AdaptiveScopeFetcher';
+import { type PageResult, type PageFetcher } from './AdaptiveScopeFetcher';
 import {
   ABORT_SIGNAL_METADATA_KEY,
   createAbortError,
   isAbortError,
 } from '../utils/abort';
-
-export {
-  createScopeStream,
-  SCOPE_STREAM_IDLE,
-  type ScopeStream,
-  type ScopeStreamYield,
-  type AdaptiveFetchState,
-  type PageFetcher,
-  INITIAL_INTERVAL_MS,
-};
 
 function subscribeWithAbort<T>(
   observable: {
