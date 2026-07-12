@@ -166,6 +166,21 @@ test.describe('sortGroups', () => {
     ]);
   });
 
+  test('ci_failures counts only FAILURE (not PENDING or SUCCESS)', () => {
+    const withPending = [
+      makeGroup('many-pending', [
+        makePR('p1', { ciStatus: 'PENDING' }),
+        makePR('p2', { ciStatus: 'PENDING' }),
+        makePR('p3', { ciStatus: 'SUCCESS' }),
+      ]),
+      makeGroup('one-failure', [makePR('f1', { ciStatus: 'FAILURE' })]),
+    ];
+    expect(sortGroups(withPending, 'ci_failures').map((g) => g.key)).toEqual([
+      'one-failure',
+      'many-pending',
+    ]);
+  });
+
   test('repos sorts by unique repositories descending', () => {
     expect(sortGroups(groups, 'repos').map((g) => g.key)).toEqual([
       'alpha',
