@@ -1,0 +1,11 @@
+---
+/**
+ * Catch-all SPA shell for client-side routes (React Router).
+ * Serves the same document as index so hard refresh / deep links
+ * (e.g. /orgs, /org/:owner, /:owner/:repo) work under `astro dev`
+ * and SSR. More specific routes under pages/api/** still take priority.
+ */
+import SpaShell from '../layouts/SpaShell.astro';
+---
+
+<SpaShell />
