@@ -1,5 +1,5 @@
-import { SignJWT } from 'jose';
 import { isSecureRequest } from '../../../utils/requestUtils';
+import { buildSessionCookie, signSessionJwt } from './cookies';
 
 interface PATAuthRequestBody {
   token?: string;
@@ -49,14 +49,13 @@ export async function POST({ request }: { request: Request }) {
   }
 
   const secret = new TextEncoder().encode(secretValue);
-  const session = await new SignJWT({
-    github_token: token,
-    mode,
-  })
-    .setProtectedHeader({ alg: 'HS256' })
-    .setIssuedAt()
-    .setExpirationTime('7d')
-    .sign(secret);
+  const session = await signSessionJwt(
+    {
+      github_token: token,
+      mode,
+    },
+    secret,
+  );
 
   const isHttps = isSecureRequest(request);
 
@@ -67,12 +66,7 @@ export async function POST({ request }: { request: Request }) {
     },
   });
 
-  response.headers.set(
-    'Set-Cookie',
-    `session=${session}; HttpOnly; ${isHttps ? 'Secure; ' : ''}SameSite=Strict; Max-Age=${
-      60 * 60 * 24 * 7
-    }; Path=/`,
-  );
+  response.headers.set('Set-Cookie', buildSessionCookie(session, isHttps));
 
   return response;
 }

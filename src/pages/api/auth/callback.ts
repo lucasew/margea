@@ -1,7 +1,12 @@
-import { SignJWT, jwtVerify } from 'jose';
+import { jwtVerify } from 'jose';
 import { parse } from 'cookie';
 import { reportError } from '../../../utils/errorReporting';
 import { isSecureRequest } from '../../../utils/requestUtils';
+import {
+  buildSessionCookie,
+  clearOAuthStateCookie,
+  signSessionJwt,
+} from './cookies';
 
 export async function GET({ request }: { request: Request }) {
   const requestUrl = new URL(request.url);
@@ -127,22 +132,19 @@ export async function GET({ request }: { request: Request }) {
   }
 
   // Create a secure session JWT
-  const session = await new SignJWT({
-    github_token: access_token,
-    mode: mode,
-  })
-    .setProtectedHeader({ alg: 'HS256' })
-    .setIssuedAt()
-    .setExpirationTime('7d')
-    .sign(secret);
+  const session = await signSessionJwt(
+    {
+      github_token: access_token,
+      mode: mode,
+    },
+    secret,
+  );
 
   const baseUrl = requestUrl.origin;
 
   // Set the session cookie and clear the state cookie
-  const sessionCookie = `session=${session}; HttpOnly; ${isHttps ? 'Secure; ' : ''}SameSite=Strict; Max-Age=${
-    60 * 60 * 24 * 7
-  }; Path=/`;
-  const clearStateCookie = `oauth_state=; HttpOnly; Path=/; Max-Age=0`;
+  const sessionCookie = buildSessionCookie(session, isHttps);
+  const clearStateCookie = clearOAuthStateCookie();
 
   // 🛡️ SENTINEL: To set multiple cookies, we must use multiple `Set-Cookie` headers.
   // Using a single header with a comma-separated list is not compliant with RFC 6265.

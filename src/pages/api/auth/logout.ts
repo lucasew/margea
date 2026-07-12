@@ -1,4 +1,5 @@
 import { isSecureRequest } from '../../../utils/requestUtils';
+import { clearSessionCookie } from './cookies';
 
 export async function POST({ request }: { request: Request }) {
   const isHttps = isSecureRequest(request);
@@ -7,11 +8,8 @@ export async function POST({ request }: { request: Request }) {
     headers: { 'Content-Type': 'application/json' },
   });
 
-  // Limpar cookie
-  response.headers.set(
-    'Set-Cookie',
-    `session=; HttpOnly; ${isHttps ? 'Secure; ' : ''}SameSite=Strict; Max-Age=0; Path=/`,
-  );
+  // Clear session cookie
+  response.headers.set('Set-Cookie', clearSessionCookie(isHttps));
 
   return response;
 }

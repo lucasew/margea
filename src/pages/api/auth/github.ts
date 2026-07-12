@@ -1,6 +1,7 @@
 import { SignJWT } from 'jose';
 import { reportError } from '../../../utils/errorReporting';
 import { isSecureRequest } from '../../../utils/requestUtils';
+import { buildOAuthStateCookie } from './cookies';
 
 export async function GET({ request }: { request: Request }) {
   const clientId = import.meta.env.GITHUB_CLIENT_ID;
@@ -53,10 +54,7 @@ export async function GET({ request }: { request: Request }) {
 
   // Keep cookie as an optional second validation channel (double-submit style).
   const isHttps = isSecureRequest(request);
-
-  const cookie = `oauth_state=${stateToken}; HttpOnly; ${
-    isHttps ? 'Secure; ' : ''
-  }Path=/; SameSite=Lax; Max-Age=300`; // 5 minutes expiry
+  const cookie = buildOAuthStateCookie(stateToken, isHttps);
 
   // Redirect to GitHub, including the CSRF state and the new cookie.
   return new Response(null, {
