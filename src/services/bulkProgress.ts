@@ -74,7 +74,10 @@ function createRandomIdSuffix(): string {
   }
 
   fallbackIdCounter += 1;
-  return `fallback_${fallbackIdCounter}_${Math.random().toString(36).slice(2, 11)}`;
+  // Absolute last resort when crypto is unavailable (extremely rare in modern
+  // browsers/Node). Counter + timestamp keep ids unique within the process
+  // without non-crypto Math.random noise.
+  return `fallback_${fallbackIdCounter}_${Date.now()}`;
 }
 
 export function createBulkOperationId(): string {
