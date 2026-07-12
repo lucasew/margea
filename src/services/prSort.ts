@@ -1,5 +1,6 @@
 import { DEFAULT_SORT_STRATEGY, SORT_STRATEGIES } from '../constants';
 import type { PRGroup, PullRequest, SortStrategy } from '../types';
+import { countCiStatuses } from './ciStatus';
 
 function isSortStrategy(value: string): value is SortStrategy {
   return Object.prototype.hasOwnProperty.call(SORT_STRATEGIES, value);
@@ -34,14 +35,6 @@ function minTimestamp(
     if (!Number.isNaN(time) && time < min) min = time;
   }
   return min === Number.POSITIVE_INFINITY ? 0 : min;
-}
-
-function countCiFailures(prs: PullRequest[]): number {
-  let failures = 0;
-  for (const pr of prs) {
-    if (pr.ciStatus === 'FAILURE') failures++;
-  }
-  return failures;
 }
 
 function countRepos(prs: PullRequest[]): number {
@@ -95,7 +88,10 @@ export function sortGroups(
       case 'name':
         return compareByName(a, b);
       case 'ci_failures':
-        primary = compareDesc(countCiFailures(a.prs), countCiFailures(b.prs));
+        primary = compareDesc(
+          countCiStatuses(a.prs).failure,
+          countCiStatuses(b.prs).failure,
+        );
         break;
       case 'repos':
         primary = compareDesc(countRepos(a.prs), countRepos(b.prs));
