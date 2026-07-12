@@ -6,10 +6,17 @@ import en from './locales/en.json';
 import es from './locales/es.json';
 import pt from './locales/pt.json';
 
+/** Supported <html lang> tags (resource keys). Longest prefix match wins. */
+const HTML_LANGS = ['en', 'es', 'pt'] as const;
+
 /** Map i18next language codes to BCP-47 tags for <html lang>. */
 function toHtmlLang(lng: string): string {
-  const base = lng.split('-')[0]?.toLowerCase() ?? 'en';
-  if (base === 'en' || base === 'es' || base === 'pt') return base;
+  const lower = lng.toLowerCase();
+  // Longest prefix match wins (e.g. pt-BR before pt if both listed).
+  const byLength = [...HTML_LANGS].sort((a, b) => b.length - a.length);
+  for (const code of byLength) {
+    if (lower === code || lower.startsWith(`${code}-`)) return code;
+  }
   return 'en';
 }
 
