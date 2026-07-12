@@ -58,7 +58,6 @@ export function LoginPage() {
         },
         body: JSON.stringify({
           token,
-          mode: 'write',
         }),
       });
 
