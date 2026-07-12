@@ -6,6 +6,7 @@ import { executeWithRetry } from '../utils/retry';
 import { isRateLimitErrorMessage } from '../utils/rateLimitError';
 import { DEFAULT_MERGE_METHOD } from '../constants';
 import i18n from '../i18n';
+import { toPendingProgress } from './bulkProgress';
 import type {
   PullRequest,
   BulkActionProgress,
@@ -195,15 +196,10 @@ export const BulkActionsService = {
     const progressMap = new Map<string, BulkActionProgress>();
     const mergeMethod = options?.mergeMethod ?? DEFAULT_MERGE_METHOD;
 
-    // Inicializar progresso
-    prs.forEach((pr) => {
-      progressMap.set(pr.id, {
-        prId: pr.id,
-        prNumber: pr.number,
-        prTitle: pr.title,
-        status: 'pending',
-      });
-    });
+    // Initialize progress entries as pending
+    for (const item of toPendingProgress(prs)) {
+      progressMap.set(item.prId, item);
+    }
 
     onProgress(Array.from(progressMap.values()));
 
@@ -212,9 +208,9 @@ export const BulkActionsService = {
         ? (id: string) => this.mergePullRequest(id, mergeMethod)
         : (id: string) => this.closePullRequest(id);
 
-    // Executar ações sequencialmente com retry e exponential backoff
+    // Run actions sequentially with retry and exponential backoff
     for (const pr of prs) {
-      // Atualizar status para processing
+      // Mark this PR as processing
       progressMap.set(pr.id, {
         ...progressMap.get(pr.id)!,
         status: 'processing',
@@ -259,7 +255,7 @@ export const BulkActionsService = {
           },
         );
       } catch (err) {
-        // Erro após todas as retentativas ou erro inesperado
+        // Failed after all retries, or unexpected error
         result = {
           success: false,
           prId: pr.id,
