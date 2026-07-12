@@ -49,9 +49,7 @@ export function filterPullRequests(
   if (filters.owner) {
     const owner = filters.owner;
     filtered = filtered.filter((pr) =>
-      pr.repository.owner.login
-        .toLowerCase()
-        .includes(owner.toLowerCase()),
+      pr.repository.owner.login.toLowerCase().includes(owner.toLowerCase()),
     );
   }
 
