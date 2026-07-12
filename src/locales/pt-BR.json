@@ -123,5 +123,9 @@
   },
   "filters": {
     "clear": "Limpar filtros"
+  },
+  "rateLimit": {
+    "now": "Agora",
+    "duration": "{{minutes}}m {{seconds}}s"
   }
 }

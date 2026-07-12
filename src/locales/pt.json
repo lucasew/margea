@@ -222,6 +222,8 @@
     "title": "GitHub API Quota",
     "remaining": "Restantes:",
     "resetsIn": "Reseta em:",
+    "now": "Agora",
+    "duration": "{{minutes}}m {{seconds}}s",
     "updates": "Atualiza automaticamente a cada requisição"
   },
   "theme": {
