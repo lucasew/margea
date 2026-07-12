@@ -119,10 +119,10 @@ export function PRProvider({ children }: PRProviderProps) {
   const optimisticUpdate = useCallback(
     (prId: string, changes: Partial<PullRequest>) => {
       setPrMap((prev) => {
-        if (!prev.has(prId)) return prev;
-
         const next = new Map(prev);
-        const current = next.get(prId)!;
+        const current = next.get(prId);
+        if (current === undefined) return prev;
+
         next.set(prId, { ...current, ...changes });
 
         return next;
