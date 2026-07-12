@@ -2,8 +2,6 @@ export const PR_STATES = ['ALL', 'OPEN', 'CLOSED', 'MERGED'] as const;
 export type PRState = (typeof PR_STATES)[number];
 
 // PRList constants
-export const DEFAULT_PR_TARGET = 100;
-export const MAX_PR_TARGET = 1000;
 export const BATCH_SIZE = 100;
 
 /** Milliseconds in one day (used for fetch windows and adaptive intervals). */
@@ -33,7 +31,6 @@ export const URL_SEARCH_PARAMS = {
   STATE: 'state',
   AUTHOR: 'author',
   OWNER: 'owner',
-  LIMIT: 'limit',
   GROUP_BY: 'group_by',
   SORT_BY: 'sort_by',
 } as const;

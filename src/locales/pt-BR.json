@@ -11,9 +11,7 @@
     "repository": "Repositório",
     "optional_specify_repository": "Opcional: especifique um único repositório",
     "search_pull_requests": "Buscar Pull Requests",
-    "login_required": "Login necessário para pesquisar",
-    "prsGoal": "Objetivo de PRs",
-    "prsGoalDescription": "O sistema procurará automaticamente até atingir este objetivo (padrão: 100)"
+    "login_required": "Login necessário para pesquisar"
   },
   "header": {
     "login": "Entrar",

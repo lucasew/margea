@@ -12,8 +12,6 @@
     "optional_specify_repository": "Opcional: especifique un único repositorio",
     "search_pull_requests": "Buscar Pull Requests",
     "login_required": "Se requiere iniciar sesión para buscar",
-    "prsGoal": "Meta de PRs",
-    "prsGoalDescription": "El sistema buscará automáticamente hasta alcanzar esta meta (por defecto: 100)",
     "exampleOwner": "ej: facebook",
     "exampleRepo": "ej: react",
     "exampleLimit": "100"
