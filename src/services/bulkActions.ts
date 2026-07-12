@@ -82,6 +82,22 @@ const MISSING_CLOSE_PAYLOAD =
   'Close completed without pullRequest in the response';
 
 /**
+ * Patch a seeded progress entry. Entries are created for every PR before the
+ * loop runs; a miss is a programming error, not a silent no-op.
+ */
+function updateProgressEntry(
+  progressMap: Map<string, BulkActionProgress>,
+  prId: string,
+  patch: Partial<BulkActionProgress>,
+): void {
+  const current = progressMap.get(prId);
+  if (current === undefined) {
+    throw new Error(`Missing bulk progress entry for PR ${prId}`);
+  }
+  progressMap.set(prId, { ...current, ...patch });
+}
+
+/**
  * Runs a merge/close mutation. Relay is the network layer only — list UI
  * updates flow through updatedFields → BulkActionProvider → prMap.
  */
@@ -228,8 +244,7 @@ export const BulkActionsService = {
           prId: pr.id,
           error,
         };
-        progressMap.set(pr.id, {
-          ...progressMap.get(pr.id)!,
+        updateProgressEntry(progressMap, pr.id, {
           status: 'error',
           error,
         });
@@ -252,8 +267,7 @@ export const BulkActionsService = {
       }
 
       // Mark this PR as processing
-      progressMap.set(pr.id, {
-        ...progressMap.get(pr.id)!,
+      updateProgressEntry(progressMap, pr.id, {
         status: 'processing',
       });
       onProgress(Array.from(progressMap.values()));
@@ -284,8 +298,7 @@ export const BulkActionsService = {
             shouldRetry: (error) =>
               error instanceof Error && isRateLimitErrorMessage(error.message),
             onRetry: (attempt, delayMs) => {
-              progressMap.set(pr.id, {
-                ...progressMap.get(pr.id)!,
+              updateProgressEntry(progressMap, pr.id, {
                 status: 'processing',
                 error: i18n.t('bulkAction.rateLimitRetry', {
                   attempt,
@@ -308,14 +321,12 @@ export const BulkActionsService = {
       }
 
       if (result.success) {
-        progressMap.set(pr.id, {
-          ...progressMap.get(pr.id)!,
+        updateProgressEntry(progressMap, pr.id, {
           status: 'success',
           error: undefined,
         });
       } else {
-        progressMap.set(pr.id, {
-          ...progressMap.get(pr.id)!,
+        updateProgressEntry(progressMap, pr.id, {
           status: 'error',
           error: result.error,
         });
