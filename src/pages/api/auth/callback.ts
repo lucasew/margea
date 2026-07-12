@@ -33,6 +33,21 @@ export async function GET({ request }: { request: Request }) {
     );
   }
 
+  const secretValue = import.meta.env.SESSION_SECRET;
+  if (!secretValue) {
+    reportError(
+      new Error('Missing required environment variable SESSION_SECRET'),
+      {
+        context: 'github auth callback',
+      },
+    );
+    return new Response(
+      'Missing required environment variable SESSION_SECRET. ' +
+        'Copy .env.example → .env.local and generate one with `openssl rand -hex 32`.',
+      { status: 500 },
+    );
+  }
+
   // Optional cookie channel (can be absent in preview host changes).
   const cookieHeader = request.headers.get('Cookie') || '';
   const cookies = parse(cookieHeader);
@@ -51,7 +66,7 @@ export async function GET({ request }: { request: Request }) {
 
   // 🛡️ SENTINEL: Verify signed state token from callback parameter.
   // This keeps CSRF protection even when preview host differences drop cookies.
-  const secret = new TextEncoder().encode(import.meta.env.SESSION_SECRET);
+  const secret = new TextEncoder().encode(secretValue);
   let nonceFromParamToken: string;
   let mode: 'read' | 'write';
 
@@ -117,7 +132,13 @@ export async function GET({ request }: { request: Request }) {
   const data = await tokenRes.json();
   const access_token = data.access_token;
 
-  if (!access_token) {
+  // Fail closed: GitHub error responses, non-string tokens, or empty strings
+  // must not mint a session (truthy-only checks accept numbers/objects).
+  if (
+    data.error ||
+    typeof access_token !== 'string' ||
+    access_token.length === 0
+  ) {
     reportError(
       new Error(
         `Failed to get github access token: ${data.error_description || data.error || 'Unknown error'}`,
@@ -126,6 +147,7 @@ export async function GET({ request }: { request: Request }) {
         context: 'github auth callback token exchange',
         error: data.error,
         errorDescription: data.error_description,
+        accessTokenType: typeof access_token,
       },
     );
     return new Response(
