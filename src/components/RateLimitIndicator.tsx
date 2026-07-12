@@ -108,10 +108,7 @@ export function RateLimitIndicator({
   const remaining = state.remaining;
   const percentage =
     limit !== null && remaining !== null && limit > 0
-      ? Math.min(
-          100,
-          Math.max(0, Math.round((remaining / limit) * 100)),
-        )
+      ? Math.min(100, Math.max(0, Math.round((remaining / limit) * 100)))
       : 0;
 
   let colorClass = 'text-base-content/40';
@@ -129,9 +126,7 @@ export function RateLimitIndicator({
         ? 'progress-warning'
         : 'progress-success';
 
-  const remainingLabel = isKnown
-    ? `${state.remaining} / ${state.limit}`
-    : '—';
+  const remainingLabel = isKnown ? `${state.remaining} / ${state.limit}` : '—';
 
   return (
     <div className="dropdown dropdown-end">
