@@ -7,6 +7,28 @@ type PRNodeType = NonNullable<
 >['node'];
 
 /**
+ * GraphQL fragment fields that must be present for transformPR to produce a
+ * PullRequest. Mirrors the runtime checks in isValidPR so the compiler can
+ * narrow after the guard instead of relying on non-null assertions.
+ */
+type ValidPRNode = NonNullable<PRNodeType> &
+  Required<
+    Pick<
+      NonNullable<PRNodeType>,
+      | 'id'
+      | 'number'
+      | 'title'
+      | 'state'
+      | 'createdAt'
+      | 'updatedAt'
+      | 'url'
+      | 'baseRefName'
+      | 'headRefName'
+      | 'repository'
+    >
+  >;
+
+/**
  * Checks if the PR node has all required fields to be safely used in the application.
  *
  * This function is critical for runtime safety because the GraphQL type definitions
@@ -16,7 +38,7 @@ type PRNodeType = NonNullable<
  * @param pr - The raw PR node from the GraphQL response.
  * @returns `true` if all essential fields are present, `false` otherwise.
  */
-function isValidPR(pr: PRNodeType): boolean {
+function isValidPR(pr: PRNodeType): pr is ValidPRNode {
   if (
     !pr ||
     !pr.id ||
@@ -67,33 +89,31 @@ export function transformPR(pr: PRNodeType): PullRequest | null {
     return null;
   }
 
-  // We use non-null assertion (!) here because `isValidPR` has already guaranteed
-  // that these specific fields are present and not null.
   return {
-    id: pr!.id!,
-    number: pr!.number!,
-    title: pr!.title!,
-    body: pr!.body ?? null,
-    state: pr!.state as 'OPEN' | 'CLOSED' | 'MERGED',
-    additions: pr!.additions ?? 0,
-    deletions: pr!.deletions ?? 0,
-    ciStatus: getCIStatus(pr!),
-    createdAt: pr!.createdAt!,
-    updatedAt: pr!.updatedAt!,
-    mergedAt: pr!.mergedAt ?? null,
-    closedAt: pr!.closedAt ?? null,
-    url: pr!.url!,
-    baseRefName: pr!.baseRefName!,
-    headRefName: pr!.headRefName!,
-    author: pr!.author
+    id: pr.id,
+    number: pr.number,
+    title: pr.title,
+    body: pr.body ?? null,
+    state: pr.state as 'OPEN' | 'CLOSED' | 'MERGED',
+    additions: pr.additions ?? 0,
+    deletions: pr.deletions ?? 0,
+    ciStatus: getCIStatus(pr),
+    createdAt: pr.createdAt,
+    updatedAt: pr.updatedAt,
+    mergedAt: pr.mergedAt ?? null,
+    closedAt: pr.closedAt ?? null,
+    url: pr.url,
+    baseRefName: pr.baseRefName,
+    headRefName: pr.headRefName,
+    author: pr.author
       ? {
-          login: pr!.author.login,
-          avatarUrl: pr!.author.avatarUrl,
+          login: pr.author.login,
+          avatarUrl: pr.author.avatarUrl,
         }
       : null,
-    labels: pr!.labels
+    labels: pr.labels
       ? {
-          nodes: (pr!.labels.nodes || [])
+          nodes: (pr.labels.nodes || [])
             .filter((node): node is NonNullable<typeof node> => node != null)
             .map((node) => ({
               id: node.id,
@@ -103,6 +123,6 @@ export function transformPR(pr: PRNodeType): PullRequest | null {
             })),
         }
       : null,
-    repository: pr!.repository!,
+    repository: pr.repository,
   };
 }
