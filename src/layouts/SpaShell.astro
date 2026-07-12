@@ -15,6 +15,7 @@ import App from '../App';
     <title>Margea — GitHub PR Analyzer</title>
     <script>
       // Apply theme before paint to avoid flash; migrate legacy light/dark keys
+      // Must match THEME_STORAGE_KEY in src/constants.ts (inline script cannot import TS)
       const saved = localStorage.getItem('theme');
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       let theme = prefersDark ? 'margea-dark' : 'margea-light';
