@@ -99,12 +99,13 @@ export function LoginPage() {
             <div className="alert alert-info mb-5 py-2.5 text-sm">
               <Info size={18} />
               <span>
-                {t('loginPage.reauthorizingMessage', {
-                  currentMode:
-                    reauthMode === 'read'
-                      ? t('loginPage.readOnly')
-                      : t('loginPage.readWrite'),
-                })}
+                {t('loginPage.reauthorizingMessageBefore')}{' '}
+                <strong>
+                  {reauthMode === 'read'
+                    ? t('loginPage.readOnly')
+                    : t('loginPage.readWrite')}
+                </strong>{' '}
+                {t('loginPage.reauthorizingMessageAfter')}
               </span>
             </div>
           )}
