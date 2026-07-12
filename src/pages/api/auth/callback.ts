@@ -53,11 +53,14 @@ export async function GET({ request }: { request: Request }) {
   // This keeps CSRF protection even when preview host differences drop cookies.
   const secret = new TextEncoder().encode(import.meta.env.SESSION_SECRET);
   let nonceFromParamToken: string;
-  let mode: string;
+  let mode: 'read' | 'write';
 
   try {
     const { payload } = await jwtVerify(stateTokenFromParam, secret);
-    if (typeof payload.nonce !== 'string' || typeof payload.mode !== 'string') {
+    if (
+      typeof payload.nonce !== 'string' ||
+      (payload.mode !== 'read' && payload.mode !== 'write')
+    ) {
       throw new Error('Invalid JWT payload');
     }
     nonceFromParamToken = payload.nonce;
