@@ -6,6 +6,7 @@ import { executeWithRetry } from '../utils/retry';
 import { isRateLimitErrorMessage } from '../utils/rateLimitError';
 import { DEFAULT_MERGE_METHOD } from '../constants';
 import i18n from '../i18n';
+import { AuthService } from './auth';
 import { toPendingProgress } from './bulkProgress';
 import type {
   PullRequest,
@@ -212,6 +213,28 @@ export const BulkActionsService = {
     }
 
     onProgress(Array.from(progressMap.values()));
+
+    // Defense-in-depth: UI also gates on hasWritePermission, but any caller
+    // of this service must not reach GitHub mutations without write mode.
+    const canWrite = await AuthService.hasWritePermission();
+    if (!canWrite) {
+      const error = i18n.t('prGroupDetail.writePermissionRequired');
+      for (const pr of prs) {
+        const result: BulkActionResult = {
+          success: false,
+          prId: pr.id,
+          error,
+        };
+        progressMap.set(pr.id, {
+          ...progressMap.get(pr.id)!,
+          status: 'error',
+          error,
+        });
+        onResult?.(result);
+      }
+      onProgress(Array.from(progressMap.values()));
+      return;
+    }
 
     const performAction =
       actionType === 'merge'
