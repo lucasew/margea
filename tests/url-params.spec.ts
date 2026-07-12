@@ -1,8 +1,5 @@
 import { test, expect } from '@playwright/test';
-import {
-  parseGroupingStrategy,
-  parsePRState,
-} from '../src/services/urlParams';
+import { parseGroupingStrategy, parsePRState } from '../src/services/urlParams';
 import { GROUPING_STRATEGIES, PR_STATES } from '../src/constants';
 
 test.describe('parsePRState', () => {

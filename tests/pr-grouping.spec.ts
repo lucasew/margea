@@ -196,9 +196,7 @@ test.describe('groupPullRequests — renovate (default)', () => {
     ];
     const groups = groupPullRequests(prs);
     expect(groups).toHaveLength(1);
-    expect(groups[0].package).toBe(
-      'chore(deps): update dependency foo to v1',
-    );
+    expect(groups[0].package).toBe('chore(deps): update dependency foo to v1');
   });
 
   test('falls back to renovate for unknown strategy', () => {
@@ -216,9 +214,7 @@ test.describe('groupPullRequests — renovate (default)', () => {
     // Cast: runtime path for invalid strategy values
     const groups = groupPullRequests(prs, 'not-a-strategy' as 'renovate');
     expect(groups).toHaveLength(1);
-    expect(groups[0].package).toBe(
-      'chore(deps): update dependency bar to v2',
-    );
+    expect(groups[0].package).toBe('chore(deps): update dependency bar to v2');
   });
 });
 

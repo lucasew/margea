@@ -153,5 +153,4 @@ test.describe('AuthService session token cache', () => {
     expect(await AuthService.getToken()).toBe('recovered');
     expect(tokenCalls).toBe(2);
   });
-
 });

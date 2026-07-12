@@ -17,8 +17,7 @@ function makePR(
     };
   } = {},
 ): PullRequest {
-  const nameWithOwner =
-    overrides.repository?.nameWithOwner ?? 'acme/app';
+  const nameWithOwner = overrides.repository?.nameWithOwner ?? 'acme/app';
   const [defaultOwner, defaultName] = nameWithOwner.includes('/')
     ? nameWithOwner.split('/')
     : ['acme', nameWithOwner];
