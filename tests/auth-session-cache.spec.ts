@@ -2,8 +2,6 @@ import { test, expect } from '@playwright/test';
 import { AuthService, invalidateAuthSessionCache } from '../src/services/auth';
 import { API_ROUTES } from '../src/constants';
 
-type FetchArgs = [input: RequestInfo | URL, init?: RequestInit];
-
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
