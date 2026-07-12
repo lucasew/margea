@@ -17,9 +17,13 @@ import { calculateStats } from '../services/prStats';
 import { PRGroupCard } from './PRGroupCard';
 import { PRGroupDetail } from './PRGroupDetail';
 import { reportError } from '../utils/errorReporting';
-import { PRGroup, GroupingStrategy } from '../types';
-import { PRState, URL_SEARCH_PARAMS } from '../constants';
+import { PRGroup } from '../types';
+import { URL_SEARCH_PARAMS } from '../constants';
 import { parseSortStrategy } from '../services/prSort';
+import {
+  parseGroupingStrategy,
+  parsePRState,
+} from '../services/urlParams';
 import { PRListStats } from './PRListStats';
 import { PRListFilters } from './PRListFilters';
 import { usePRContext } from '../context/PRContext';
@@ -44,13 +48,12 @@ function PRListContent() {
 
   // Read filters from URL
   const filterRepo = searchParams.get(URL_SEARCH_PARAMS.REPO) || '';
-  const filterState = (searchParams.get(URL_SEARCH_PARAMS.STATE) ||
-    'ALL') as PRState;
+  const filterState = parsePRState(searchParams.get(URL_SEARCH_PARAMS.STATE));
   const filterAuthor = searchParams.get(URL_SEARCH_PARAMS.AUTHOR) || '';
   const filterOwner = searchParams.get(URL_SEARCH_PARAMS.OWNER) || '';
-  const groupBy =
-    (searchParams.get(URL_SEARCH_PARAMS.GROUP_BY) as GroupingStrategy) ||
-    'renovate';
+  const groupBy = parseGroupingStrategy(
+    searchParams.get(URL_SEARCH_PARAMS.GROUP_BY),
+  );
   const sortBy = parseSortStrategy(searchParams.get(URL_SEARCH_PARAMS.SORT_BY));
 
   // Persist filters in sessionStorage
