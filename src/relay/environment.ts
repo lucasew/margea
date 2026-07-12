@@ -18,6 +18,10 @@ import {
   isAbortError,
 } from '../utils/abort';
 import { APP_ROUTES } from '../constants';
+import {
+  resolveRetryDelayMs,
+  shouldRetryAsRateLimit,
+} from '../utils/rateLimitError';
 
 const GITHUB_GRAPHQL_URL = 'https://api.github.com/graphql';
 const MAX_RETRIES = 3;
@@ -81,13 +85,14 @@ async function executeGithubGraphql(
     }
 
     if (
-      (response.status === 429 || response.status === 403) &&
+      shouldRetryAsRateLimit(response.status, response.headers) &&
       attempt < MAX_RETRIES
     ) {
-      const retryAfter = response.headers.get('Retry-After');
-      const delay = retryAfter
-        ? parseInt(retryAfter, 10) * 1000
-        : BASE_RETRY_DELAY_MS * Math.pow(2, attempt);
+      const delay = resolveRetryDelayMs(
+        response.headers.get('Retry-After'),
+        attempt,
+        BASE_RETRY_DELAY_MS,
+      );
       console.warn(
         `Rate limited (${response.status}), retrying in ${delay}ms (attempt ${attempt + 1}/${MAX_RETRIES})...`,
       );
