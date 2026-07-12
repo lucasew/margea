@@ -55,11 +55,6 @@ export interface PRGroup {
   count: number;
 }
 
-export interface FilterOptions {
-  repository?: string;
-  state?: 'OPEN' | 'CLOSED' | 'MERGED' | 'ALL';
-}
-
 export type BulkActionType = 'merge' | 'close';
 
 export type ConfirmBulkActionOptions = {
