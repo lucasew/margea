@@ -1,3 +1,5 @@
+import { abortableSleep, isAbortError } from './abort';
+
 /**
  * Configuration options for the retry mechanism.
  */
@@ -18,6 +20,11 @@ export interface RetryOptions {
    * Useful for logging or updating UI state.
    */
   onRetry?: (attempt: number, delayMs: number, error: unknown) => void;
+  /**
+   * When provided, backoff sleeps respect this signal so cancel can
+   * interrupt retries without waiting for the full delay.
+   */
+  signal?: AbortSignal;
 }
 
 /**
@@ -38,6 +45,7 @@ export async function executeWithRetry<T>(
     backoffFactor = 2,
     shouldRetry = () => true,
     onRetry,
+    signal,
   } = options;
 
   let retries = 0;
@@ -46,7 +54,7 @@ export async function executeWithRetry<T>(
     try {
       return await operation();
     } catch (error) {
-      if (retries >= maxRetries || !shouldRetry(error)) {
+      if (isAbortError(error) || retries >= maxRetries || !shouldRetry(error)) {
         throw error;
       }
 
@@ -57,7 +65,7 @@ export async function executeWithRetry<T>(
         onRetry(retries, delayMs, error);
       }
 
-      await new Promise((resolve) => setTimeout(resolve, delayMs));
+      await abortableSleep(delayMs, signal);
     }
   }
 }
