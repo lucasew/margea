@@ -7,10 +7,8 @@ import {
 } from './AdaptiveScopeFetcher';
 import { createSerialQueue } from './serialQueue';
 import { pullStreamsUntilIdle } from './prStorePull';
-import { INITIAL_FETCH_DAYS, LOAD_MORE_DAYS } from '../constants';
+import { DAY_MS, INITIAL_FETCH_DAYS, LOAD_MORE_DAYS } from '../constants';
 import type { PullRequest } from '../types';
-
-const DAY_MS = 24 * 60 * 60 * 1000;
 
 export interface PRFetchSessionStatus {
   isLoading: boolean;
