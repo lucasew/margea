@@ -98,7 +98,8 @@
   },
   "loginPage": {
     "subtitle": "Analisador de Pull Requests do GitHub",
-    "reauthorizingMessage": "Você está mudando de <strong>{{currentMode}}</strong> para um novo nível de acesso.",
+    "reauthorizingMessageBefore": "Você está mudando de",
+    "reauthorizingMessageAfter": "para um novo nível de acesso.",
     "chooseNewAccessLevel": "Escolha o novo nível de acesso:",
     "chooseAccessLevel": "Escolha o nível de acesso:",
     "readOnly": "Somente Leitura",
