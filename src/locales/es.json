@@ -222,6 +222,8 @@
     "title": "Cuota de la API de GitHub",
     "remaining": "Restantes:",
     "resetsIn": "Se reinicia en:",
+    "now": "Ahora",
+    "duration": "{{minutes}}m {{seconds}}s",
     "updates": "Se actualiza automáticamente en cada solicitud"
   },
   "theme": {

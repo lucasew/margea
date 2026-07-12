@@ -59,13 +59,16 @@ function RateLimitRing({
   );
 }
 
-function formatTimeUntilReset(reset: number | null): string {
+function formatTimeUntilReset(
+  reset: number | null,
+  t: (key: string, options?: Record<string, unknown>) => string,
+): string {
   if (reset === null) return '—';
   const diff = reset - Date.now() / 1000;
-  if (diff <= 0) return 'Now';
+  if (diff <= 0) return t('rateLimit.now');
   const minutes = Math.floor(diff / 60);
   const seconds = Math.floor(diff % 60);
-  return `${minutes}m ${seconds}s`;
+  return t('rateLimit.duration', { minutes, seconds });
 }
 
 export function RateLimitIndicator({
@@ -95,7 +98,7 @@ export function RateLimitIndicator({
     return () => clearInterval(interval);
   }, [state.reset]);
 
-  const timeUntilReset = formatTimeUntilReset(state.reset);
+  const timeUntilReset = formatTimeUntilReset(state.reset, t);
 
   const limit = state.limit;
   const remaining = state.remaining;

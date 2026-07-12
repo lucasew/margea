@@ -218,6 +218,8 @@
     "title": "GitHub API Quota",
     "remaining": "Remaining:",
     "resetsIn": "Resets in:",
+    "now": "Now",
+    "duration": "{{minutes}}m {{seconds}}s",
     "updates": "Updates automatically on every request"
   },
   "theme": {
