@@ -17,6 +17,7 @@ import {
   getAbortSignalFromCacheConfig,
   isAbortError,
 } from '../utils/abort';
+import { APP_ROUTES } from '../constants';
 
 const GITHUB_GRAPHQL_URL = 'https://api.github.com/graphql';
 const MAX_RETRIES = 3;
@@ -75,7 +76,7 @@ async function executeGithubGraphql(
     if (response.status === 401) {
       reportError(new Error('401 Unauthorized - logging out user'));
       await AuthService.logout();
-      window.location.href = '/';
+      window.location.href = APP_ROUTES.HOME;
       throw new Error(i18n.t('errors.sessionExpired'));
     }
 

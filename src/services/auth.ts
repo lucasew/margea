@@ -1,4 +1,8 @@
-import { EFFECTIVE_MODE_STORAGE_KEY, API_ROUTES } from '../constants';
+import {
+  EFFECTIVE_MODE_STORAGE_KEY,
+  API_ROUTES,
+  APP_ROUTES,
+} from '../constants';
 import { reportError } from '../utils/errorReporting';
 
 /**
@@ -301,7 +305,7 @@ export const AuthService = {
         method: 'POST',
         credentials: 'include',
       });
-      window.location.href = '/';
+      window.location.href = APP_ROUTES.HOME;
     } catch (error) {
       reportError(error, { context: 'logging out' });
     }

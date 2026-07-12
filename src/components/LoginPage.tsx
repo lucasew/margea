@@ -7,7 +7,7 @@ import { ThemeToggle } from './ThemeToggle';
 import { useAuth } from '../hooks/useAuth';
 import { invalidateAuthSessionCache } from '../services/auth';
 import { reportError } from '../utils/errorReporting';
-import { API_ROUTES } from '../constants';
+import { API_ROUTES, APP_ROUTES } from '../constants';
 
 export function LoginPage() {
   const { t } = useTranslation();
@@ -68,7 +68,7 @@ export function LoginPage() {
         return;
       }
 
-      window.location.href = '/';
+      window.location.href = APP_ROUTES.HOME;
     } catch (error) {
       reportError(error, { context: 'authenticating with PAT' });
       setPatError(t('loginPage.patLoginFailed'));
