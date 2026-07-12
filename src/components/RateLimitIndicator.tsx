@@ -59,6 +59,15 @@ function RateLimitRing({
   );
 }
 
+function formatTimeUntilReset(reset: number | null): string {
+  if (reset === null) return '—';
+  const diff = reset - Date.now() / 1000;
+  if (diff <= 0) return 'Now';
+  const minutes = Math.floor(diff / 60);
+  const seconds = Math.floor(diff % 60);
+  return `${minutes}m ${seconds}s`;
+}
+
 export function RateLimitIndicator({
   avatarUrl,
   avatarAlt,
@@ -69,7 +78,9 @@ export function RateLimitIndicator({
 }: RateLimitIndicatorProps = {}) {
   const { t } = useTranslation();
   const [state, setState] = useState<RateLimitState>(rateLimitStore.getState());
-  const [timeUntilReset, setTimeUntilReset] = useState<string>('');
+  // Tick every second while reset is known so countdown re-renders without
+  // setState-in-effect (derived label uses Date.now()).
+  const [, setTick] = useState(0);
   const isWrite = currentMode === 'write';
   const isKnown =
     state.limit !== null && state.remaining !== null && state.reset !== null;
@@ -79,39 +90,18 @@ export function RateLimitIndicator({
   }, []);
 
   useEffect(() => {
-    const resetAt = state.reset;
-    if (resetAt === null) {
-      setTimeUntilReset('—');
-      return;
-    }
-
-    const updateTimer = () => {
-      const now = Date.now() / 1000;
-      const diff = resetAt - now;
-
-      if (diff <= 0) {
-        setTimeUntilReset('Now');
-        return;
-      }
-
-      const minutes = Math.floor(diff / 60);
-      const seconds = Math.floor(diff % 60);
-      setTimeUntilReset(`${minutes}m ${seconds}s`);
-    };
-
-    updateTimer();
-    const interval = setInterval(updateTimer, 1000);
+    if (state.reset === null) return;
+    const interval = setInterval(() => setTick((n) => n + 1), 1000);
     return () => clearInterval(interval);
   }, [state.reset]);
+
+  const timeUntilReset = formatTimeUntilReset(state.reset);
 
   const limit = state.limit;
   const remaining = state.remaining;
   const percentage =
     limit !== null && remaining !== null && limit > 0
-      ? Math.min(
-          100,
-          Math.max(0, Math.round((remaining / limit) * 100)),
-        )
+      ? Math.min(100, Math.max(0, Math.round((remaining / limit) * 100)))
       : 0;
 
   let colorClass = 'text-base-content/40';
@@ -129,9 +119,7 @@ export function RateLimitIndicator({
         ? 'progress-warning'
         : 'progress-success';
 
-  const remainingLabel = isKnown
-    ? `${state.remaining} / ${state.limit}`
-    : '—';
+  const remainingLabel = isKnown ? `${state.remaining} / ${state.limit}` : '—';
 
   return (
     <div className="dropdown dropdown-end">
