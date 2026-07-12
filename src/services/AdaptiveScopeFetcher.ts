@@ -1,7 +1,7 @@
 import { PullRequest } from '../types';
+import { DAY_MS } from '../constants';
 import { isAbortError } from '../utils/abort';
 
-const DAY_MS = 24 * 60 * 60 * 1000;
 const MIN_INTERVAL_MS = DAY_MS;
 const MAX_INTERVAL_MS = 30 * DAY_MS;
 const WIDEN_THRESHOLD = 200;

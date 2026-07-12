@@ -6,6 +6,8 @@ export const DEFAULT_PR_TARGET = 100;
 export const MAX_PR_TARGET = 1000;
 export const BATCH_SIZE = 100;
 
+/** Milliseconds in one day (used for fetch windows and adaptive intervals). */
+export const DAY_MS = 24 * 60 * 60 * 1000;
 // Adaptive fetch: initial load covers this many days
 export const INITIAL_FETCH_DAYS = 7;
 // Each "load more" extends backwards by this many days
