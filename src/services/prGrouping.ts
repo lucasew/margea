@@ -55,21 +55,22 @@ function groupByHelper(
   for (const pr of uniquePrs) {
     const { key, groupName } = keyExtractor(pr);
 
-    if (!groups.has(key)) {
+    let group = groups.get(key);
+    if (group === undefined) {
       const baseRef = normalizeBaseRef(pr.baseRefName);
       const labels = pr.labels?.nodes?.map((l) => l.name).sort() || [];
 
-      groups.set(key, {
+      group = {
         key,
         package: groupName,
         baseRef,
         labels,
         prs: [],
         count: 0,
-      });
+      };
+      groups.set(key, group);
     }
 
-    const group = groups.get(key)!;
     group.prs.push(pr);
     group.count++;
   }
