@@ -23,7 +23,15 @@ export async function GET({ request }: { request: Request }) {
     );
   }
 
-  const mode = requestUrl.searchParams.get('mode') || 'read';
+  // Only 'read' | 'write' are valid OAuth modes. Missing → 'read'.
+  // Present-but-invalid → 400 so arbitrary values never enter the state JWT.
+  const modeParam = requestUrl.searchParams.get('mode');
+  if (modeParam !== null && modeParam !== 'read' && modeParam !== 'write') {
+    return new Response("Invalid mode: must be 'read' or 'write'.", {
+      status: 400,
+    });
+  }
+  const mode: 'read' | 'write' = modeParam === 'write' ? 'write' : 'read';
 
   // 🛡️ SENTINEL: Generate a random nonce to embed in signed state.
   const randomBytes = new Uint8Array(32);
