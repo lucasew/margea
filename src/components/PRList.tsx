@@ -20,10 +20,7 @@ import { reportError } from '../utils/errorReporting';
 import { PRGroup } from '../types';
 import { URL_SEARCH_PARAMS } from '../constants';
 import { parseSortStrategy } from '../services/prSort';
-import {
-  parseGroupingStrategy,
-  parsePRState,
-} from '../services/urlParams';
+import { parseGroupingStrategy, parsePRState } from '../services/urlParams';
 import { PRListStats } from './PRListStats';
 import { PRListFilters } from './PRListFilters';
 import { usePRContext } from '../context/PRContext';
