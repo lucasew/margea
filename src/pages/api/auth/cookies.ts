@@ -1,3 +1,4 @@
+import { serialize } from 'cookie';
 import { SignJWT } from 'jose';
 
 /** Session cookie / JWT TTL: 7 days. */
@@ -8,27 +9,47 @@ export const SESSION_JWT_EXPIRATION = '7d';
 export const OAUTH_STATE_MAX_AGE_SECONDS = 300;
 
 export function buildSessionCookie(token: string, isHttps: boolean): string {
-  return `session=${token}; HttpOnly; ${isHttps ? 'Secure; ' : ''}SameSite=Strict; Max-Age=${SESSION_MAX_AGE_SECONDS}; Path=/`;
+  return serialize('session', token, {
+    httpOnly: true,
+    path: '/',
+    sameSite: 'strict',
+    maxAge: SESSION_MAX_AGE_SECONDS,
+    secure: isHttps,
+  });
 }
 
 export function clearSessionCookie(isHttps: boolean): string {
-  return `session=; HttpOnly; ${isHttps ? 'Secure; ' : ''}SameSite=Strict; Max-Age=0; Path=/`;
+  return serialize('session', '', {
+    httpOnly: true,
+    path: '/',
+    sameSite: 'strict',
+    maxAge: 0,
+    secure: isHttps,
+  });
 }
 
 export function buildOAuthStateCookie(
   stateToken: string,
   isHttps: boolean,
 ): string {
-  return `oauth_state=${stateToken}; HttpOnly; ${
-    isHttps ? 'Secure; ' : ''
-  }Path=/; SameSite=Lax; Max-Age=${OAUTH_STATE_MAX_AGE_SECONDS}`;
+  return serialize('oauth_state', stateToken, {
+    httpOnly: true,
+    path: '/',
+    sameSite: 'lax',
+    maxAge: OAUTH_STATE_MAX_AGE_SECONDS,
+    secure: isHttps,
+  });
 }
 
 /** Clears oauth_state with the same attributes used when setting it. */
 export function clearOAuthStateCookie(isHttps: boolean): string {
-  return `oauth_state=; HttpOnly; ${
-    isHttps ? 'Secure; ' : ''
-  }Path=/; SameSite=Lax; Max-Age=0`;
+  return serialize('oauth_state', '', {
+    httpOnly: true,
+    path: '/',
+    sameSite: 'lax',
+    maxAge: 0,
+    secure: isHttps,
+  });
 }
 
 export async function signSessionJwt(
