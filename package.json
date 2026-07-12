@@ -11,7 +11,6 @@
   },
   "dependencies": {
     "@sentry/astro": "^10.61.0",
-    "@sentry/react": "^10.61.0",
     "@vercel/node": "^5.5.6",
     "cookie": "^1.1.1",
     "i18next": "^25.6.2",
