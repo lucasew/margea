@@ -1,6 +1,30 @@
-import { jwtVerify } from 'jose';
+import { jwtVerify, type JWTPayload } from 'jose';
 import { parse } from 'cookie';
 import { reportError } from '../../../utils/errorReporting';
+
+/** Session claims returned to the client after successful JWT verify. */
+export type SessionAuthClaims = {
+  token: string;
+  mode: 'read' | 'write';
+};
+
+/**
+ * Validate JWT payload shape for /api/auth/token.
+ * Returns null when claims are unusable (caller should treat as invalid session).
+ */
+export function sessionAuthFromJwtPayload(
+  payload: JWTPayload,
+): SessionAuthClaims | null {
+  const githubToken = payload.github_token;
+  if (typeof githubToken !== 'string' || githubToken.length === 0) {
+    return null;
+  }
+
+  // Login-time label only; coerce anything other than write → read.
+  const mode: 'read' | 'write' = payload.mode === 'write' ? 'write' : 'read';
+
+  return { token: githubToken, mode };
+}
 
 export async function GET({ request }: { request: Request }) {
   // Parse cookies from header
@@ -36,13 +60,17 @@ export async function GET({ request }: { request: Request }) {
   try {
     const secret = new TextEncoder().encode(import.meta.env.SESSION_SECRET);
     const { payload } = await jwtVerify(sessionCookie, secret);
+    const claims = sessionAuthFromJwtPayload(payload);
+    if (!claims) {
+      throw new Error('Invalid session payload');
+    }
 
     return new Response(
       JSON.stringify({
-        token: payload.github_token,
+        token: claims.token,
         // Login-time label only (which OAuth path / PAT entry); client derives
         // real write capability from live token scopes (X-OAuth-Scopes), not this.
-        mode: payload.mode || 'read',
+        mode: claims.mode,
       }),
       {
         headers: {
