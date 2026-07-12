@@ -45,14 +45,9 @@ type TerminalTimestampKey = 'mergedAt' | 'closedAt';
 function toTerminalFields(
   state: TerminalPrState,
   timestampKey: TerminalTimestampKey,
-  pullRequest:
-    | { [K in TerminalTimestampKey]?: string | null }
-    | null
-    | undefined,
+  pullRequest: { [K in TerminalTimestampKey]?: string | null },
 ): Partial<PullRequest> {
   const now = new Date().toISOString();
-  if (!pullRequest) return { state, updatedAt: now };
-
   const timestamp = pullRequest[timestampKey] ?? null;
   return {
     state,
@@ -61,25 +56,28 @@ function toTerminalFields(
   };
 }
 
+/** Maps merge mutation payload to list fields; null when pullRequest is missing. */
 function toMergeFields(
   data?: MergePullRequestMutation$data | null,
-): Partial<PullRequest> {
-  return toTerminalFields(
-    'MERGED',
-    'mergedAt',
-    data?.mergePullRequest?.pullRequest,
-  );
+): Partial<PullRequest> | null {
+  const pullRequest = data?.mergePullRequest?.pullRequest;
+  if (!pullRequest) return null;
+  return toTerminalFields('MERGED', 'mergedAt', pullRequest);
 }
 
+/** Maps close mutation payload to list fields; null when pullRequest is missing. */
 function toCloseFields(
   data?: ClosePullRequestMutation$data | null,
-): Partial<PullRequest> {
-  return toTerminalFields(
-    'CLOSED',
-    'closedAt',
-    data?.closePullRequest?.pullRequest,
-  );
+): Partial<PullRequest> | null {
+  const pullRequest = data?.closePullRequest?.pullRequest;
+  if (!pullRequest) return null;
+  return toTerminalFields('CLOSED', 'closedAt', pullRequest);
 }
+
+const MISSING_MERGE_PAYLOAD =
+  'Merge completed without pullRequest in the response';
+const MISSING_CLOSE_PAYLOAD =
+  'Close completed without pullRequest in the response';
 
 /**
  * Runs a merge/close mutation. Relay is the network layer only — list UI
@@ -89,19 +87,29 @@ function commitPullRequestMutation(options: {
   prId: string;
   mutation: GraphQLTaggedNode;
   variables: { input: Record<string, unknown> };
-  toFields: (data: unknown) => Partial<PullRequest>;
+  toFields: (data: unknown) => Partial<PullRequest> | null;
+  missingPayloadError: string;
 }): Promise<BulkActionResult> {
-  const { prId, mutation, variables, toFields } = options;
+  const { prId, mutation, variables, toFields, missingPayloadError } = options;
 
   return new Promise((resolve) => {
     commitMutation(relayEnvironment, {
       mutation,
       variables,
       onCompleted: (response) => {
+        const updatedFields = toFields(response);
+        if (!updatedFields) {
+          resolve({
+            success: false,
+            prId,
+            error: missingPayloadError,
+          });
+          return;
+        }
         resolve({
           success: true,
           prId,
-          updatedFields: toFields(response),
+          updatedFields,
         });
       },
       onError: (error: Error) => {
@@ -132,6 +140,7 @@ const performMergeMutation = (
     },
     toFields: (data) =>
       toMergeFields(data as MergePullRequestMutation$data | null | undefined),
+    missingPayloadError: MISSING_MERGE_PAYLOAD,
   });
 
 const performCloseMutation = (prId: string): Promise<BulkActionResult> =>
@@ -145,6 +154,7 @@ const performCloseMutation = (prId: string): Promise<BulkActionResult> =>
     },
     toFields: (data) =>
       toCloseFields(data as ClosePullRequestMutation$data | null | undefined),
+    missingPayloadError: MISSING_CLOSE_PAYLOAD,
   });
 
 export const BulkActionsService = {
