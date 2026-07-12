@@ -3,6 +3,7 @@ import { relayEnvironment } from '../relay/environment';
 import { MergePullRequestMutation } from '../queries/MergePullRequestMutation';
 import { ClosePullRequestMutation } from '../queries/ClosePullRequestMutation';
 import { executeWithRetry } from '../utils/retry';
+import { isAbortError } from '../utils/abort';
 import { isRateLimitErrorMessage } from '../utils/rateLimitError';
 import { DEFAULT_MERGE_METHOD } from '../constants';
 import i18n from '../i18n';
@@ -195,17 +196,19 @@ export const BulkActionsService = {
    * @param actionType - The action to perform ('merge' or 'close').
    * @param onProgress - Callback function to report progress updates.
    * @param onResult - Optional callback invoked after each PR finishes.
-   * @param options - Extra options such as the GitHub merge method.
+   * @param options - Extra options such as the GitHub merge method and
+   *   optional AbortSignal (interrupts rate-limit backoff and stops the loop).
    */
   async executeBulkAction(
     prs: PullRequest[],
     actionType: BulkActionType,
     onProgress: (progress: BulkActionProgress[]) => void,
     onResult?: (result: BulkActionResult) => void,
-    options?: { mergeMethod?: MergeMethod },
+    options?: { mergeMethod?: MergeMethod; signal?: AbortSignal },
   ): Promise<void> {
     const progressMap = new Map<string, BulkActionProgress>();
     const mergeMethod = options?.mergeMethod ?? DEFAULT_MERGE_METHOD;
+    const signal = options?.signal;
 
     // Initialize progress entries as pending
     for (const item of toPendingProgress(prs)) {
@@ -243,6 +246,11 @@ export const BulkActionsService = {
 
     // Run actions sequentially with retry and exponential backoff
     for (const pr of prs) {
+      // Stop before starting more work when the bulk run was cancelled.
+      if (signal?.aborted) {
+        break;
+      }
+
       // Mark this PR as processing
       progressMap.set(pr.id, {
         ...progressMap.get(pr.id)!,
@@ -251,6 +259,7 @@ export const BulkActionsService = {
       onProgress(Array.from(progressMap.values()));
 
       let result: BulkActionResult;
+      let aborted = false;
 
       try {
         result = await executeWithRetry(
@@ -271,6 +280,7 @@ export const BulkActionsService = {
             maxRetries: BULK_RATE_LIMIT_MAX_RETRIES,
             initialDelayMs: BULK_RATE_LIMIT_INITIAL_DELAY_MS,
             backoffFactor: 2,
+            signal,
             shouldRetry: (error) =>
               error instanceof Error && isRateLimitErrorMessage(error.message),
             onRetry: (attempt, delayMs) => {
@@ -288,7 +298,8 @@ export const BulkActionsService = {
           },
         );
       } catch (err) {
-        // Failed after all retries, or unexpected error
+        // Failed after all retries, aborted during backoff, or unexpected error
+        aborted = isAbortError(err);
         result = {
           success: false,
           prId: pr.id,
@@ -315,6 +326,12 @@ export const BulkActionsService = {
       }
 
       onProgress(Array.from(progressMap.values()));
+
+      // Cancel stops remaining PRs (they stay pending). Current PR is already
+      // recorded as error when AbortError interrupted rate-limit backoff.
+      if (aborted || signal?.aborted) {
+        break;
+      }
     }
   },
 };
