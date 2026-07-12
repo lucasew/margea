@@ -144,7 +144,7 @@ export async function GET({ request }: { request: Request }) {
 
   // Set the session cookie and clear the state cookie
   const sessionCookie = buildSessionCookie(session, isHttps);
-  const clearStateCookie = clearOAuthStateCookie();
+  const clearStateCookie = clearOAuthStateCookie(isHttps);
 
   // 🛡️ SENTINEL: To set multiple cookies, we must use multiple `Set-Cookie` headers.
   // Using a single header with a comma-separated list is not compliant with RFC 6265.
