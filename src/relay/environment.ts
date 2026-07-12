@@ -108,7 +108,7 @@ async function executeGithubGraphql(
     const remaining = response.headers.get('X-RateLimit-Remaining');
     const reset = response.headers.get('X-RateLimit-Reset');
 
-    if (remaining && reset) {
+    if (limit && remaining && reset) {
       rateLimitStore.update(limit, remaining, reset);
     }
 
