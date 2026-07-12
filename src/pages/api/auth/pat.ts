@@ -48,6 +48,38 @@ export async function POST({ request }: { request: Request }) {
     );
   }
 
+  // Verify with GitHub before minting a session so invalid/expired tokens
+  // fail at login instead of causing opaque 401/logout loops later.
+  let probe: Response;
+  try {
+    probe = await fetch('https://api.github.com/user', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28',
+      },
+    });
+  } catch {
+    return new Response(
+      'Could not reach GitHub to verify the token. Please try again in a moment.',
+      { status: 503 },
+    );
+  }
+
+  if (probe.status === 401 || probe.status === 403) {
+    return new Response(
+      'GitHub rejected this token (invalid, expired, or insufficient access). Check the PAT and try again.',
+      { status: 401 },
+    );
+  }
+
+  if (!probe.ok) {
+    return new Response(
+      `GitHub returned status ${probe.status} while verifying the token. Please try again.`,
+      { status: 502 },
+    );
+  }
+
   const secret = new TextEncoder().encode(secretValue);
   const session = await signSessionJwt(
     {
