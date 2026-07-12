@@ -169,12 +169,6 @@ function PRListContent() {
     setSearchParams(newParams);
   };
 
-  const handleBackFromGroup = () => {
-    const newParams = new URLSearchParams(searchParams);
-    newParams.delete(URL_SEARCH_PARAMS.GROUP);
-    setSearchParams(newParams);
-  };
-
   // Infinite Scroll Sentinel
   const sentinelRef = useRef<HTMLDivElement>(null);
   // Disable auto-load if any filter is active
@@ -239,7 +233,7 @@ function PRListContent() {
             />
             <PRGroupDetail
               group={selectedGroup}
-              onBack={handleBackFromGroup}
+              onBack={handleClearGroup}
               onClearGroup={handleClearGroup}
             />
           </div>
