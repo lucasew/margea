@@ -18,7 +18,7 @@ import { PRGroupCard } from './PRGroupCard';
 import { PRGroupDetail } from './PRGroupDetail';
 import { reportError } from '../utils/errorReporting';
 import { PRGroup } from '../types';
-import { URL_SEARCH_PARAMS } from '../constants';
+import { FILTERS_STORAGE_KEY_PREFIX, URL_SEARCH_PARAMS } from '../constants';
 import { parseSortStrategy } from '../services/prSort';
 import { parseGroupingStrategy, parsePRState } from '../services/urlParams';
 import { PRListStats } from './PRListStats';
@@ -60,7 +60,7 @@ function PRListContent() {
     // Only restore on mount (when isRestored is false)
     if (isRestored) return;
 
-    const storageKey = `margea_filters_${location.pathname}`;
+    const storageKey = `${FILTERS_STORAGE_KEY_PREFIX}${location.pathname}`;
     const stored = sessionStorage.getItem(storageKey);
 
     if (stored) {
@@ -88,7 +88,7 @@ function PRListContent() {
   useEffect(() => {
     if (!isRestored) return;
 
-    const storageKey = `margea_filters_${location.pathname}`;
+    const storageKey = `${FILTERS_STORAGE_KEY_PREFIX}${location.pathname}`;
     sessionStorage.setItem(storageKey, searchParams.toString());
   }, [searchParams, location.pathname, isRestored]);
 

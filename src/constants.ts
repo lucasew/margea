@@ -60,6 +60,9 @@ export const MERGE_METHOD_ACTIONS = ['REBASE', 'SQUASH', 'MERGE'] as const;
 export const DEFAULT_MERGE_METHOD = MERGE_METHODS[0];
 export const MERGE_METHOD_STORAGE_KEY = 'margea_merge_method';
 
+/** sessionStorage key prefix for PR list filter persistence (pathname appended). */
+export const FILTERS_STORAGE_KEY_PREFIX = 'margea_filters_';
+
 export const THEME_LIGHT = 'margea-light';
 export const THEME_DARK = 'margea-dark';
 
