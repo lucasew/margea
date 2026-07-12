@@ -55,7 +55,9 @@ export function PRProvider({ children }: PRProviderProps) {
   }, []);
 
   const onBatchRef = useRef(onBatch);
-  onBatchRef.current = onBatch;
+  useEffect(() => {
+    onBatchRef.current = onBatch;
+  }, [onBatch]);
 
   const getSession = useCallback((): PRFetchSession => {
     if (environmentRef.current !== environment) {
