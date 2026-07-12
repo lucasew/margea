@@ -71,15 +71,23 @@ export function RateLimitIndicator({
   const [state, setState] = useState<RateLimitState>(rateLimitStore.getState());
   const [timeUntilReset, setTimeUntilReset] = useState<string>('');
   const isWrite = currentMode === 'write';
+  const isKnown =
+    state.limit !== null && state.remaining !== null && state.reset !== null;
 
   useEffect(() => {
     return rateLimitStore.subscribe(setState);
   }, []);
 
   useEffect(() => {
+    const resetAt = state.reset;
+    if (resetAt === null) {
+      setTimeUntilReset('—');
+      return;
+    }
+
     const updateTimer = () => {
       const now = Date.now() / 1000;
-      const diff = state.reset - now;
+      const diff = resetAt - now;
 
       if (diff <= 0) {
         setTimeUntilReset('Now');
@@ -96,24 +104,34 @@ export function RateLimitIndicator({
     return () => clearInterval(interval);
   }, [state.reset]);
 
+  const limit = state.limit;
+  const remaining = state.remaining;
   const percentage =
-    state.limit > 0
+    limit !== null && remaining !== null && limit > 0
       ? Math.min(
           100,
-          Math.max(0, Math.round((state.remaining / state.limit) * 100)),
+          Math.max(0, Math.round((remaining / limit) * 100)),
         )
       : 0;
 
-  let colorClass = 'text-success';
-  if (percentage < 20) colorClass = 'text-error';
-  else if (percentage < 50) colorClass = 'text-warning';
+  let colorClass = 'text-base-content/40';
+  if (isKnown) {
+    colorClass = 'text-success';
+    if (percentage < 20) colorClass = 'text-error';
+    else if (percentage < 50) colorClass = 'text-warning';
+  }
 
-  const progressClass =
-    percentage < 20
+  const progressClass = !isKnown
+    ? ''
+    : percentage < 20
       ? 'progress-error'
       : percentage < 50
         ? 'progress-warning'
         : 'progress-success';
+
+  const remainingLabel = isKnown
+    ? `${state.remaining} / ${state.limit}`
+    : '—';
 
   return (
     <div className="dropdown dropdown-end">
@@ -208,14 +226,21 @@ export function RateLimitIndicator({
             <span
               className={`font-mono font-semibold tabular-nums ${colorClass}`}
             >
-              {state.remaining} / {state.limit}
+              {remainingLabel}
             </span>
           </div>
-          <progress
-            className={`progress w-full h-1.5 ${progressClass}`}
-            value={percentage}
-            max={100}
-          />
+          {isKnown ? (
+            <progress
+              className={`progress w-full h-1.5 ${progressClass}`}
+              value={percentage}
+              max={100}
+            />
+          ) : (
+            <div
+              className="h-1.5 w-full rounded-full bg-base-300"
+              aria-hidden
+            />
+          )}
           <div className="flex justify-between items-center text-xs">
             <span className="text-base-content/60">
               {t('rateLimit.resetsIn')}

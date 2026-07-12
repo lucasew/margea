@@ -1,17 +1,24 @@
 export interface RateLimitState {
-  limit: number;
-  remaining: number;
-  reset: number; // Unix timestamp in seconds
+  limit: number | null;
+  remaining: number | null;
+  reset: number | null; // Unix timestamp in seconds
 }
 
 type Listener = (state: RateLimitState) => void;
 
-class RateLimitStore {
-  private state: RateLimitState = {
-    limit: 5000,
-    remaining: 5000,
-    reset: Date.now() / 1000 + 3600, // Default to 1 hour from now
-  };
+const UNKNOWN_STATE: RateLimitState = {
+  limit: null,
+  remaining: null,
+  reset: null,
+};
+
+function parseHeaderInt(value: string): number | null {
+  const n = parseInt(value, 10);
+  return Number.isFinite(n) ? n : null;
+}
+
+export class RateLimitStore {
+  private state: RateLimitState = { ...UNKNOWN_STATE };
   private listeners: Set<Listener> = new Set();
 
   getState() {
@@ -21,10 +28,22 @@ class RateLimitStore {
   update(limit: string | null, remaining: string | null, reset: string | null) {
     if (!limit || !remaining || !reset) return;
 
+    const parsedLimit = parseHeaderInt(limit);
+    const parsedRemaining = parseHeaderInt(remaining);
+    const parsedReset = parseHeaderInt(reset);
+
+    if (
+      parsedLimit === null ||
+      parsedRemaining === null ||
+      parsedReset === null
+    ) {
+      return;
+    }
+
     this.state = {
-      limit: parseInt(limit, 10),
-      remaining: parseInt(remaining, 10),
-      reset: parseInt(reset, 10),
+      limit: parsedLimit,
+      remaining: parsedRemaining,
+      reset: parsedReset,
     };
 
     this.notify();
