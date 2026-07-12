@@ -24,9 +24,11 @@ export function buildOAuthStateCookie(
   }Path=/; SameSite=Lax; Max-Age=${OAUTH_STATE_MAX_AGE_SECONDS}`;
 }
 
-/** Clears oauth_state. Attribute set matches existing callback behavior (no Secure/SameSite). */
-export function clearOAuthStateCookie(): string {
-  return `oauth_state=; HttpOnly; Path=/; Max-Age=0`;
+/** Clears oauth_state with the same attributes used when setting it. */
+export function clearOAuthStateCookie(isHttps: boolean): string {
+  return `oauth_state=; HttpOnly; ${
+    isHttps ? 'Secure; ' : ''
+  }Path=/; SameSite=Lax; Max-Age=0`;
 }
 
 export async function signSessionJwt(
