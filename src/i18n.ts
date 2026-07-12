@@ -11,6 +11,9 @@ i18next
   .use(LanguageDetector)
   .init({
     fallbackLng: 'en',
+    // Only en/es/pt are bundled. Map regional tags (e.g. pt-BR, es-MX) to them.
+    supportedLngs: ['en', 'es', 'pt'],
+    nonExplicitSupportedLngs: true,
     interpolation: {
       escapeValue: false,
     },
