@@ -23,7 +23,9 @@ export function getSessionSecretOrResponse(context: string): {
   return { secret: secretValue };
 }
 
-export function createSuccessResponse(headers?: Record<string, string>): Response {
+export function createSuccessResponse(
+  headers?: Record<string, string>,
+): Response {
   return new Response(JSON.stringify({ success: true }), {
     headers: {
       'Content-Type': 'application/json',
