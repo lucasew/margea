@@ -335,6 +335,8 @@ function createHarness(initial: HarnessOptions) {
       groupingStrategy,
       sortStrategy,
     );
+    // Test harness: intentionally capture latest hook output for assertions.
+    // eslint-disable-next-line react-hooks/globals -- harness bridge, not app code
     api = {
       keys: groups.map((g) => g.key),
       counts: groups.map((g) => g.count),
