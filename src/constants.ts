@@ -74,6 +74,8 @@ export const THEMES = {
   DARK: THEME_DARK,
 } as const;
 
+export type Theme = (typeof THEMES)[keyof typeof THEMES];
+
 /** Client-side feature flag: effective access mode (clamped by token capability). */
 export const EFFECTIVE_MODE_STORAGE_KEY = 'margea_effective_mode';
 
@@ -81,7 +83,7 @@ export const EFFECTIVE_MODE_STORAGE_KEY = 'margea_effective_mode';
 export function resolveTheme(
   stored: string | null,
   prefersDark: boolean,
-): string {
+): Theme {
   if (stored === THEME_LIGHT || stored === THEME_DARK) return stored;
   if (stored === 'light') return THEME_LIGHT;
   if (stored === 'dark') return THEME_DARK;
