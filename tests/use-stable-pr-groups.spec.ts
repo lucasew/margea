@@ -10,6 +10,7 @@ import { flushSync } from 'react-dom';
 import { createRoot, type Root } from 'react-dom/client';
 import type { GroupingStrategy, PullRequest, SortStrategy } from '../src/types';
 import { useStablePRGroups } from '../src/hooks/useStablePRGroups';
+import { makePR } from './utils/makePR';
 
 /** React act() needs this flag outside Jest/RTL. */
 function enableReactActEnvironment() {
@@ -286,35 +287,6 @@ function installMinimalDom() {
   define('requestAnimationFrame', windowObj.requestAnimationFrame);
   define('cancelAnimationFrame', windowObj.cancelAnimationFrame);
   define('getComputedStyle', windowObj.getComputedStyle);
-}
-
-function makePR(id: string, overrides: Partial<PullRequest> = {}): PullRequest {
-  return {
-    id,
-    number: 1,
-    title: id,
-    body: null,
-    state: 'OPEN',
-    additions: 0,
-    deletions: 0,
-    ciStatus: null,
-    createdAt: '2026-01-01T00:00:00Z',
-    updatedAt: '2026-01-01T00:00:00Z',
-    mergedAt: null,
-    closedAt: null,
-    url: `https://example.com/${id}`,
-    baseRefName: 'main',
-    headRefName: `b-${id}`,
-    author: { login: 'bot', avatarUrl: '' },
-    labels: null,
-    repository: {
-      id: 'repo',
-      name: 'app',
-      nameWithOwner: 'acme/app',
-      owner: { login: 'acme' },
-    },
-    ...overrides,
-  };
 }
 
 /** Renovate grouping key = normalizedTitle|author */
