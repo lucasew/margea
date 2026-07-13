@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Sun, Moon } from 'react-feather';
-import { THEMES, resolveTheme } from '../constants';
+import { THEMES, THEME_STORAGE_KEY, resolveTheme } from '../constants';
 
 type Theme = (typeof THEMES)[keyof typeof THEMES];
 
@@ -10,12 +10,15 @@ export function ThemeToggle() {
     const prefersDark = window.matchMedia(
       '(prefers-color-scheme: dark)',
     ).matches;
-    return resolveTheme(localStorage.getItem('theme'), prefersDark) as Theme;
+    return resolveTheme(
+      localStorage.getItem(THEME_STORAGE_KEY),
+      prefersDark,
+    ) as Theme;
   });
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('theme', theme);
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
   }, [theme]);
 
   const toggleTheme = () => {

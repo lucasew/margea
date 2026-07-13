@@ -66,6 +66,9 @@ export const FILTERS_STORAGE_KEY_PREFIX = 'margea_filters_';
 export const THEME_LIGHT = 'margea-light';
 export const THEME_DARK = 'margea-dark';
 
+/** localStorage key for the selected theme (SpaShell inline script must match). */
+export const THEME_STORAGE_KEY = 'theme';
+
 export const THEMES = {
   LIGHT: THEME_LIGHT,
   DARK: THEME_DARK,
