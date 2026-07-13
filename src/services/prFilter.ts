@@ -27,10 +27,11 @@ export function filterPullRequests(
   let filtered = [...prs];
 
   if (filters.repository) {
+    const repository = filters.repository;
     filtered = filtered.filter((pr) =>
       pr.repository.nameWithOwner
         .toLowerCase()
-        .includes(filters.repository!.toLowerCase()),
+        .includes(repository.toLowerCase()),
     );
   }
 
@@ -39,16 +40,16 @@ export function filterPullRequests(
   }
 
   if (filters.author) {
+    const author = filters.author;
     filtered = filtered.filter((pr) =>
-      pr.author?.login.toLowerCase().includes(filters.author!.toLowerCase()),
+      pr.author?.login.toLowerCase().includes(author.toLowerCase()),
     );
   }
 
   if (filters.owner) {
+    const owner = filters.owner;
     filtered = filtered.filter((pr) =>
-      pr.repository.owner.login
-        .toLowerCase()
-        .includes(filters.owner!.toLowerCase()),
+      pr.repository.owner.login.toLowerCase().includes(owner.toLowerCase()),
     );
   }
 
