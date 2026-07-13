@@ -132,6 +132,8 @@ test.describe('abortableSleep', () => {
 
   test('resolves when signal is present but never aborted', async () => {
     const controller = new AbortController();
-    await expect(abortableSleep(40, controller.signal)).resolves.toBeUndefined();
+    await expect(
+      abortableSleep(40, controller.signal),
+    ).resolves.toBeUndefined();
   });
 });
