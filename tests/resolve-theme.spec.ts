@@ -1,9 +1,5 @@
 import { test, expect } from '@playwright/test';
-import {
-  resolveTheme,
-  THEME_LIGHT,
-  THEME_DARK,
-} from '../src/constants';
+import { resolveTheme, THEME_LIGHT, THEME_DARK } from '../src/constants';
 
 test.describe('resolveTheme', () => {
   test('null stored value falls back to prefersDark', () => {
