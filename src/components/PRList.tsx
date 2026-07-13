@@ -1,4 +1,4 @@
-import { Suspense, useState, useEffect, useRef } from 'react';
+import { Suspense, useEffect, useRef } from 'react';
 import { useSearchParams, useLocation } from 'react-router-dom';
 import {
   RefreshCw,
@@ -53,44 +53,39 @@ function PRListContent() {
   );
   const sortBy = parseSortStrategy(searchParams.get(URL_SEARCH_PARAMS.SORT_BY));
 
-  // Persist filters in sessionStorage
-  const [isRestored, setIsRestored] = useState(false);
+  // One-shot restore gate via ref (avoids setState-in-effect for a non-render flag).
+  const hasRestoredRef = useRef(false);
 
   useEffect(() => {
-    // Only restore on mount (when isRestored is false)
-    if (isRestored) return;
-
     const storageKey = `${FILTERS_STORAGE_KEY_PREFIX}${location.pathname}`;
-    const stored = sessionStorage.getItem(storageKey);
 
-    if (stored) {
-      const storedParams = new URLSearchParams(stored);
-      const newParams = new URLSearchParams(searchParams);
-      let hasChanges = false;
+    if (!hasRestoredRef.current) {
+      hasRestoredRef.current = true;
+      const stored = sessionStorage.getItem(storageKey);
 
-      storedParams.forEach((value, key) => {
-        // If current params don't have this key, restore it
-        if (!newParams.has(key)) {
-          newParams.set(key, value);
-          hasChanges = true;
+      if (stored) {
+        const storedParams = new URLSearchParams(stored);
+        const newParams = new URLSearchParams(searchParams);
+        let hasChanges = false;
+
+        storedParams.forEach((value, key) => {
+          // If current params don't have this key, restore it
+          if (!newParams.has(key)) {
+            newParams.set(key, value);
+            hasChanges = true;
+          }
+        });
+
+        if (hasChanges) {
+          setSearchParams(newParams, { replace: true });
+          // Wait for searchParams update before persisting
+          return;
         }
-      });
-
-      if (hasChanges) {
-        setSearchParams(newParams, { replace: true });
       }
     }
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setIsRestored(true);
-  }, [location.pathname, isRestored, searchParams, setSearchParams]);
-
-  useEffect(() => {
-    if (!isRestored) return;
-
-    const storageKey = `${FILTERS_STORAGE_KEY_PREFIX}${location.pathname}`;
     sessionStorage.setItem(storageKey, searchParams.toString());
-  }, [searchParams, location.pathname, isRestored]);
+  }, [location.pathname, searchParams, setSearchParams]);
 
   // Helper to update filters in URL
   const updateFilter = (key: string, value: string) => {
