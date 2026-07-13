@@ -1,19 +1,19 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Sun, Moon } from 'react-feather';
-import { THEMES, THEME_STORAGE_KEY, resolveTheme } from '../constants';
-
-type Theme = (typeof THEMES)[keyof typeof THEMES];
+import {
+  THEMES,
+  THEME_STORAGE_KEY,
+  resolveTheme,
+  type Theme,
+} from '../constants';
 
 export function ThemeToggle() {
   const [theme, setTheme] = useState<Theme>(() => {
     const prefersDark = window.matchMedia(
       '(prefers-color-scheme: dark)',
     ).matches;
-    return resolveTheme(
-      localStorage.getItem(THEME_STORAGE_KEY),
-      prefersDark,
-    ) as Theme;
+    return resolveTheme(localStorage.getItem(THEME_STORAGE_KEY), prefersDark);
   });
 
   useEffect(() => {
