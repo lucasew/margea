@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface CiStatusChartProps {
   success: number;
   failure: number;
@@ -8,13 +6,13 @@ interface CiStatusChartProps {
   strokeWidth?: number;
 }
 
-export const CiStatusChart: React.FC<CiStatusChartProps> = ({
+export function CiStatusChart({
   success,
   failure,
   pending,
   size = 24,
   strokeWidth = 3,
-}) => {
+}: CiStatusChartProps) {
   const total = success + failure + pending;
   if (total === 0) {
     return null;
@@ -78,4 +76,4 @@ export const CiStatusChart: React.FC<CiStatusChartProps> = ({
       )}
     </svg>
   );
-};
+}
