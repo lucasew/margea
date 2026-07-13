@@ -8,15 +8,11 @@ export const SESSION_JWT_EXPIRATION = '7d';
 /** OAuth state cookie TTL: 5 minutes. */
 export const OAUTH_STATE_MAX_AGE_SECONDS = 300;
 
-const SESSION_COOKIE_OPTS = {
-  httpOnly: true,
-  path: '/',
-  sameSite: 'strict' as const,
-};
-
 export function buildSessionCookie(token: string, isHttps: boolean): string {
   return serialize('session', token, {
-    ...SESSION_COOKIE_OPTS,
+    httpOnly: true,
+    path: '/',
+    sameSite: 'strict',
     maxAge: SESSION_MAX_AGE_SECONDS,
     secure: isHttps,
   });
@@ -24,24 +20,22 @@ export function buildSessionCookie(token: string, isHttps: boolean): string {
 
 export function clearSessionCookie(isHttps: boolean): string {
   return serialize('session', '', {
-    ...SESSION_COOKIE_OPTS,
+    httpOnly: true,
+    path: '/',
+    sameSite: 'strict',
     maxAge: 0,
     secure: isHttps,
   });
 }
-
-const OAUTH_STATE_COOKIE_OPTS = {
-  httpOnly: true,
-  path: '/',
-  sameSite: 'lax' as const,
-};
 
 export function buildOAuthStateCookie(
   stateToken: string,
   isHttps: boolean,
 ): string {
   return serialize('oauth_state', stateToken, {
-    ...OAUTH_STATE_COOKIE_OPTS,
+    httpOnly: true,
+    path: '/',
+    sameSite: 'lax',
     maxAge: OAUTH_STATE_MAX_AGE_SECONDS,
     secure: isHttps,
   });
@@ -50,7 +44,9 @@ export function buildOAuthStateCookie(
 /** Clears oauth_state with the same attributes used when setting it. */
 export function clearOAuthStateCookie(isHttps: boolean): string {
   return serialize('oauth_state', '', {
-    ...OAUTH_STATE_COOKIE_OPTS,
+    httpOnly: true,
+    path: '/',
+    sameSite: 'lax',
     maxAge: 0,
     secure: isHttps,
   });
