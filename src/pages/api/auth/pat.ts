@@ -1,19 +1,15 @@
 import { isSecureRequest } from '../../../utils/requestUtils';
 import { buildSessionCookie, signSessionJwt } from './cookies';
+import { getSessionSecretOrResponse, createSuccessResponse } from './utils';
 
 interface PATAuthRequestBody {
   token?: string;
 }
 
 export async function POST({ request }: { request: Request }) {
-  const secretValue = import.meta.env.SESSION_SECRET;
-  if (!secretValue) {
-    return new Response(
-      'Missing required environment variable SESSION_SECRET. ' +
-        'Copy .env.example → .env.local and generate one with `openssl rand -hex 32`.',
-      { status: 500 },
-    );
-  }
+  const { secret: secretValue, response: errResponse } =
+    getSessionSecretOrResponse('github auth pat');
+  if (errResponse) return errResponse;
 
   let body: PATAuthRequestBody;
   try {
@@ -91,11 +87,8 @@ export async function POST({ request }: { request: Request }) {
 
   const isHttps = isSecureRequest(request);
 
-  const response = new Response(JSON.stringify({ success: true }), {
-    headers: {
-      'Content-Type': 'application/json',
-      'Cache-Control': 'no-store, no-cache, must-revalidate',
-    },
+  const response = createSuccessResponse({
+    'Cache-Control': 'no-store, no-cache, must-revalidate',
   });
 
   response.headers.set('Set-Cookie', buildSessionCookie(session, isHttps));

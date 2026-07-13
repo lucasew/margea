@@ -7,6 +7,7 @@ import {
   clearOAuthStateCookie,
   signSessionJwt,
 } from './cookies';
+import { getSessionSecretOrResponse } from './utils';
 
 export async function GET({ request }: { request: Request }) {
   const requestUrl = new URL(request.url);
@@ -33,20 +34,9 @@ export async function GET({ request }: { request: Request }) {
     );
   }
 
-  const secretValue = import.meta.env.SESSION_SECRET;
-  if (!secretValue) {
-    reportError(
-      new Error('Missing required environment variable SESSION_SECRET'),
-      {
-        context: 'github auth callback',
-      },
-    );
-    return new Response(
-      'Missing required environment variable SESSION_SECRET. ' +
-        'Copy .env.example → .env.local and generate one with `openssl rand -hex 32`.',
-      { status: 500 },
-    );
-  }
+  const { secret: secretValue, response: errResponse } =
+    getSessionSecretOrResponse('github auth callback');
+  if (errResponse) return errResponse;
 
   // Optional cookie channel (can be absent in preview host changes).
   const cookieHeader = request.headers.get('Cookie') || '';
