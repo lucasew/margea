@@ -13,36 +13,9 @@ import {
   type StreamFactory,
 } from '../src/services/prFetchSession';
 import type { PullRequest } from '../src/types';
+import { makePR } from './utils/makePR';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
-
-function makePR(id: string): PullRequest {
-  return {
-    id,
-    number: 1,
-    title: id,
-    body: null,
-    state: 'OPEN',
-    additions: 0,
-    deletions: 0,
-    ciStatus: null,
-    createdAt: '2026-01-07T12:00:00Z',
-    updatedAt: '2026-01-07T12:00:00Z',
-    mergedAt: null,
-    closedAt: null,
-    url: `https://example.com/${id}`,
-    baseRefName: 'main',
-    headRefName: `b-${id}`,
-    author: null,
-    labels: null,
-    repository: {
-      id: 'repo',
-      name: 'app',
-      nameWithOwner: 'acme/app',
-      owner: { login: 'acme' },
-    },
-  };
-}
 
 function page(prs: PullRequest[], issueCount = prs.length): PageResult {
   return { prs, issueCount, hasNextPage: false, endCursor: null };

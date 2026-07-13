@@ -1,56 +1,7 @@
 import { test, expect } from '@playwright/test';
 import type { PullRequest } from '../src/types';
 import { filterPullRequests } from '../src/services/prFilter';
-
-/**
- * Minimal fixture: only fields filterPullRequests reads
- * (repository.nameWithOwner, repository.owner.login, author?.login, state).
- */
-function makePR(
-  id: string,
-  overrides: {
-    state?: PullRequest['state'];
-    author?: PullRequest['author'];
-    repository?: Partial<PullRequest['repository']> & {
-      nameWithOwner?: string;
-      owner?: { login: string };
-    };
-  } = {},
-): PullRequest {
-  const nameWithOwner = overrides.repository?.nameWithOwner ?? 'acme/app';
-  const [defaultOwner, defaultName] = nameWithOwner.includes('/')
-    ? nameWithOwner.split('/')
-    : ['acme', nameWithOwner];
-
-  return {
-    id,
-    number: 1,
-    title: id,
-    body: null,
-    state: overrides.state ?? 'OPEN',
-    additions: 0,
-    deletions: 0,
-    ciStatus: null,
-    createdAt: '2026-01-01T00:00:00Z',
-    updatedAt: '2026-01-01T00:00:00Z',
-    mergedAt: null,
-    closedAt: null,
-    url: `https://example.com/${id}`,
-    baseRefName: 'main',
-    headRefName: `b-${id}`,
-    author:
-      overrides.author === undefined
-        ? { login: 'bot', avatarUrl: '' }
-        : overrides.author,
-    labels: null,
-    repository: {
-      id: overrides.repository?.id ?? 'repo',
-      name: overrides.repository?.name ?? defaultName,
-      nameWithOwner,
-      owner: overrides.repository?.owner ?? { login: defaultOwner },
-    },
-  };
-}
+import { makePR } from './utils/makePR';
 
 const fixturePRs: PullRequest[] = [
   makePR('open-acme-bot', {
