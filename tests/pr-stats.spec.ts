@@ -15,10 +15,22 @@ test.describe('calculateStats', () => {
 
   test('counts by state and unique repositories', () => {
     const prs = [
-      makePR('o1', { state: 'OPEN', repository: { nameWithOwner: 'acme/one' } }),
-      makePR('o2', { state: 'OPEN', repository: { nameWithOwner: 'acme/one' } }),
-      makePR('m1', { state: 'MERGED', repository: { nameWithOwner: 'acme/two' } }),
-      makePR('c1', { state: 'CLOSED', repository: { nameWithOwner: 'other/lib' } }),
+      makePR('o1', {
+        state: 'OPEN',
+        repository: { nameWithOwner: 'acme/one' },
+      }),
+      makePR('o2', {
+        state: 'OPEN',
+        repository: { nameWithOwner: 'acme/one' },
+      }),
+      makePR('m1', {
+        state: 'MERGED',
+        repository: { nameWithOwner: 'acme/two' },
+      }),
+      makePR('c1', {
+        state: 'CLOSED',
+        repository: { nameWithOwner: 'other/lib' },
+      }),
     ];
 
     expect(calculateStats(prs)).toEqual({
@@ -33,7 +45,10 @@ test.describe('calculateStats', () => {
   test('single open PR counts total, open, and one repository', () => {
     expect(
       calculateStats([
-        makePR('only', { state: 'OPEN', repository: { nameWithOwner: 'acme/app' } }),
+        makePR('only', {
+          state: 'OPEN',
+          repository: { nameWithOwner: 'acme/app' },
+        }),
       ]),
     ).toEqual({
       total: 1,
@@ -47,8 +62,14 @@ test.describe('calculateStats', () => {
   test('all same repository still reports repositories: 1', () => {
     const prs = [
       makePR('a', { state: 'OPEN', repository: { nameWithOwner: 'acme/app' } }),
-      makePR('b', { state: 'MERGED', repository: { nameWithOwner: 'acme/app' } }),
-      makePR('c', { state: 'CLOSED', repository: { nameWithOwner: 'acme/app' } }),
+      makePR('b', {
+        state: 'MERGED',
+        repository: { nameWithOwner: 'acme/app' },
+      }),
+      makePR('c', {
+        state: 'CLOSED',
+        repository: { nameWithOwner: 'acme/app' },
+      }),
     ];
 
     expect(calculateStats(prs)).toEqual({
@@ -75,7 +96,9 @@ test.describe('calculateStats', () => {
     });
 
     expect(
-      calculateStats([makePR('c1', { state: 'CLOSED', repository: { nameWithOwner: 'x/y' } })]),
+      calculateStats([
+        makePR('c1', { state: 'CLOSED', repository: { nameWithOwner: 'x/y' } }),
+      ]),
     ).toEqual({
       total: 1,
       open: 0,

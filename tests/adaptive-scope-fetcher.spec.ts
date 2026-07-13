@@ -38,7 +38,12 @@ test.describe('createScopeStream', () => {
       queries.push(query);
       signals.push(signal);
       call += 1;
-      return page([makePR(`pr-${call}`, { createdAt: '2026-01-07T12:00:00Z', updatedAt: '2026-01-07T12:00:00Z' })]);
+      return page([
+        makePR(`pr-${call}`, {
+          createdAt: '2026-01-07T12:00:00Z',
+          updatedAt: '2026-01-07T12:00:00Z',
+        }),
+      ]);
     };
 
     const end = new Date('2026-01-08T00:00:00Z');
@@ -105,7 +110,12 @@ test.describe('createScopeStream', () => {
 
   test('abort while idle completes the generator on next pull', async () => {
     const fetchPage: PageFetcher = async () =>
-      page([makePR('pr-1', { createdAt: '2026-01-07T12:00:00Z', updatedAt: '2026-01-07T12:00:00Z' })]);
+      page([
+        makePR('pr-1', {
+          createdAt: '2026-01-07T12:00:00Z',
+          updatedAt: '2026-01-07T12:00:00Z',
+        }),
+      ]);
 
     const end = new Date('2026-01-08T00:00:00Z');
     const start = new Date('2026-01-07T00:00:00Z');
@@ -128,7 +138,12 @@ test.describe('createScopeStream', () => {
     let calls = 0;
     const fetchPage: PageFetcher = async () => {
       calls += 1;
-      return page([makePR(`pr-${calls}`, { createdAt: '2026-01-07T12:00:00Z', updatedAt: '2026-01-07T12:00:00Z' })]);
+      return page([
+        makePR(`pr-${calls}`, {
+          createdAt: '2026-01-07T12:00:00Z',
+          updatedAt: '2026-01-07T12:00:00Z',
+        }),
+      ]);
     };
 
     const end = new Date('2026-01-08T00:00:00Z');
@@ -157,7 +172,12 @@ test.describe('createScopeStream', () => {
       if (query.includes('2026-01-01..2026-01-31')) {
         return page([], 1001);
       }
-      return page([makePR(`pr-${queries.length}`, { createdAt: '2026-01-15T00:00:00Z', updatedAt: '2026-01-15T00:00:00Z' })]);
+      return page([
+        makePR(`pr-${queries.length}`, {
+          createdAt: '2026-01-15T00:00:00Z',
+          updatedAt: '2026-01-15T00:00:00Z',
+        }),
+      ]);
     };
 
     const end = new Date('2026-01-31T00:00:00Z');
@@ -182,14 +202,24 @@ test.describe('createScopeStream', () => {
     const fetchPage: PageFetcher = async (_query, cursor) => {
       if (!cursor) {
         return {
-          prs: [makePR('p1', { createdAt: '2026-01-07T12:00:00Z', updatedAt: '2026-01-07T12:00:00Z' })],
+          prs: [
+            makePR('p1', {
+              createdAt: '2026-01-07T12:00:00Z',
+              updatedAt: '2026-01-07T12:00:00Z',
+            }),
+          ],
           issueCount: 2,
           hasNextPage: true,
           endCursor: 'cursor-1',
         };
       }
       return {
-        prs: [makePR('p2', { createdAt: '2026-01-07T11:00:00Z', updatedAt: '2026-01-07T11:00:00Z' })],
+        prs: [
+          makePR('p2', {
+            createdAt: '2026-01-07T11:00:00Z',
+            updatedAt: '2026-01-07T11:00:00Z',
+          }),
+        ],
         issueCount: 2,
         hasNextPage: false,
         endCursor: null,
