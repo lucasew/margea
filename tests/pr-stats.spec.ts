@@ -1,48 +1,6 @@
 import { test, expect } from '@playwright/test';
-import type { PullRequest } from '../src/types';
 import { calculateStats } from '../src/services/prStats';
-
-/**
- * Minimal fixture: calculateStats only reads state and repository.nameWithOwner.
- */
-function makePR(
-  id: string,
-  overrides: {
-    state?: PullRequest['state'];
-    nameWithOwner?: string;
-  } = {},
-): PullRequest {
-  const nameWithOwner = overrides.nameWithOwner ?? 'acme/app';
-  const [owner, name] = nameWithOwner.includes('/')
-    ? nameWithOwner.split('/')
-    : ['acme', nameWithOwner];
-
-  return {
-    id,
-    number: 1,
-    title: id,
-    body: null,
-    state: overrides.state ?? 'OPEN',
-    additions: 0,
-    deletions: 0,
-    ciStatus: null,
-    createdAt: '2026-01-01T00:00:00Z',
-    updatedAt: '2026-01-01T00:00:00Z',
-    mergedAt: null,
-    closedAt: null,
-    url: `https://example.com/${id}`,
-    baseRefName: 'main',
-    headRefName: `b-${id}`,
-    author: { login: 'bot', avatarUrl: '' },
-    labels: null,
-    repository: {
-      id: nameWithOwner,
-      name,
-      nameWithOwner,
-      owner: { login: owner },
-    },
-  };
-}
+import { makePR } from './utils/makePR';
 
 test.describe('calculateStats', () => {
   test('empty list returns zero counts', () => {
@@ -57,10 +15,10 @@ test.describe('calculateStats', () => {
 
   test('counts by state and unique repositories', () => {
     const prs = [
-      makePR('o1', { state: 'OPEN', nameWithOwner: 'acme/one' }),
-      makePR('o2', { state: 'OPEN', nameWithOwner: 'acme/one' }),
-      makePR('m1', { state: 'MERGED', nameWithOwner: 'acme/two' }),
-      makePR('c1', { state: 'CLOSED', nameWithOwner: 'other/lib' }),
+      makePR('o1', { state: 'OPEN', repository: { nameWithOwner: 'acme/one' } }),
+      makePR('o2', { state: 'OPEN', repository: { nameWithOwner: 'acme/one' } }),
+      makePR('m1', { state: 'MERGED', repository: { nameWithOwner: 'acme/two' } }),
+      makePR('c1', { state: 'CLOSED', repository: { nameWithOwner: 'other/lib' } }),
     ];
 
     expect(calculateStats(prs)).toEqual({
@@ -75,7 +33,7 @@ test.describe('calculateStats', () => {
   test('single open PR counts total, open, and one repository', () => {
     expect(
       calculateStats([
-        makePR('only', { state: 'OPEN', nameWithOwner: 'acme/app' }),
+        makePR('only', { state: 'OPEN', repository: { nameWithOwner: 'acme/app' } }),
       ]),
     ).toEqual({
       total: 1,
@@ -88,9 +46,9 @@ test.describe('calculateStats', () => {
 
   test('all same repository still reports repositories: 1', () => {
     const prs = [
-      makePR('a', { state: 'OPEN', nameWithOwner: 'acme/app' }),
-      makePR('b', { state: 'MERGED', nameWithOwner: 'acme/app' }),
-      makePR('c', { state: 'CLOSED', nameWithOwner: 'acme/app' }),
+      makePR('a', { state: 'OPEN', repository: { nameWithOwner: 'acme/app' } }),
+      makePR('b', { state: 'MERGED', repository: { nameWithOwner: 'acme/app' } }),
+      makePR('c', { state: 'CLOSED', repository: { nameWithOwner: 'acme/app' } }),
     ];
 
     expect(calculateStats(prs)).toEqual({
@@ -105,8 +63,8 @@ test.describe('calculateStats', () => {
   test('only merged and only closed', () => {
     expect(
       calculateStats([
-        makePR('m1', { state: 'MERGED', nameWithOwner: 'a/r' }),
-        makePR('m2', { state: 'MERGED', nameWithOwner: 'b/r' }),
+        makePR('m1', { state: 'MERGED', repository: { nameWithOwner: 'a/r' } }),
+        makePR('m2', { state: 'MERGED', repository: { nameWithOwner: 'b/r' } }),
       ]),
     ).toEqual({
       total: 2,
@@ -117,7 +75,7 @@ test.describe('calculateStats', () => {
     });
 
     expect(
-      calculateStats([makePR('c1', { state: 'CLOSED', nameWithOwner: 'x/y' })]),
+      calculateStats([makePR('c1', { state: 'CLOSED', repository: { nameWithOwner: 'x/y' } })]),
     ).toEqual({
       total: 1,
       open: 0,

@@ -1,44 +1,10 @@
 import { test, expect } from '@playwright/test';
-import type { PullRequest } from '../src/types';
 import {
   countCiStatuses,
   formatCiStatusTooltip,
   type CiStatusCounts,
 } from '../src/services/ciStatus';
-
-/**
- * Minimal fixture: countCiStatuses only reads ciStatus.
- */
-function makePR(
-  id: string,
-  ciStatus: PullRequest['ciStatus'] = null,
-): PullRequest {
-  return {
-    id,
-    number: 1,
-    title: id,
-    body: null,
-    state: 'OPEN',
-    additions: 0,
-    deletions: 0,
-    ciStatus,
-    createdAt: '2026-01-01T00:00:00Z',
-    updatedAt: '2026-01-01T00:00:00Z',
-    mergedAt: null,
-    closedAt: null,
-    url: `https://example.com/${id}`,
-    baseRefName: 'main',
-    headRefName: `b-${id}`,
-    author: { login: 'bot', avatarUrl: '' },
-    labels: null,
-    repository: {
-      id: 'repo',
-      name: 'app',
-      nameWithOwner: 'acme/app',
-      owner: { login: 'acme' },
-    },
-  };
-}
+import { makePR } from './utils/makePR';
 
 const labels = {
   status: 'CI',
@@ -59,12 +25,12 @@ test.describe('countCiStatuses', () => {
 
   test('counts mixed SUCCESS, FAILURE, and PENDING', () => {
     const prs = [
-      makePR('s1', 'SUCCESS'),
-      makePR('s2', 'SUCCESS'),
-      makePR('f1', 'FAILURE'),
-      makePR('p1', 'PENDING'),
-      makePR('p2', 'PENDING'),
-      makePR('p3', 'PENDING'),
+      makePR('s1', { ciStatus: 'SUCCESS' }),
+      makePR('s2', { ciStatus: 'SUCCESS' }),
+      makePR('f1', { ciStatus: 'FAILURE' }),
+      makePR('p1', { ciStatus: 'PENDING' }),
+      makePR('p2', { ciStatus: 'PENDING' }),
+      makePR('p3', { ciStatus: 'PENDING' }),
     ];
 
     expect(countCiStatuses(prs)).toEqual({
@@ -77,11 +43,11 @@ test.describe('countCiStatuses', () => {
 
   test('null ciStatus is ignored (not counted in total)', () => {
     const prs = [
-      makePR('s1', 'SUCCESS'),
-      makePR('n1', null),
-      makePR('f1', 'FAILURE'),
-      makePR('n2', null),
-      makePR('p1', 'PENDING'),
+      makePR('s1', { ciStatus: 'SUCCESS' }),
+      makePR('n1'),
+      makePR('f1', { ciStatus: 'FAILURE' }),
+      makePR('n2'),
+      makePR('p1', { ciStatus: 'PENDING' }),
     ];
 
     expect(countCiStatuses(prs)).toEqual({
@@ -93,7 +59,7 @@ test.describe('countCiStatuses', () => {
   });
 
   test('all null yields zeros', () => {
-    expect(countCiStatuses([makePR('a', null), makePR('b', null)])).toEqual({
+    expect(countCiStatuses([makePR('a'), makePR('b')])).toEqual({
       success: 0,
       failure: 0,
       pending: 0,
@@ -102,19 +68,19 @@ test.describe('countCiStatuses', () => {
   });
 
   test('single status buckets', () => {
-    expect(countCiStatuses([makePR('s', 'SUCCESS')])).toEqual({
+    expect(countCiStatuses([makePR('s', { ciStatus: 'SUCCESS' })])).toEqual({
       success: 1,
       failure: 0,
       pending: 0,
       total: 1,
     });
-    expect(countCiStatuses([makePR('f', 'FAILURE')])).toEqual({
+    expect(countCiStatuses([makePR('f', { ciStatus: 'FAILURE' })])).toEqual({
       success: 0,
       failure: 1,
       pending: 0,
       total: 1,
     });
-    expect(countCiStatuses([makePR('p', 'PENDING')])).toEqual({
+    expect(countCiStatuses([makePR('p', { ciStatus: 'PENDING' })])).toEqual({
       success: 0,
       failure: 0,
       pending: 1,

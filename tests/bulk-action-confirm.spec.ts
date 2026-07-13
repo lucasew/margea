@@ -10,6 +10,7 @@ import {
 } from '../src/services/mergeMethod';
 import { MERGE_METHOD_STORAGE_KEY } from '../src/constants';
 import type { PullRequest } from '../src/types';
+import { makePR } from './utils/makePR';
 
 /** Minimal sessionStorage for unit-testing merge method helpers outside the browser. */
 function installMemorySessionStorage(): () => void {
@@ -44,34 +45,6 @@ function installMemorySessionStorage(): () => void {
       configurable: true,
       value: previous,
     });
-  };
-}
-
-function makePR(id: string): PullRequest {
-  return {
-    id,
-    number: 1,
-    title: id,
-    body: null,
-    state: 'OPEN',
-    additions: 0,
-    deletions: 0,
-    ciStatus: null,
-    createdAt: '2026-01-01T00:00:00Z',
-    updatedAt: '2026-01-01T00:00:00Z',
-    mergedAt: null,
-    closedAt: null,
-    url: `https://example.com/${id}`,
-    baseRefName: 'main',
-    headRefName: `b-${id}`,
-    author: { login: 'bot', avatarUrl: '' },
-    labels: null,
-    repository: {
-      id: 'repo',
-      name: 'app',
-      nameWithOwner: 'acme/app',
-      owner: { login: 'acme' },
-    },
   };
 }
 
