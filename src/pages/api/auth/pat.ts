@@ -87,9 +87,7 @@ export async function POST({ request }: { request: Request }) {
 
   const isHttps = isSecureRequest(request);
 
-  const response = createSuccessResponse({
-    'Cache-Control': 'no-store, no-cache, must-revalidate',
-  });
+  const response = createSuccessResponse();
 
   response.headers.set('Set-Cookie', buildSessionCookie(session, isHttps));
 
