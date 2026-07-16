@@ -23,12 +23,15 @@ export function getSessionSecretOrResponse(context: string): {
   return { secret: secretValue };
 }
 
+/** Shared success body for auth POSTs (logout, PAT). Always no-store. */
 export function createSuccessResponse(
   headers?: Record<string, string>,
 ): Response {
   return new Response(JSON.stringify({ success: true }), {
     headers: {
       'Content-Type': 'application/json',
+      // Auth success responses must not be cached (session cookies, etc.).
+      'Cache-Control': 'no-store, no-cache, must-revalidate',
       ...headers,
     },
   });
