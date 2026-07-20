@@ -8,23 +8,43 @@ export const SESSION_JWT_EXPIRATION = '7d';
 /** OAuth state cookie TTL: 5 minutes. */
 export const OAUTH_STATE_MAX_AGE_SECONDS = 300;
 
-export function buildSessionCookie(token: string, isHttps: boolean): string {
-  return serialize('session', token, {
+type SameSite = 'strict' | 'lax';
+
+/**
+ * Shared Set-Cookie builder for auth cookies.
+ * Keeps httpOnly/path/secure attributes in one place so set/clear cannot drift.
+ */
+function serializeAuthCookie(
+  name: string,
+  value: string,
+  {
+    isHttps,
+    sameSite,
+    maxAge,
+  }: { isHttps: boolean; sameSite: SameSite; maxAge: number },
+): string {
+  return serialize(name, value, {
     httpOnly: true,
     path: '/',
-    sameSite: 'strict',
-    maxAge: SESSION_MAX_AGE_SECONDS,
+    sameSite,
+    maxAge,
     secure: isHttps,
   });
 }
 
+export function buildSessionCookie(token: string, isHttps: boolean): string {
+  return serializeAuthCookie('session', token, {
+    isHttps,
+    sameSite: 'strict',
+    maxAge: SESSION_MAX_AGE_SECONDS,
+  });
+}
+
 export function clearSessionCookie(isHttps: boolean): string {
-  return serialize('session', '', {
-    httpOnly: true,
-    path: '/',
+  return serializeAuthCookie('session', '', {
+    isHttps,
     sameSite: 'strict',
     maxAge: 0,
-    secure: isHttps,
   });
 }
 
@@ -32,23 +52,19 @@ export function buildOAuthStateCookie(
   stateToken: string,
   isHttps: boolean,
 ): string {
-  return serialize('oauth_state', stateToken, {
-    httpOnly: true,
-    path: '/',
+  return serializeAuthCookie('oauth_state', stateToken, {
+    isHttps,
     sameSite: 'lax',
     maxAge: OAUTH_STATE_MAX_AGE_SECONDS,
-    secure: isHttps,
   });
 }
 
 /** Clears oauth_state with the same attributes used when setting it. */
 export function clearOAuthStateCookie(isHttps: boolean): string {
-  return serialize('oauth_state', '', {
-    httpOnly: true,
-    path: '/',
+  return serializeAuthCookie('oauth_state', '', {
+    isHttps,
     sameSite: 'lax',
     maxAge: 0,
-    secure: isHttps,
   });
 }
 
