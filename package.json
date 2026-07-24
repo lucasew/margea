@@ -34,7 +34,7 @@
     "@types/react-dom": "^19.0.0",
     "@types/react-relay": "^18.2.1",
     "@types/relay-runtime": "^19.0.3",
-    "astro": "^6.4.7",
+    "astro": "^7.0.0",
     "babel-plugin-relay": "^20.0.0",
     "daisyui": "^5.0.0",
     "eslint": "^9.39.2",
