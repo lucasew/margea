@@ -1,9 +1,20 @@
+export type FilterDropdownOption = string | { value: string; label: string };
+
 interface FilterDropdownProps {
   label: string;
   value: string;
   onChange: (value: string) => void;
-  options: string[];
+  options: FilterDropdownOption[];
+  /** When set, prepends an empty-value option with this label. */
   allLabel?: string;
+}
+
+function optionValue(option: FilterDropdownOption): string {
+  return typeof option === 'string' ? option : option.value;
+}
+
+function optionLabel(option: FilterDropdownOption): string {
+  return typeof option === 'string' ? option : option.label;
 }
 
 export function FilterDropdown({
@@ -11,7 +22,7 @@ export function FilterDropdown({
   value,
   onChange,
   options,
-  allLabel = 'All',
+  allLabel,
 }: FilterDropdownProps) {
   return (
     <div className="form-control">
@@ -25,12 +36,17 @@ export function FilterDropdown({
         value={value}
         onChange={(e) => onChange(e.target.value)}
       >
-        <option value="">{allLabel}</option>
-        {options.map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
+        {allLabel !== undefined ? (
+          <option value="">{allLabel}</option>
+        ) : null}
+        {options.map((option) => {
+          const valueKey = optionValue(option);
+          return (
+            <option key={valueKey} value={valueKey}>
+              {optionLabel(option)}
+            </option>
+          );
+        })}
       </select>
     </div>
   );

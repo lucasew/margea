@@ -70,68 +70,37 @@ export function PRListFilters({
             allLabel={t('common.all')}
           />
 
-          <div className="form-control">
-            <label className="label py-0.5 min-h-0">
-              <span className="label-text text-xs font-medium text-base-content/70">
-                {t('filters.status')}
-              </span>
-            </label>
-            <select
-              className="select select-bordered select-sm w-full"
-              value={filterState}
-              onChange={(e) =>
-                updateFilter(URL_SEARCH_PARAMS.STATE, e.target.value)
-              }
-            >
-              {PR_STATES.map((state) => (
-                <option key={state} value={state}>
-                  {t(`prStates.${state}`)}
-                </option>
-              ))}
-            </select>
-          </div>
+          <FilterDropdown
+            label={t('filters.status')}
+            value={filterState}
+            onChange={(value) => updateFilter(URL_SEARCH_PARAMS.STATE, value)}
+            options={PR_STATES.map((state) => ({
+              value: state,
+              label: t(`prStates.${state}`),
+            }))}
+          />
 
-          <div className="form-control">
-            <label className="label py-0.5 min-h-0">
-              <span className="label-text text-xs font-medium text-base-content/70">
-                {t('filters.groupBy')}
-              </span>
-            </label>
-            <select
-              className="select select-bordered select-sm w-full"
-              value={groupBy}
-              onChange={(e) =>
-                updateFilter(URL_SEARCH_PARAMS.GROUP_BY, e.target.value)
-              }
-            >
-              {Object.keys(GROUPING_STRATEGIES).map((key) => (
-                <option key={key} value={key}>
-                  {t(`grouping.${key}`)}
-                </option>
-              ))}
-            </select>
-          </div>
+          <FilterDropdown
+            label={t('filters.groupBy')}
+            value={groupBy}
+            onChange={(value) =>
+              updateFilter(URL_SEARCH_PARAMS.GROUP_BY, value)
+            }
+            options={Object.keys(GROUPING_STRATEGIES).map((key) => ({
+              value: key,
+              label: t(`grouping.${key}`),
+            }))}
+          />
 
-          <div className="form-control">
-            <label className="label py-0.5 min-h-0">
-              <span className="label-text text-xs font-medium text-base-content/70">
-                {t('filters.sortBy')}
-              </span>
-            </label>
-            <select
-              className="select select-bordered select-sm w-full"
-              value={sortBy}
-              onChange={(e) =>
-                updateFilter(URL_SEARCH_PARAMS.SORT_BY, e.target.value)
-              }
-            >
-              {Object.keys(SORT_STRATEGIES).map((key) => (
-                <option key={key} value={key}>
-                  {t(`sorting.${key}`)}
-                </option>
-              ))}
-            </select>
-          </div>
+          <FilterDropdown
+            label={t('filters.sortBy')}
+            value={sortBy}
+            onChange={(value) => updateFilter(URL_SEARCH_PARAMS.SORT_BY, value)}
+            options={Object.keys(SORT_STRATEGIES).map((key) => ({
+              value: key,
+              label: t(`sorting.${key}`),
+            }))}
+          />
         </div>
 
         <div className="flex flex-row gap-2 justify-end">
