@@ -1,12 +1,12 @@
-import { createContext, useContext } from 'react';
+import { createContext } from 'react';
 import { PRContextType } from '../types';
+import { useRequiredContext } from '../utils/useRequiredContext';
 
 export const PRContext = createContext<PRContextType | undefined>(undefined);
 
 export function usePRContext() {
-  const context = useContext(PRContext);
-  if (!context) {
-    throw new Error('usePRContext must be used within a PRProvider');
-  }
-  return context;
+  return useRequiredContext(
+    PRContext,
+    'usePRContext must be used within a PRProvider',
+  );
 }
