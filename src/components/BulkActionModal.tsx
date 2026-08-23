@@ -13,6 +13,7 @@ import {
   parseMergeMethod,
   readStoredMergeMethod,
 } from '../services/mergeMethod';
+import { FilterDropdown } from './FilterDropdown';
 
 interface BulkActionModalProps {
   isOpen: boolean;
@@ -166,27 +167,17 @@ export function BulkActionModal({
         )}
 
         {showMergeMethodPicker && (
-          <div className="form-control mb-4">
-            <label
-              className="label py-0.5 min-h-0"
-              htmlFor="bulk-action-merge-method"
-            >
-              <span className="label-text text-xs font-medium text-base-content/70">
-                {t('bulkActionModal.mergeMethod')}
-              </span>
-            </label>
-            <select
+          <div className="mb-4">
+            <FilterDropdown
               id="bulk-action-merge-method"
-              className="select select-bordered select-sm w-full"
+              label={t('bulkActionModal.mergeMethod')}
               value={mergeMethod}
-              onChange={(e) => setMergeMethod(parseMergeMethod(e.target.value))}
-            >
-              {MERGE_METHODS.map((method) => (
-                <option key={method} value={method}>
-                  {t(`mergeMethods.${method}`)}
-                </option>
-              ))}
-            </select>
+              onChange={(value) => setMergeMethod(parseMergeMethod(value))}
+              options={MERGE_METHODS.map((method) => ({
+                value: method,
+                label: t(`mergeMethods.${method}`),
+              }))}
+            />
             <p className="mt-1 text-xs text-base-content/60">
               {t(`mergeMethods.${mergeMethod}Description`)}
             </p>
