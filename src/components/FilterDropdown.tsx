@@ -7,6 +7,8 @@ interface FilterDropdownProps {
   options: FilterDropdownOption[];
   /** When set, prepends an empty-value option with this label. */
   allLabel?: string;
+  /** Associates the label with the select (htmlFor / id). */
+  id?: string;
 }
 
 function optionValue(option: FilterDropdownOption): string {
@@ -23,15 +25,17 @@ export function FilterDropdown({
   onChange,
   options,
   allLabel,
+  id,
 }: FilterDropdownProps) {
   return (
     <div className="form-control">
-      <label className="label py-0.5 min-h-0">
+      <label className="label py-0.5 min-h-0" htmlFor={id}>
         <span className="label-text text-xs font-medium text-base-content/70">
           {label}
         </span>
       </label>
       <select
+        id={id}
         className="select select-bordered select-sm w-full"
         value={value}
         onChange={(e) => onChange(e.target.value)}
