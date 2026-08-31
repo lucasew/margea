@@ -5,7 +5,7 @@ import { Logo } from './Logo';
 import { Footer } from './Footer';
 import { ThemeToggle } from './ThemeToggle';
 import { useAuth } from '../hooks/useAuth';
-import { invalidateAuthSessionCache } from '../services/auth';
+import { AuthService } from '../services/auth';
 import { reportError } from '../utils/errorReporting';
 import { API_ROUTES, APP_ROUTES } from '../constants';
 
@@ -20,17 +20,7 @@ export function LoginPage() {
 
   const clearSessionIfNeeded = async () => {
     if (!reauthMode) return;
-    try {
-      await fetch(API_ROUTES.AUTH_LOGOUT, {
-        method: 'POST',
-        credentials: 'include',
-      });
-    } catch (error) {
-      reportError(error, { context: 'logging out before re-auth' });
-    } finally {
-      // Cookie may be gone while JS still holds the old token — drop caches.
-      invalidateAuthSessionCache();
-    }
+    await AuthService.clearSession();
   };
 
   const handleGitHubLogin = async (mode: 'read' | 'write') => {
