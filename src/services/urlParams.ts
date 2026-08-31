@@ -1,5 +1,6 @@
 import { GROUPING_STRATEGIES, PR_STATES, type PRState } from '../constants';
 import type { GroupingStrategy } from '../types';
+import { parseAllowed } from '../utils/parseAllowed';
 
 const DEFAULT_PR_STATE: PRState = 'ALL';
 const DEFAULT_GROUPING_STRATEGY: GroupingStrategy = 'renovate';
@@ -13,8 +14,7 @@ function isPRState(value: string): value is PRState {
  * Invalid or missing values fall back to `'ALL'`.
  */
 export function parsePRState(value: string | null | undefined): PRState {
-  if (value && isPRState(value)) return value;
-  return DEFAULT_PR_STATE;
+  return parseAllowed(value, isPRState, DEFAULT_PR_STATE);
 }
 
 function isGroupingStrategy(value: string): value is GroupingStrategy {
@@ -28,6 +28,5 @@ function isGroupingStrategy(value: string): value is GroupingStrategy {
 export function parseGroupingStrategy(
   value: string | null | undefined,
 ): GroupingStrategy {
-  if (value && isGroupingStrategy(value)) return value;
-  return DEFAULT_GROUPING_STRATEGY;
+  return parseAllowed(value, isGroupingStrategy, DEFAULT_GROUPING_STRATEGY);
 }
