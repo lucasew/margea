@@ -1,5 +1,6 @@
 import { DEFAULT_SORT_STRATEGY, SORT_STRATEGIES } from '../constants';
 import type { PRGroup, PullRequest, SortStrategy } from '../types';
+import { parseAllowed } from '../utils/parseAllowed';
 import { countCiStatuses } from './ciStatus';
 
 function isSortStrategy(value: string): value is SortStrategy {
@@ -9,8 +10,7 @@ function isSortStrategy(value: string): value is SortStrategy {
 export function parseSortStrategy(
   value: string | null | undefined,
 ): SortStrategy {
-  if (value && isSortStrategy(value)) return value;
-  return DEFAULT_SORT_STRATEGY;
+  return parseAllowed(value, isSortStrategy, DEFAULT_SORT_STRATEGY);
 }
 
 function maxTimestamp(

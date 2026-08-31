@@ -4,6 +4,7 @@ import {
   MERGE_METHOD_STORAGE_KEY,
 } from '../constants';
 import type { MergeMethod } from '../types';
+import { parseAllowed } from '../utils/parseAllowed';
 
 export function isMergeMethod(value: string): value is MergeMethod {
   return (MERGE_METHODS as readonly string[]).includes(value);
@@ -12,8 +13,7 @@ export function isMergeMethod(value: string): value is MergeMethod {
 export function parseMergeMethod(
   value: string | null | undefined,
 ): MergeMethod {
-  if (value && isMergeMethod(value)) return value;
-  return DEFAULT_MERGE_METHOD;
+  return parseAllowed(value, isMergeMethod, DEFAULT_MERGE_METHOD);
 }
 
 export function readStoredMergeMethod(): MergeMethod {
