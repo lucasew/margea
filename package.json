@@ -25,7 +25,7 @@
     "relay-runtime": "^20.0.0"
   },
   "devDependencies": {
-    "@astrojs/react": "^5.0.7",
+    "@astrojs/react": "^6.0.0",
     "@astrojs/vercel": "^10.0.8",
     "@eslint/js": "^9.39.2",
     "@playwright/test": "^1.56.1",
