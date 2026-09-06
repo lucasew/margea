@@ -1,7 +1,10 @@
 import { SignJWT } from 'jose';
 import { reportError } from '../../../utils/errorReporting';
 import { isSecureRequest } from '../../../utils/requestUtils';
-import { buildOAuthStateCookie } from './cookies';
+import {
+  buildOAuthStateCookie,
+  OAUTH_STATE_MAX_AGE_SECONDS,
+} from './cookies';
 
 export async function GET({ request }: { request: Request }) {
   const clientId = import.meta.env.GITHUB_CLIENT_ID;
@@ -52,11 +55,12 @@ export async function GET({ request }: { request: Request }) {
   url.searchParams.set('prompt', 'consent');
   // Put a signed JWT directly in `state`, so callback validation does not
   // depend on browser cookies surviving the provider redirect.
+  // TTL must match oauth_state cookie max-age (OAUTH_STATE_MAX_AGE_SECONDS).
   const secret = new TextEncoder().encode(sessionSecret);
   const stateToken = await new SignJWT({ nonce, mode })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
-    .setExpirationTime('5m')
+    .setExpirationTime(`${OAUTH_STATE_MAX_AGE_SECONDS}s`)
     .sign(secret);
   url.searchParams.set('state', stateToken);
 
