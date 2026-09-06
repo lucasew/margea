@@ -11,42 +11,7 @@ import {
 import { MERGE_METHOD_STORAGE_KEY } from '../src/constants';
 import type { PullRequest } from '../src/types';
 import { makePR } from './utils/makePR';
-
-/** Minimal sessionStorage for unit-testing merge method helpers outside the browser. */
-function installMemorySessionStorage(): () => void {
-  const store = new Map<string, string>();
-  const previous = globalThis.sessionStorage;
-  const memoryStorage: Storage = {
-    get length() {
-      return store.size;
-    },
-    clear() {
-      store.clear();
-    },
-    getItem(key: string) {
-      return store.has(key) ? store.get(key)! : null;
-    },
-    key(index: number) {
-      return [...store.keys()][index] ?? null;
-    },
-    removeItem(key: string) {
-      store.delete(key);
-    },
-    setItem(key: string, value: string) {
-      store.set(key, value);
-    },
-  };
-  Object.defineProperty(globalThis, 'sessionStorage', {
-    configurable: true,
-    value: memoryStorage,
-  });
-  return () => {
-    Object.defineProperty(globalThis, 'sessionStorage', {
-      configurable: true,
-      value: previous,
-    });
-  };
-}
+import { installMemorySessionStorage } from './utils/memorySessionStorage';
 
 /**
  * Mirrors BulkActionProvider confirm handoff:
