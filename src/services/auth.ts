@@ -298,17 +298,27 @@ export const AuthService = {
     return mode === 'write';
   },
 
-  async logout(): Promise<void> {
-    invalidateAuthSessionCache();
+  /**
+   * Drop session cookie + in-memory caches without navigating.
+   * Used by logout and re-auth entry points that share the same cleanup.
+   */
+  async clearSession(): Promise<void> {
     try {
       await fetch(API_ROUTES.AUTH_LOGOUT, {
         method: 'POST',
         credentials: 'include',
       });
-      window.location.href = APP_ROUTES.HOME;
     } catch (error) {
-      reportError(error, { context: 'logging out' });
+      reportError(error, { context: 'clearing session' });
+    } finally {
+      // Cookie may be gone while JS still holds the old token — drop caches.
+      invalidateAuthSessionCache();
     }
+  },
+
+  async logout(): Promise<void> {
+    await this.clearSession();
+    window.location.href = APP_ROUTES.HOME;
   },
 
   async isAuthenticated(): Promise<boolean> {
