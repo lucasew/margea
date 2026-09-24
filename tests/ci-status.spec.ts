@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import {
   countCiStatuses,
   formatCiStatusTooltip,
+  summarizeCiStatus,
   type CiStatusCounts,
 } from '../src/services/ciStatus';
 import { makePR } from './utils/makePR';
@@ -169,5 +170,28 @@ test.describe('formatCiStatusTooltip', () => {
         },
       ),
     ).toBe('Checks: 1 ok, 1 broken');
+  });
+});
+
+test.describe('summarizeCiStatus', () => {
+  test('uses the shared ci.* label keys', () => {
+    const prs = [
+      makePR('s1', { ciStatus: 'SUCCESS' }),
+      makePR('f1', { ciStatus: 'FAILURE' }),
+    ];
+    const translate = (key: string) =>
+      (
+        ({
+          'ci.status': labels.status,
+          'ci.success': labels.success,
+          'ci.failure': labels.failure,
+          'ci.pending': labels.pending,
+        }) as Record<string, string>
+      )[key] ?? key;
+
+    const summary = summarizeCiStatus(prs, translate);
+    expect(summary.counts).toEqual(countCiStatuses(prs));
+    expect(summary.tooltip).toBe(formatCiStatusTooltip(summary.counts, labels));
+    expect(summary.tooltip).toBe('CI: 1 passed, 1 failed');
   });
 });

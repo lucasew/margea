@@ -31,3 +31,20 @@ export function formatCiStatusTooltip(
   if (counts.pending > 0) parts.push(`${counts.pending} ${labels.pending}`);
   return `${labels.status}: ${parts.join(', ')}`;
 }
+
+/** Counts plus tooltip using the shared `ci.*` label keys. */
+export function summarizeCiStatus(
+  prs: PullRequest[],
+  t: (key: string) => string,
+): { counts: CiStatusCounts; tooltip: string } {
+  const counts = countCiStatuses(prs);
+  return {
+    counts,
+    tooltip: formatCiStatusTooltip(counts, {
+      status: t('ci.status'),
+      success: t('ci.success'),
+      failure: t('ci.failure'),
+      pending: t('ci.pending'),
+    }),
+  };
+}

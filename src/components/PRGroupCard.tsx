@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { KeyboardEvent } from 'react';
 import { PRGroup } from '../types';
 import { CiStatusChart } from './CiStatusChart';
-import { countCiStatuses, formatCiStatusTooltip } from '../services/ciStatus';
+import { summarizeCiStatus } from '../services/ciStatus';
 import { calculateStats } from '../services/prStats';
 
 interface PRGroupCardProps {
@@ -21,13 +21,10 @@ export function PRGroupCard({ group, onExpand }: PRGroupCardProps) {
   };
   const repoCount = stats.repositories;
   const author = group.prs[0]?.author;
-  const ciStatusCounts = countCiStatuses(group.prs);
-  const ciTooltip = formatCiStatusTooltip(ciStatusCounts, {
-    status: t('ci.status'),
-    success: t('ci.success'),
-    failure: t('ci.failure'),
-    pending: t('ci.pending'),
-  });
+  const { counts: ciStatusCounts, tooltip: ciTooltip } = summarizeCiStatus(
+    group.prs,
+    t,
+  );
 
   const borderTone =
     ciStatusCounts.failure > 0
