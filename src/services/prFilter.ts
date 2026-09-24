@@ -2,6 +2,23 @@ import { PullRequest } from '../types';
 import { PRState } from '../constants';
 
 /**
+ * Keep PRs whose picked text contains `query` (case-insensitive).
+ * An empty query is inactive. A missing value does not match.
+ */
+function filterByIncludes(
+  prs: PullRequest[],
+  query: string | undefined,
+  pick: (pr: PullRequest) => string | null | undefined,
+): PullRequest[] {
+  if (!query) return prs;
+  const needle = query.toLowerCase();
+  return prs.filter((pr) => {
+    const value = pick(pr);
+    return value != null && value.toLowerCase().includes(needle);
+  });
+}
+
+/**
  * Filters a list of Pull Requests based on a set of criteria.
  *
  * Filtering is additive (AND logic): a PR must match ALL provided non-empty filters to be included.
@@ -26,32 +43,28 @@ export function filterPullRequests(
 ): PullRequest[] {
   let filtered = [...prs];
 
-  if (filters.repository) {
-    const repository = filters.repository;
-    filtered = filtered.filter((pr) =>
-      pr.repository.nameWithOwner
-        .toLowerCase()
-        .includes(repository.toLowerCase()),
-    );
-  }
+  filtered = filterByIncludes(
+    filtered,
+    filters.repository,
+    (pr) => pr.repository.nameWithOwner,
+  );
 
   if (filters.state && filters.state !== 'ALL') {
-    filtered = filtered.filter((pr) => pr.state === filters.state);
+    const state = filters.state;
+    filtered = filtered.filter((pr) => pr.state === state);
   }
 
-  if (filters.author) {
-    const author = filters.author;
-    filtered = filtered.filter((pr) =>
-      pr.author?.login.toLowerCase().includes(author.toLowerCase()),
-    );
-  }
+  filtered = filterByIncludes(
+    filtered,
+    filters.author,
+    (pr) => pr.author?.login,
+  );
 
-  if (filters.owner) {
-    const owner = filters.owner;
-    filtered = filtered.filter((pr) =>
-      pr.repository.owner.login.toLowerCase().includes(owner.toLowerCase()),
-    );
-  }
+  filtered = filterByIncludes(
+    filtered,
+    filters.owner,
+    (pr) => pr.repository.owner.login,
+  );
 
   return filtered;
 }
