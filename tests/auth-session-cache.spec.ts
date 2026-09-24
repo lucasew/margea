@@ -9,6 +9,13 @@ function jsonResponse(body: unknown, status = 200): Response {
   });
 }
 
+function isSessionTokenRequest(input: RequestInfo | URL): boolean {
+  const url = String(input);
+  return (
+    url.includes(API_ROUTES.AUTH_TOKEN) || url.endsWith(API_ROUTES.AUTH_TOKEN)
+  );
+}
+
 test.describe('AuthService session token cache', () => {
   let originalFetch: typeof fetch;
   let tokenCalls: number;
@@ -17,21 +24,25 @@ test.describe('AuthService session token cache', () => {
     init?: RequestInit,
   ) => Promise<Response>;
 
+  function sessionTokenFetch(
+    respond: () => Response | Promise<Response>,
+  ): typeof fetchImpl {
+    return async (input) => {
+      if (!isSessionTokenRequest(input)) {
+        throw new Error(`unexpected fetch: ${String(input)}`);
+      }
+      tokenCalls += 1;
+      return respond();
+    };
+  }
+
   test.beforeEach(() => {
     invalidateAuthSessionCache();
     tokenCalls = 0;
     originalFetch = globalThis.fetch;
-    fetchImpl = async (input) => {
-      const url = String(input);
-      if (
-        url.includes(API_ROUTES.AUTH_TOKEN) ||
-        url.endsWith(API_ROUTES.AUTH_TOKEN)
-      ) {
-        tokenCalls += 1;
-        return jsonResponse({ token: 'gh_tok', mode: 'write' });
-      }
-      throw new Error(`unexpected fetch: ${url}`);
-    };
+    fetchImpl = sessionTokenFetch(() =>
+      jsonResponse({ token: 'gh_tok', mode: 'write' }),
+    );
     globalThis.fetch = ((input: RequestInfo | URL, init?: RequestInit) =>
       fetchImpl(input, init)) as typeof fetch;
   });
@@ -59,18 +70,10 @@ test.describe('AuthService session token cache', () => {
       release = resolve;
     });
 
-    fetchImpl = async (input) => {
-      const url = String(input);
-      if (
-        url.includes(API_ROUTES.AUTH_TOKEN) ||
-        url.endsWith(API_ROUTES.AUTH_TOKEN)
-      ) {
-        tokenCalls += 1;
-        await gate;
-        return jsonResponse({ token: 'shared', mode: 'read' });
-      }
-      throw new Error(`unexpected fetch: ${url}`);
-    };
+    fetchImpl = sessionTokenFetch(async () => {
+      await gate;
+      return jsonResponse({ token: 'shared', mode: 'read' });
+    });
 
     const pending = Promise.all([
       AuthService.getToken(),
@@ -96,34 +99,18 @@ test.describe('AuthService session token cache', () => {
 
     invalidateAuthSessionCache();
 
-    fetchImpl = async (input) => {
-      const url = String(input);
-      if (
-        url.includes(API_ROUTES.AUTH_TOKEN) ||
-        url.endsWith(API_ROUTES.AUTH_TOKEN)
-      ) {
-        tokenCalls += 1;
-        return jsonResponse({ token: 'new_tok', mode: 'read' });
-      }
-      throw new Error(`unexpected fetch: ${url}`);
-    };
+    fetchImpl = sessionTokenFetch(() =>
+      jsonResponse({ token: 'new_tok', mode: 'read' }),
+    );
 
     expect(await AuthService.getToken()).toBe('new_tok');
     expect(tokenCalls).toBe(2);
   });
 
   test('unauthenticated result is cached (no repeat 401 storms)', async () => {
-    fetchImpl = async (input) => {
-      const url = String(input);
-      if (
-        url.includes(API_ROUTES.AUTH_TOKEN) ||
-        url.endsWith(API_ROUTES.AUTH_TOKEN)
-      ) {
-        tokenCalls += 1;
-        return jsonResponse({ error: 'Not authenticated' }, 401);
-      }
-      throw new Error(`unexpected fetch: ${url}`);
-    };
+    fetchImpl = sessionTokenFetch(() =>
+      jsonResponse({ error: 'Not authenticated' }, 401),
+    );
 
     expect(await AuthService.getToken()).toBeNull();
     expect(await AuthService.getToken()).toBeNull();
@@ -133,18 +120,10 @@ test.describe('AuthService session token cache', () => {
 
   test('network error does not cache null', async () => {
     let fail = true;
-    fetchImpl = async (input) => {
-      const url = String(input);
-      if (
-        url.includes(API_ROUTES.AUTH_TOKEN) ||
-        url.endsWith(API_ROUTES.AUTH_TOKEN)
-      ) {
-        tokenCalls += 1;
-        if (fail) throw new TypeError('Failed to fetch');
-        return jsonResponse({ token: 'recovered', mode: 'read' });
-      }
-      throw new Error(`unexpected fetch: ${url}`);
-    };
+    fetchImpl = sessionTokenFetch(() => {
+      if (fail) throw new TypeError('Failed to fetch');
+      return jsonResponse({ token: 'recovered', mode: 'read' });
+    });
 
     expect(await AuthService.getToken()).toBeNull();
     expect(tokenCalls).toBe(1);
