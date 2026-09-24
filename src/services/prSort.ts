@@ -13,28 +13,33 @@ export function parseSortStrategy(
   return parseAllowed(value, isSortStrategy, DEFAULT_SORT_STRATEGY);
 }
 
+function extremeTimestamp(
+  prs: PullRequest[],
+  field: 'updatedAt' | 'createdAt',
+  pick: 'min' | 'max',
+): number {
+  let best = pick === 'max' ? 0 : Number.POSITIVE_INFINITY;
+  for (const pr of prs) {
+    const time = Date.parse(pr[field]);
+    if (Number.isNaN(time)) continue;
+    if (pick === 'max' ? time > best : time < best) best = time;
+  }
+  if (pick === 'min' && best === Number.POSITIVE_INFINITY) return 0;
+  return best;
+}
+
 function maxTimestamp(
   prs: PullRequest[],
   field: 'updatedAt' | 'createdAt',
 ): number {
-  let max = 0;
-  for (const pr of prs) {
-    const time = Date.parse(pr[field]);
-    if (!Number.isNaN(time) && time > max) max = time;
-  }
-  return max;
+  return extremeTimestamp(prs, field, 'max');
 }
 
 function minTimestamp(
   prs: PullRequest[],
   field: 'updatedAt' | 'createdAt',
 ): number {
-  let min = Number.POSITIVE_INFINITY;
-  for (const pr of prs) {
-    const time = Date.parse(pr[field]);
-    if (!Number.isNaN(time) && time < min) min = time;
-  }
-  return min === Number.POSITIVE_INFINITY ? 0 : min;
+  return extremeTimestamp(prs, field, 'min');
 }
 
 function countRepos(prs: PullRequest[]): number {
