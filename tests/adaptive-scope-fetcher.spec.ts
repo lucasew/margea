@@ -10,9 +10,36 @@ import { createAbortError, isAbortError } from '../src/utils/abort';
 import { makePR } from './utils/makePR';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+const DEFAULT_END = '2026-01-08T00:00:00Z';
+const DEFAULT_START = '2026-01-07T00:00:00Z';
+
+function prAt(id: string, at = '2026-01-07T12:00:00Z'): PullRequest {
+  return makePR(id, { createdAt: at, updatedAt: at });
+}
 
 function page(prs: PullRequest[], issueCount = prs.length): PageResult {
   return { prs, issueCount, hasNextPage: false, endCursor: null };
+}
+
+function openStream(
+  fetchPage: PageFetcher,
+  options?: {
+    scope?: string;
+    end?: string;
+    start?: string;
+    intervalMs?: number;
+  },
+) {
+  const ac = new AbortController();
+  const stream = createScopeStream(
+    options?.scope ?? 'author:me',
+    fetchPage,
+    new Date(options?.end ?? DEFAULT_END),
+    new Date(options?.start ?? DEFAULT_START),
+    options?.intervalMs ?? DAY_MS,
+    ac.signal,
+  );
+  return stream;
 }
 
 async function drainUntilIdle(
@@ -38,25 +65,10 @@ test.describe('createScopeStream', () => {
       queries.push(query);
       signals.push(signal);
       call += 1;
-      return page([
-        makePR(`pr-${call}`, {
-          createdAt: '2026-01-07T12:00:00Z',
-          updatedAt: '2026-01-07T12:00:00Z',
-        }),
-      ]);
+      return page([prAt(`pr-${call}`)]);
     };
 
-    const end = new Date('2026-01-08T00:00:00Z');
-    const start = new Date('2026-01-07T00:00:00Z');
-    const ac = new AbortController();
-    const stream = createScopeStream(
-      'author:me',
-      fetchPage,
-      end,
-      start,
-      DAY_MS,
-      ac.signal,
-    );
+    const stream = openStream(fetchPage);
 
     const first = await drainUntilIdle(stream.generator);
     expect(first.idle).toBe(true);
@@ -88,17 +100,7 @@ test.describe('createScopeStream', () => {
       return page([]);
     };
 
-    const end = new Date('2026-01-08T00:00:00Z');
-    const start = new Date('2026-01-07T00:00:00Z');
-    const ac = new AbortController();
-    const stream = createScopeStream(
-      'author:me',
-      fetchPage,
-      end,
-      start,
-      DAY_MS,
-      ac.signal,
-    );
+    const stream = openStream(fetchPage);
 
     const pull = drainUntilIdle(stream.generator);
     await new Promise((r) => setTimeout(r, 10));
@@ -109,25 +111,9 @@ test.describe('createScopeStream', () => {
   });
 
   test('abort while idle completes the generator on next pull', async () => {
-    const fetchPage: PageFetcher = async () =>
-      page([
-        makePR('pr-1', {
-          createdAt: '2026-01-07T12:00:00Z',
-          updatedAt: '2026-01-07T12:00:00Z',
-        }),
-      ]);
+    const fetchPage: PageFetcher = async () => page([prAt('pr-1')]);
 
-    const end = new Date('2026-01-08T00:00:00Z');
-    const start = new Date('2026-01-07T00:00:00Z');
-    const ac = new AbortController();
-    const stream = createScopeStream(
-      'author:me',
-      fetchPage,
-      end,
-      start,
-      DAY_MS,
-      ac.signal,
-    );
+    const stream = openStream(fetchPage);
 
     expect((await drainUntilIdle(stream.generator)).idle).toBe(true);
     stream.abort();
@@ -138,25 +124,10 @@ test.describe('createScopeStream', () => {
     let calls = 0;
     const fetchPage: PageFetcher = async () => {
       calls += 1;
-      return page([
-        makePR(`pr-${calls}`, {
-          createdAt: '2026-01-07T12:00:00Z',
-          updatedAt: '2026-01-07T12:00:00Z',
-        }),
-      ]);
+      return page([prAt(`pr-${calls}`)]);
     };
 
-    const end = new Date('2026-01-08T00:00:00Z');
-    const start = new Date('2026-01-07T00:00:00Z');
-    const ac = new AbortController();
-    const stream = createScopeStream(
-      'author:me',
-      fetchPage,
-      end,
-      start,
-      DAY_MS,
-      ac.signal,
-    );
+    const stream = openStream(fetchPage);
 
     await drainUntilIdle(stream.generator);
     const again = await drainUntilIdle(stream.generator);
@@ -172,25 +143,15 @@ test.describe('createScopeStream', () => {
       if (query.includes('2026-01-01..2026-01-31')) {
         return page([], 1001);
       }
-      return page([
-        makePR(`pr-${queries.length}`, {
-          createdAt: '2026-01-15T00:00:00Z',
-          updatedAt: '2026-01-15T00:00:00Z',
-        }),
-      ]);
+      return page([prAt(`pr-${queries.length}`, '2026-01-15T00:00:00Z')]);
     };
 
-    const end = new Date('2026-01-31T00:00:00Z');
-    const start = new Date('2026-01-01T00:00:00Z');
-    const ac = new AbortController();
-    const stream = createScopeStream(
-      'org:acme',
-      fetchPage,
-      end,
-      start,
-      30 * DAY_MS,
-      ac.signal,
-    );
+    const stream = openStream(fetchPage, {
+      scope: 'org:acme',
+      end: '2026-01-31T00:00:00Z',
+      start: '2026-01-01T00:00:00Z',
+      intervalMs: 30 * DAY_MS,
+    });
 
     const result = await drainUntilIdle(stream.generator);
     expect(result.idle).toBe(true);
@@ -202,41 +163,21 @@ test.describe('createScopeStream', () => {
     const fetchPage: PageFetcher = async (_query, cursor) => {
       if (!cursor) {
         return {
-          prs: [
-            makePR('p1', {
-              createdAt: '2026-01-07T12:00:00Z',
-              updatedAt: '2026-01-07T12:00:00Z',
-            }),
-          ],
+          prs: [prAt('p1')],
           issueCount: 2,
           hasNextPage: true,
           endCursor: 'cursor-1',
         };
       }
       return {
-        prs: [
-          makePR('p2', {
-            createdAt: '2026-01-07T11:00:00Z',
-            updatedAt: '2026-01-07T11:00:00Z',
-          }),
-        ],
+        prs: [prAt('p2', '2026-01-07T11:00:00Z')],
         issueCount: 2,
         hasNextPage: false,
         endCursor: null,
       };
     };
 
-    const end = new Date('2026-01-08T00:00:00Z');
-    const start = new Date('2026-01-07T00:00:00Z');
-    const ac = new AbortController();
-    const stream = createScopeStream(
-      'author:me',
-      fetchPage,
-      end,
-      start,
-      DAY_MS,
-      ac.signal,
-    );
+    const stream = openStream(fetchPage);
 
     const result = await drainUntilIdle(stream.generator);
     expect(result.prs.map((p) => p.id)).toEqual(['p1', 'p2']);
