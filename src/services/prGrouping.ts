@@ -91,27 +91,26 @@ const groupRenovate: GroupingFunction = (prs) => {
   });
 };
 
+/** Group by a label that is both the map key and the display name. */
+function groupByLabel(labelOf: (pr: PullRequest) => string): GroupingFunction {
+  return (prs) =>
+    groupByHelper(prs, (pr) => {
+      const label = labelOf(pr);
+      return { key: label, groupName: label };
+    });
+}
+
 /**
  * Grouping Strategy: Repository
  * Groups by Repository Name (owner/name).
  */
-const groupRepository: GroupingFunction = (prs) => {
-  return groupByHelper(prs, (pr) => {
-    const name = pr.repository.nameWithOwner;
-    return { key: name, groupName: name };
-  });
-};
+const groupRepository = groupByLabel((pr) => pr.repository.nameWithOwner);
 
 /**
  * Grouping Strategy: Author
  * Groups by Author Login.
  */
-const groupAuthor: GroupingFunction = (prs) => {
-  return groupByHelper(prs, (pr) => {
-    const login = pr.author?.login || 'unknown';
-    return { key: login, groupName: login };
-  });
-};
+const groupAuthor = groupByLabel((pr) => pr.author?.login || 'unknown');
 
 /**
  * Grouping Strategy: Agents
