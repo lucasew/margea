@@ -4,6 +4,7 @@ import {
   SORT_STRATEGIES,
 } from '../constants';
 
+export type AccessMode = 'read' | 'write';
 export type GroupingStrategy = keyof typeof GROUPING_STRATEGIES;
 export type SortStrategy = keyof typeof SORT_STRATEGIES;
 export type MergeMethod = (typeof MERGE_METHODS)[number];
@@ -90,10 +91,8 @@ export interface PRContextState {
 }
 
 export interface PRContextType extends PRContextState {
-  setSearchQuery: (query: string) => void;
   setSearchScopes: (scopes: string[]) => void;
   loadNextPage: () => void;
   refresh: () => void;
   optimisticUpdate: (prId: string, changes: Partial<PullRequest>) => void;
-  removePR: (prId: string) => void;
 }

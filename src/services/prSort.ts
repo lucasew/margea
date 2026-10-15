@@ -13,36 +13,22 @@ export function parseSortStrategy(
   return parseAllowed(value, isSortStrategy, DEFAULT_SORT_STRATEGY);
 }
 
-function maxTimestamp(
+function extremeTimestamp(
   prs: PullRequest[],
   field: 'updatedAt' | 'createdAt',
+  mode: 'min' | 'max',
 ): number {
-  let max = 0;
+  let best = mode === 'min' ? Number.POSITIVE_INFINITY : 0;
   for (const pr of prs) {
     const time = Date.parse(pr[field]);
-    if (!Number.isNaN(time) && time > max) max = time;
+    if (Number.isNaN(time)) continue;
+    if (mode === 'min' ? time < best : time > best) best = time;
   }
-  return max;
-}
-
-function minTimestamp(
-  prs: PullRequest[],
-  field: 'updatedAt' | 'createdAt',
-): number {
-  let min = Number.POSITIVE_INFINITY;
-  for (const pr of prs) {
-    const time = Date.parse(pr[field]);
-    if (!Number.isNaN(time) && time < min) min = time;
-  }
-  return min === Number.POSITIVE_INFINITY ? 0 : min;
+  return best === Number.POSITIVE_INFINITY ? 0 : best;
 }
 
 function countRepos(prs: PullRequest[]): number {
-  const repos = new Set<string>();
-  for (const pr of prs) {
-    repos.add(pr.repository.nameWithOwner);
-  }
-  return repos.size;
+  return new Set(prs.map((pr) => pr.repository.nameWithOwner)).size;
 }
 
 function compareByName(a: PRGroup, b: PRGroup): number {
@@ -75,14 +61,14 @@ export function sortGroups(
         break;
       case 'updated':
         primary = compareDesc(
-          maxTimestamp(a.prs, 'updatedAt'),
-          maxTimestamp(b.prs, 'updatedAt'),
+          extremeTimestamp(a.prs, 'updatedAt', 'max'),
+          extremeTimestamp(b.prs, 'updatedAt', 'max'),
         );
         break;
       case 'oldest':
         primary = compareAsc(
-          minTimestamp(a.prs, 'updatedAt'),
-          minTimestamp(b.prs, 'updatedAt'),
+          extremeTimestamp(a.prs, 'updatedAt', 'min'),
+          extremeTimestamp(b.prs, 'updatedAt', 'min'),
         );
         break;
       case 'name':
@@ -98,8 +84,8 @@ export function sortGroups(
         break;
       case 'created':
         primary = compareDesc(
-          maxTimestamp(a.prs, 'createdAt'),
-          maxTimestamp(b.prs, 'createdAt'),
+          extremeTimestamp(a.prs, 'createdAt', 'max'),
+          extremeTimestamp(b.prs, 'createdAt', 'max'),
         );
         break;
       default:

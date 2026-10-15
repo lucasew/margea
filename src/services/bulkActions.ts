@@ -143,78 +143,41 @@ function commitPullRequestMutation(options: {
   });
 }
 
-const performMergeMutation = (
-  prId: string,
-  mergeMethod: MergeMethod = DEFAULT_MERGE_METHOD,
-): Promise<BulkActionResult> =>
-  commitPullRequestMutation({
-    prId,
-    mutation: MergePullRequestMutation,
-    variables: {
-      input: {
-        pullRequestId: prId,
-        mergeMethod,
-      },
-    },
-    toFields: (data) =>
-      toMergeFields(data as MergePullRequestMutation$data | null | undefined),
-    missingPayloadError: MISSING_MERGE_PAYLOAD,
-  });
-
-const performCloseMutation = (prId: string): Promise<BulkActionResult> =>
-  commitPullRequestMutation({
-    prId,
-    mutation: ClosePullRequestMutation,
-    variables: {
-      input: {
-        pullRequestId: prId,
-      },
-    },
-    toFields: (data) =>
-      toCloseFields(data as ClosePullRequestMutation$data | null | undefined),
-    missingPayloadError: MISSING_CLOSE_PAYLOAD,
-  });
-
 export const BulkActionsService = {
-  /**
-   * Merges a Pull Request.
-   *
-   * @param prId - The ID of the Pull Request to merge.
-   * @returns The result of the merge operation.
-   */
   async mergePullRequest(
     prId: string,
     mergeMethod: MergeMethod = DEFAULT_MERGE_METHOD,
   ): Promise<BulkActionResult> {
-    return performMergeMutation(prId, mergeMethod);
+    return commitPullRequestMutation({
+      prId,
+      mutation: MergePullRequestMutation,
+      variables: {
+        input: {
+          pullRequestId: prId,
+          mergeMethod,
+        },
+      },
+      toFields: (data) =>
+        toMergeFields(data as MergePullRequestMutation$data | null | undefined),
+      missingPayloadError: MISSING_MERGE_PAYLOAD,
+    });
   },
 
-  /**
-   * Closes a Pull Request.
-   *
-   * @param prId - The ID of the Pull Request to close.
-   * @returns The result of the close operation.
-   */
   async closePullRequest(prId: string): Promise<BulkActionResult> {
-    return performCloseMutation(prId);
+    return commitPullRequestMutation({
+      prId,
+      mutation: ClosePullRequestMutation,
+      variables: {
+        input: {
+          pullRequestId: prId,
+        },
+      },
+      toFields: (data) =>
+        toCloseFields(data as ClosePullRequestMutation$data | null | undefined),
+      missingPayloadError: MISSING_CLOSE_PAYLOAD,
+    });
   },
 
-  /**
-   * Executes a bulk action (merge or close) on a list of Pull Requests.
-   *
-   * This function implements a robust execution strategy:
-   * 1. **Sequential Execution**: Processes PRs one by one to avoid overwhelming the server.
-   * 2. **Rate Limit Handling**: Detects rate limit errors (429, "too many requests") and automatically retries.
-   * 3. **Exponential Backoff**: When a rate limit is hit, waits for an increasing amount of time (2s, 4s, 8s...) between retries.
-   * 4. **Progress Reporting**: Calls `onProgress` callback with the status of all PRs after every state change.
-   *
-   * @param prs - List of Pull Requests to process.
-   * @param actionType - The action to perform ('merge' or 'close').
-   * @param onProgress - Callback function to report progress updates.
-   * @param onResult - Optional callback invoked after each PR finishes.
-   * @param options - Extra options such as the GitHub merge method and
-   *   optional AbortSignal (interrupts rate-limit backoff and stops the loop).
-   */
   async executeBulkAction(
     prs: PullRequest[],
     actionType: BulkActionType,

@@ -1,6 +1,7 @@
 import { jwtVerify, type JWTPayload } from 'jose';
-import { parse } from 'cookie';
 import { reportError } from '../../../utils/errorReporting';
+import { parseRequestCookies } from './cookies';
+import { getSessionSecretOrResponse } from './utils';
 
 /** Session claims returned to the client after successful JWT verify. */
 export type SessionAuthClaims = {
@@ -27,10 +28,7 @@ export function sessionAuthFromJwtPayload(
 }
 
 export async function GET({ request }: { request: Request }) {
-  // Parse cookies from header
-  const cookieHeader = request.headers.get('cookie') || '';
-  const cookies = parse(cookieHeader);
-  const sessionCookie = cookies.session;
+  const sessionCookie = parseRequestCookies(request).session;
 
   if (!sessionCookie) {
     // Sentry will report error to unhandled console errors when playwright tests run which will fail the test
@@ -41,24 +39,12 @@ export async function GET({ request }: { request: Request }) {
     });
   }
 
-  if (!import.meta.env.SESSION_SECRET) {
-    reportError(new Error('Server misconfigured: missing SESSION_SECRET'), {
-      context: 'github auth token GET',
-    });
-    return new Response(
-      JSON.stringify({
-        error:
-          'Server misconfigured: missing SESSION_SECRET. Copy .env.example → .env.local',
-      }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      },
-    );
-  }
+  const { secret: secretValue, response: errResponse } =
+    getSessionSecretOrResponse('github auth token GET');
+  if (errResponse) return errResponse;
 
   try {
-    const secret = new TextEncoder().encode(import.meta.env.SESSION_SECRET);
+    const secret = new TextEncoder().encode(secretValue);
     const { payload } = await jwtVerify(sessionCookie, secret);
     const claims = sessionAuthFromJwtPayload(payload);
     if (!claims) {
@@ -68,8 +54,6 @@ export async function GET({ request }: { request: Request }) {
     return new Response(
       JSON.stringify({
         token: claims.token,
-        // Login-time label only (which OAuth path / PAT entry); client derives
-        // real write capability from live token scopes (X-OAuth-Scopes), not this.
         mode: claims.mode,
       }),
       {

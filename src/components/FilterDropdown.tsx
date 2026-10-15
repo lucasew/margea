@@ -11,14 +11,6 @@ interface FilterDropdownProps {
   id?: string;
 }
 
-function optionValue(option: FilterDropdownOption): string {
-  return typeof option === 'string' ? option : option.value;
-}
-
-function optionLabel(option: FilterDropdownOption): string {
-  return typeof option === 'string' ? option : option.label;
-}
-
 export function FilterDropdown({
   label,
   value,
@@ -40,14 +32,15 @@ export function FilterDropdown({
         value={value}
         onChange={(e) => onChange(e.target.value)}
       >
-        {allLabel !== undefined ? (
-          <option value="">{allLabel}</option>
-        ) : null}
+        {allLabel !== undefined ? <option value="">{allLabel}</option> : null}
         {options.map((option) => {
-          const valueKey = optionValue(option);
+          const { value: optionValue, label: optionLabel } =
+            typeof option === 'string'
+              ? { value: option, label: option }
+              : option;
           return (
-            <option key={valueKey} value={valueKey}>
-              {optionLabel(option)}
+            <option key={optionValue} value={optionValue}>
+              {optionLabel}
             </option>
           );
         })}

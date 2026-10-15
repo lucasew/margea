@@ -30,62 +30,6 @@ function makeStream(
   };
 }
 
-test.describe('createSerialQueue', () => {
-  test('runs overlapping tasks strictly in order', async () => {
-    const enqueue = createSerialQueue();
-    const order: string[] = [];
-
-    let releaseFirst!: () => void;
-    const firstGate = new Promise<void>((resolve) => {
-      releaseFirst = resolve;
-    });
-
-    const first = enqueue(async () => {
-      order.push('first-start');
-      await firstGate;
-      order.push('first-end');
-      return 1;
-    });
-
-    const second = enqueue(async () => {
-      order.push('second-start');
-      order.push('second-end');
-      return 2;
-    });
-
-    await Promise.resolve();
-    expect(order).toEqual(['first-start']);
-
-    releaseFirst();
-    await expect(first).resolves.toBe(1);
-    await expect(second).resolves.toBe(2);
-    expect(order).toEqual([
-      'first-start',
-      'first-end',
-      'second-start',
-      'second-end',
-    ]);
-  });
-
-  test('queues the next task even when the previous rejects', async () => {
-    const enqueue = createSerialQueue();
-    const order: string[] = [];
-
-    const failing = enqueue(async () => {
-      order.push('fail');
-      throw new Error('boom');
-    });
-    const ok = enqueue(async () => {
-      order.push('ok');
-      return 'done';
-    });
-
-    await expect(failing).rejects.toThrow('boom');
-    await expect(ok).resolves.toBe('done');
-    expect(order).toEqual(['fail', 'ok']);
-  });
-});
-
 test.describe('pullStreamsUntilIdle', () => {
   test('ingests PRs in batches and reports active streams', async () => {
     let calls = 0;

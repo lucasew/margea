@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { KeyboardEvent } from 'react';
 import { PRGroup } from '../types';
 import { CiStatusChart } from './CiStatusChart';
-import { countCiStatuses, formatCiStatusTooltip } from '../services/ciStatus';
+import { summarizeCiStatus } from '../services/ciStatus';
 import { calculateStats } from '../services/prStats';
 
 interface PRGroupCardProps {
@@ -14,20 +14,31 @@ interface PRGroupCardProps {
 export function PRGroupCard({ group, onExpand }: PRGroupCardProps) {
   const { t } = useTranslation();
   const stats = calculateStats(group.prs);
-  const states = {
-    OPEN: stats.open,
-    MERGED: stats.merged,
-    CLOSED: stats.closed,
-  };
-  const repoCount = stats.repositories;
   const author = group.prs[0]?.author;
-  const ciStatusCounts = countCiStatuses(group.prs);
-  const ciTooltip = formatCiStatusTooltip(ciStatusCounts, {
-    status: t('ci.status'),
-    success: t('ci.success'),
-    failure: t('ci.failure'),
-    pending: t('ci.pending'),
-  });
+  const { counts: ciStatusCounts, tooltip: ciTooltip } = summarizeCiStatus(
+    group.prs,
+    t,
+  );
+  const stateSegments = [
+    {
+      key: 'open',
+      count: stats.open,
+      color: 'bg-success',
+      label: t('prGroupCard.open'),
+    },
+    {
+      key: 'merged',
+      count: stats.merged,
+      color: 'bg-info',
+      label: t('prGroupCard.merged'),
+    },
+    {
+      key: 'closed',
+      count: stats.closed,
+      color: 'bg-error',
+      label: t('prGroupCard.closed'),
+    },
+  ];
 
   const borderTone =
     ciStatusCounts.failure > 0
@@ -116,9 +127,9 @@ export function PRGroupCard({ group, onExpand }: PRGroupCardProps) {
         <div className="pr-card-status">
           <div className="flex justify-between text-[11px] text-base-content/55 font-medium">
             <span>{t('prGroupCard.prStatus')}</span>
-            {repoCount > 1 && (
+            {stats.repositories > 1 && (
               <span>
-                {repoCount} {t('prGroupCard.repos')}
+                {stats.repositories} {t('prGroupCard.repos')}
               </span>
             )}
           </div>
@@ -126,56 +137,33 @@ export function PRGroupCard({ group, onExpand }: PRGroupCardProps) {
           <div
             className="flex h-1.5 w-full rounded-full overflow-hidden bg-base-300"
             role="img"
-            aria-label={`${t('prGroupCard.open')}: ${states.OPEN || 0}, ${t('prGroupCard.merged')}: ${states.MERGED || 0}, ${t('prGroupCard.closed')}: ${states.CLOSED || 0}`}
+            aria-label={stateSegments
+              .map((seg) => `${seg.label}: ${seg.count}`)
+              .join(', ')}
           >
-            {states.OPEN ? (
-              <div
-                className="bg-success"
-                style={{ width: `${(states.OPEN / group.count) * 100}%` }}
-              />
-            ) : null}
-            {states.MERGED ? (
-              <div
-                className="bg-info"
-                style={{ width: `${(states.MERGED / group.count) * 100}%` }}
-              />
-            ) : null}
-            {states.CLOSED ? (
-              <div
-                className="bg-error"
-                style={{ width: `${(states.CLOSED / group.count) * 100}%` }}
-              />
-            ) : null}
+            {stateSegments.map(({ key, count, color }) =>
+              count > 0 ? (
+                <div
+                  key={key}
+                  className={color}
+                  style={{ width: `${(count / group.count) * 100}%` }}
+                />
+              ) : null,
+            )}
           </div>
 
           <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-base-content/55">
-            {states.OPEN ? (
-              <span className="inline-flex items-center gap-1">
-                <span
-                  className="w-1.5 h-1.5 rounded-full bg-success"
-                  aria-hidden
-                />
-                {t('prGroupCard.open')} {states.OPEN}
-              </span>
-            ) : null}
-            {states.MERGED ? (
-              <span className="inline-flex items-center gap-1">
-                <span
-                  className="w-1.5 h-1.5 rounded-full bg-info"
-                  aria-hidden
-                />
-                {t('prGroupCard.merged')} {states.MERGED}
-              </span>
-            ) : null}
-            {states.CLOSED ? (
-              <span className="inline-flex items-center gap-1">
-                <span
-                  className="w-1.5 h-1.5 rounded-full bg-error"
-                  aria-hidden
-                />
-                {t('prGroupCard.closed')} {states.CLOSED}
-              </span>
-            ) : null}
+            {stateSegments.map(({ key, count, color, label }) =>
+              count > 0 ? (
+                <span key={key} className="inline-flex items-center gap-1">
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full ${color}`}
+                    aria-hidden
+                  />
+                  {label} {count}
+                </span>
+              ) : null,
+            )}
           </div>
         </div>
       </div>
