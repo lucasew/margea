@@ -1,6 +1,7 @@
 import { createContext } from 'react';
+import type { AccessMode } from '../types';
 
-export type AccessMode = 'read' | 'write';
+export type { AccessMode };
 
 export type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated';
 

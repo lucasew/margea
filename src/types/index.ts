@@ -4,6 +4,7 @@ import {
   SORT_STRATEGIES,
 } from '../constants';
 
+export type AccessMode = 'read' | 'write';
 export type GroupingStrategy = keyof typeof GROUPING_STRATEGIES;
 export type SortStrategy = keyof typeof SORT_STRATEGIES;
 export type MergeMethod = (typeof MERGE_METHODS)[number];
