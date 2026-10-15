@@ -1,14 +1,21 @@
-import { serialize } from 'cookie';
-import { SignJWT } from 'jose';
+import { parse, serialize } from 'cookie';
+import { SignJWT, type JWTPayload } from 'jose';
 
 /** Session cookie / JWT TTL: 7 days. */
 export const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
 export const SESSION_JWT_EXPIRATION = '7d';
 
-/** OAuth state cookie TTL: 5 minutes. */
+/** OAuth state cookie / JWT TTL: 5 minutes. */
 export const OAUTH_STATE_MAX_AGE_SECONDS = 300;
+export const OAUTH_STATE_JWT_EXPIRATION = `${OAUTH_STATE_MAX_AGE_SECONDS}s`;
 
 type SameSite = 'strict' | 'lax';
+
+export function parseRequestCookies(
+  request: Request,
+): Record<string, string | undefined> {
+  return parse(request.headers.get('cookie') || '');
+}
 
 /**
  * Shared Set-Cookie builder for auth cookies.
@@ -68,13 +75,28 @@ export function clearOAuthStateCookie(isHttps: boolean): string {
   });
 }
 
-export async function signSessionJwt(
-  payload: { github_token: string; mode: string },
+function signJwt(
+  payload: JWTPayload,
+  expirationTime: string,
   secret: Uint8Array,
 ): Promise<string> {
   return new SignJWT(payload)
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
-    .setExpirationTime(SESSION_JWT_EXPIRATION)
+    .setExpirationTime(expirationTime)
     .sign(secret);
+}
+
+export function signSessionJwt(
+  payload: { github_token: string; mode: string },
+  secret: Uint8Array,
+): Promise<string> {
+  return signJwt(payload, SESSION_JWT_EXPIRATION, secret);
+}
+
+export function signOAuthStateJwt(
+  payload: { nonce: string; mode: 'read' | 'write' },
+  secret: Uint8Array,
+): Promise<string> {
+  return signJwt(payload, OAUTH_STATE_JWT_EXPIRATION, secret);
 }

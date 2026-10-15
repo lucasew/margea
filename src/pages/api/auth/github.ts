@@ -1,7 +1,6 @@
-import { SignJWT } from 'jose';
 import { reportError } from '../../../utils/errorReporting';
 import { isSecureRequest } from '../../../utils/requestUtils';
-import { buildOAuthStateCookie } from './cookies';
+import { buildOAuthStateCookie, signOAuthStateJwt } from './cookies';
 
 export async function GET({ request }: { request: Request }) {
   const clientId = import.meta.env.GITHUB_CLIENT_ID;
@@ -33,17 +32,14 @@ export async function GET({ request }: { request: Request }) {
   }
   const mode: 'read' | 'write' = modeParam === 'write' ? 'write' : 'read';
 
-  // 🛡️ SENTINEL: Generate a random nonce to embed in signed state.
   const randomBytes = new Uint8Array(32);
   crypto.getRandomValues(randomBytes);
-  const nonce = Array.from(randomBytes)
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('');
+  const nonce = Array.from(randomBytes, (b) =>
+    b.toString(16).padStart(2, '0'),
+  ).join('');
 
   const scopes =
-    mode === 'write'
-      ? 'read:user read:org repo' // Write: full access
-      : 'read:user read:org'; // Read: read-only
+    mode === 'write' ? 'read:user read:org repo' : 'read:user read:org';
 
   const url = new URL('https://github.com/login/oauth/authorize');
   url.searchParams.set('client_id', clientId);
@@ -53,18 +49,12 @@ export async function GET({ request }: { request: Request }) {
   // Put a signed JWT directly in `state`, so callback validation does not
   // depend on browser cookies surviving the provider redirect.
   const secret = new TextEncoder().encode(sessionSecret);
-  const stateToken = await new SignJWT({ nonce, mode })
-    .setProtectedHeader({ alg: 'HS256' })
-    .setIssuedAt()
-    .setExpirationTime('5m')
-    .sign(secret);
+  const stateToken = await signOAuthStateJwt({ nonce, mode }, secret);
   url.searchParams.set('state', stateToken);
 
-  // Keep cookie as an optional second validation channel (double-submit style).
   const isHttps = isSecureRequest(request);
   const cookie = buildOAuthStateCookie(stateToken, isHttps);
 
-  // Redirect to GitHub, including the CSRF state and the new cookie.
   return new Response(null, {
     status: 302,
     headers: {

@@ -1,10 +1,10 @@
 import { jwtVerify } from 'jose';
-import { parse } from 'cookie';
 import { reportError } from '../../../utils/errorReporting';
 import { isSecureRequest } from '../../../utils/requestUtils';
 import {
   buildSessionCookie,
   clearOAuthStateCookie,
+  parseRequestCookies,
   signSessionJwt,
 } from './cookies';
 import { getSessionSecretOrResponse } from './utils';
@@ -12,12 +12,8 @@ import { getSessionSecretOrResponse } from './utils';
 export async function GET({ request }: { request: Request }) {
   const requestUrl = new URL(request.url);
   const callbackUrl = import.meta.env.GITHUB_CALLBACK_URL;
-  const { searchParams } = new URL(request.url);
-  const code = searchParams.get('code');
-  const stateTokenFromParam = searchParams.get('state');
-
-  // Determine if we should set Secure cookies.
-  // Works for direct https and when behind a proxy (Vercel, etc.) that sets x-forwarded-proto.
+  const code = requestUrl.searchParams.get('code');
+  const stateTokenFromParam = requestUrl.searchParams.get('state');
   const isHttps = isSecureRequest(request);
 
   if (!callbackUrl) {
@@ -38,10 +34,7 @@ export async function GET({ request }: { request: Request }) {
     getSessionSecretOrResponse('github auth callback');
   if (errResponse) return errResponse;
 
-  // Optional cookie channel (can be absent in preview host changes).
-  const cookieHeader = request.headers.get('Cookie') || '';
-  const cookies = parse(cookieHeader);
-  const oauthStateCookie = cookies.oauth_state;
+  const oauthStateCookie = parseRequestCookies(request).oauth_state;
 
   if (!code || !stateTokenFromParam) {
     reportError(new Error('Invalid request: missing parameters'), {
