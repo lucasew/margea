@@ -1,16 +1,9 @@
 import { PullRequest, PRGroup, GroupingStrategy } from '../types';
 
-/**
- * Normalize base ref to group main and master together
- */
 function normalizeBaseRef(baseRef: string): string {
   return baseRef === 'master' ? 'main' : baseRef;
 }
 
-/**
- * Deduplicate PRs by permalink (url).
- * Uses a Map to ensure unique URLs, keeping the first occurrence.
- */
 function deduplicatePRs(prs: PullRequest[]): PullRequest[] {
   const uniquePrs = new Map<string, PullRequest>();
   for (const pr of prs) {
@@ -21,10 +14,6 @@ function deduplicatePRs(prs: PullRequest[]): PullRequest[] {
   return Array.from(uniquePrs.values());
 }
 
-/**
- * Normalizes the PR title for grouping.
- * Currently replaces 'Update dependency' with 'chore(deps): update dependency'.
- */
 function normalizeTitle(title: string): string {
   if (title.startsWith('Update dependency')) {
     return title.replace('Update dependency', 'chore(deps): update dependency');
@@ -32,19 +21,8 @@ function normalizeTitle(title: string): string {
   return title;
 }
 
-/**
- * Creates a unique key for grouping PRs.
- * Grouping is based on Title + Author (Creator).
- */
-function createGroupingKey(title: string, author: string): string {
-  return `${title}|${author}`;
-}
-
 type GroupingFunction = (prs: PullRequest[]) => PRGroup[];
 
-/**
- * Generic grouping helper that groups PRs based on a key extraction function.
- */
 function groupByHelper(
   prs: PullRequest[],
   keyExtractor: (pr: PullRequest) => { key: string; groupName: string },
@@ -78,62 +56,36 @@ function groupByHelper(
   return Array.from(groups.values());
 }
 
-/**
- * Grouping Strategy: Renovate (Default)
- * Groups by Title + Author.
- */
-const groupRenovate: GroupingFunction = (prs) => {
-  return groupByHelper(prs, (pr) => {
+function groupByLabel(labelOf: (pr: PullRequest) => string): GroupingFunction {
+  return (prs) =>
+    groupByHelper(prs, (pr) => {
+      const groupName = labelOf(pr);
+      return { key: groupName, groupName };
+    });
+}
+
+const groupRenovate: GroupingFunction = (prs) =>
+  groupByHelper(prs, (pr) => {
     const title = normalizeTitle(pr.title);
     const author = pr.author?.login || 'unknown';
-    const key = createGroupingKey(title, author);
-    return { key, groupName: title };
+    return { key: `${title}|${author}`, groupName: title };
   });
-};
 
-/**
- * Grouping Strategy: Repository
- * Groups by Repository Name (owner/name).
- */
-const groupRepository: GroupingFunction = (prs) => {
-  return groupByHelper(prs, (pr) => {
-    const name = pr.repository.nameWithOwner;
-    return { key: name, groupName: name };
-  });
-};
+const groupRepository = groupByLabel((pr) => pr.repository.nameWithOwner);
 
-/**
- * Grouping Strategy: Author
- * Groups by Author Login.
- */
-const groupAuthor: GroupingFunction = (prs) => {
-  return groupByHelper(prs, (pr) => {
-    const login = pr.author?.login || 'unknown';
-    return { key: login, groupName: login };
-  });
-};
+const groupAuthor = groupByLabel((pr) => pr.author?.login || 'unknown');
 
-/**
- * Grouping Strategy: Agents
- * Groups by the emoji on the start of the title.
- */
-const groupAgents: GroupingFunction = (prs) => {
-  return groupByHelper(prs, (pr) => {
-    let groupName = '(No emoji)';
-    const title = pr.title.trim();
-    if (title.length > 0) {
-      const firstRune = [...title][0];
-      if (
-        firstRune &&
-        /^\p{Emoji}$/u.test(firstRune) &&
-        firstRune.codePointAt(0)! > 255
-      ) {
-        groupName = firstRune;
-      }
-    }
-    return { key: groupName, groupName };
-  });
-};
+const groupAgents = groupByLabel((pr) => {
+  const firstRune = [...pr.title.trim()][0];
+  if (
+    firstRune &&
+    /^\p{Emoji}$/u.test(firstRune) &&
+    firstRune.codePointAt(0)! > 255
+  ) {
+    return firstRune;
+  }
+  return '(No emoji)';
+});
 
 const STRATEGY_HANDLERS: Record<GroupingStrategy, GroupingFunction> = {
   renovate: groupRenovate,
@@ -142,13 +94,6 @@ const STRATEGY_HANDLERS: Record<GroupingStrategy, GroupingFunction> = {
   agents: groupAgents,
 };
 
-/**
- * Groups Pull Requests based on the provided strategy.
- *
- * @param prs - The list of Pull Requests to group.
- * @param strategy - The strategy to use for grouping.
- * @returns An array of `PRGroup` objects in insertion order (unsorted).
- */
 export function groupPullRequests(
   prs: PullRequest[],
   strategy: GroupingStrategy = 'renovate',

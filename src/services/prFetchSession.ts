@@ -1,7 +1,6 @@
 import {
   createScopeStream,
   type ScopeStream,
-  type AdaptiveFetchState,
   type PageFetcher,
   INITIAL_INTERVAL_MS,
 } from './AdaptiveScopeFetcher';
@@ -32,7 +31,6 @@ export interface PRFetchSession {
   /** Extend the date window further into the past and pull. */
   loadMore: () => void;
   getScopes: () => string[];
-  getScopeKey: () => string;
   dispose: () => void;
 }
 
@@ -75,12 +73,14 @@ export function createDefaultStreamFactory(
   };
 }
 
-function minOldestDate(states: Map<string, AdaptiveFetchState>): Date | null {
-  if (states.size === 0) return null;
-  const dates = Array.from(states.values()).map((s) =>
-    s.oldestFetchedDate.getTime(),
-  );
-  return new Date(Math.min(...dates));
+function minOldestDate(streams: Map<string, ScopeStream>): Date | null {
+  if (streams.size === 0) return null;
+  let min = Number.POSITIVE_INFINITY;
+  for (const stream of streams.values()) {
+    const time = stream.getState().oldestFetchedDate.getTime();
+    if (time < min) min = time;
+  }
+  return new Date(min);
 }
 
 /**
@@ -113,14 +113,6 @@ export function createPRFetchSession(
   function emitStatus(patch: Partial<PRFetchSessionStatus>) {
     status = { ...status, ...patch };
     if (!disposed) onStatus(status);
-  }
-
-  function getCurrentStates(): Map<string, AdaptiveFetchState> {
-    const out = new Map<string, AdaptiveFetchState>();
-    streams.forEach((strm, scope) => {
-      out.set(scope, strm.getState());
-    });
-    return out;
   }
 
   function abortAllStreams() {
@@ -166,7 +158,7 @@ export function createPRFetchSession(
 
       if (disposed) return result.count;
 
-      const oldestFetchedDate = minOldestDate(getCurrentStates());
+      const oldestFetchedDate = minOldestDate(streams);
       const error =
         result.errors.length > 0
           ? new Error(
@@ -239,10 +231,7 @@ export function createPRFetchSession(
         return;
       }
 
-      const states = getCurrentStates();
-      if (states.size === 0) return;
-
-      const oldest = minOldestDate(states);
+      const oldest = minOldestDate(streams);
       if (!oldest) return;
 
       const newTargetStart = new Date(
@@ -254,10 +243,6 @@ export function createPRFetchSession(
 
     getScopes() {
       return scopes.slice();
-    },
-
-    getScopeKey() {
-      return scopeKey;
     },
 
     dispose() {
