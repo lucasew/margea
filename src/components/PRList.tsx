@@ -121,9 +121,7 @@ function PRListContent() {
 
   // Extract unique values for dropdowns from ALL PRs (not filtered)
   const uniqueRepos = Array.from(
-    new Set(
-      allPRs.map((pr) => `${pr.repository.owner.login}/${pr.repository.name}`),
-    ),
+    new Set(allPRs.map((pr) => pr.repository.nameWithOwner)),
   ).sort();
   const uniqueOwners = Array.from(
     new Set(allPRs.map((pr) => pr.repository.owner.login)),
@@ -201,50 +199,20 @@ function PRListContent() {
     hasActiveFilters,
   ]);
 
-  // Show group detail if a group is selected via query param
-  if (groupKey) {
-    // Note: We search in current groups. If filters exclude the group, it might be missing.
-    // We could fallback to searching allPRs to rebuild the group if needed,
-    // but usually user navigates from list to detail.
-    const selectedGroup = groups.find((g) => g.key === groupKey);
-    if (selectedGroup) {
-      return (
-        <div className="w-full">
-          <div className="app-container py-5 sm:py-6">
-            <PRListFilters
-              filterRepo={filterRepo}
-              filterOwner={filterOwner}
-              filterAuthor={filterAuthor}
-              filterState={filterState}
-              groupBy={groupBy}
-              sortBy={sortBy}
-              uniqueRepos={uniqueRepos}
-              uniqueOwners={uniqueOwners}
-              uniqueAuthors={uniqueAuthors}
-              onRefresh={refresh}
-              onExportJSON={handleExportJSON}
-              updateFilter={updateFilter}
-              onClearFilters={hasActiveFilters ? handleClearFilters : undefined}
-            />
-            <PRGroupDetail
-              group={selectedGroup}
-              onBack={handleClearGroup}
-              onClearGroup={handleClearGroup}
-            />
-          </div>
-        </div>
-      );
-    }
-  }
+  const selectedGroup = groupKey
+    ? groups.find((g) => g.key === groupKey)
+    : undefined;
 
   return (
     <div className="w-full">
       <div className="app-container py-5 sm:py-6">
-        <PRListStats
-          stats={stats}
-          totalStats={totalStats}
-          hasActiveFilters={hasActiveFilters}
-        />
+        {!selectedGroup && (
+          <PRListStats
+            stats={stats}
+            totalStats={totalStats}
+            hasActiveFilters={hasActiveFilters}
+          />
+        )}
         <PRListFilters
           filterRepo={filterRepo}
           filterOwner={filterOwner}
@@ -261,81 +229,94 @@ function PRListContent() {
           onClearFilters={hasActiveFilters ? handleClearFilters : undefined}
         />
 
-        {error && (
-          <div role="alert" className="alert alert-error mb-4 py-2.5 text-sm">
-            <AlertCircle size={18} />
-            <div>
-              <h3 className="font-semibold text-sm">
-                {t('prList.errorTitle')}
-              </h3>
-              <div className="text-xs opacity-90">{error.message}</div>
-            </div>
-          </div>
-        )}
-
-        <div className="mb-3 flex items-center justify-between gap-3">
-          <h2 className="text-base font-semibold flex items-center gap-2">
-            {t('prList.groups')}
-            <span className="badge badge-sm badge-neutral tabular-nums">
-              {groups.length}
-            </span>
-          </h2>
-          {isLoading && !isFetchingNextPage && (
-            <span className="loading loading-spinner loading-sm text-primary" />
-          )}
-        </div>
-
-        {groups.length === 0 && !isLoading && !error ? (
-          <div role="alert" className="alert alert-info py-2.5 text-sm">
-            <Info size={18} />
-            <span>{t('prList.noPRs')}</span>
-          </div>
+        {selectedGroup ? (
+          <PRGroupDetail
+            group={selectedGroup}
+            onBack={handleClearGroup}
+            onClearGroup={handleClearGroup}
+          />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-            {groups.map((group) => (
-              <PRGroupCard
-                key={group.key}
-                group={group}
-                onExpand={handleSelectGroup}
-              />
-            ))}
-          </div>
-        )}
+          <>
+            {error && (
+              <div
+                role="alert"
+                className="alert alert-error mb-4 py-2.5 text-sm"
+              >
+                <AlertCircle size={18} />
+                <div>
+                  <h3 className="font-semibold text-sm">
+                    {t('prList.errorTitle')}
+                  </h3>
+                  <div className="text-xs opacity-90">{error.message}</div>
+                </div>
+              </div>
+            )}
 
-        <div
-          ref={sentinelRef}
-          className="h-16 w-full flex items-center justify-center mt-6"
-        >
-          {isFetchingNextPage || (isLoading && groups.length > 0) ? (
-            <div className="flex items-center gap-2 text-sm text-base-content/55">
-              <span className="loading loading-spinner loading-sm text-primary" />
-              {t('prList.loadingMore')}
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <h2 className="text-base font-semibold flex items-center gap-2">
+                {t('prList.groups')}
+                <span className="badge badge-sm badge-neutral tabular-nums">
+                  {groups.length}
+                </span>
+              </h2>
+              {isLoading && !isFetchingNextPage && (
+                <span className="loading loading-spinner loading-sm text-primary" />
+              )}
             </div>
-          ) : hasNextPage ? (
-            <button
-              type="button"
-              onClick={() => loadNextPage()}
-              className={`btn btn-sm btn-outline btn-primary gap-1.5 ${
-                !hasActiveFilters
-                  ? 'opacity-0 hover:opacity-100 focus:opacity-100'
-                  : ''
-              }`}
-              aria-label={t('prList.loadMore')}
-              title={t('prList.loadMore')}
+
+            {groups.length === 0 && !isLoading && !error ? (
+              <div role="alert" className="alert alert-info py-2.5 text-sm">
+                <Info size={18} />
+                <span>{t('prList.noPRs')}</span>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+                {groups.map((group) => (
+                  <PRGroupCard
+                    key={group.key}
+                    group={group}
+                    onExpand={handleSelectGroup}
+                  />
+                ))}
+              </div>
+            )}
+
+            <div
+              ref={sentinelRef}
+              className="h-16 w-full flex items-center justify-center mt-6"
             >
-              <Plus size={16} aria-hidden />
-              {t('prList.loadMore')}
-            </button>
-          ) : (
-            groups.length > 0 &&
-            !isLoading &&
-            !error && (
-              <span className="text-xs text-base-content/45">
-                {t('prList.endOfList')}
-              </span>
-            )
-          )}
-        </div>
+              {isFetchingNextPage || (isLoading && groups.length > 0) ? (
+                <div className="flex items-center gap-2 text-sm text-base-content/55">
+                  <span className="loading loading-spinner loading-sm text-primary" />
+                  {t('prList.loadingMore')}
+                </div>
+              ) : hasNextPage ? (
+                <button
+                  type="button"
+                  onClick={() => loadNextPage()}
+                  className={`btn btn-sm btn-outline btn-primary gap-1.5 ${
+                    !hasActiveFilters
+                      ? 'opacity-0 hover:opacity-100 focus:opacity-100'
+                      : ''
+                  }`}
+                  aria-label={t('prList.loadMore')}
+                  title={t('prList.loadMore')}
+                >
+                  <Plus size={16} aria-hidden />
+                  {t('prList.loadMore')}
+                </button>
+              ) : (
+                groups.length > 0 &&
+                !isLoading &&
+                !error && (
+                  <span className="text-xs text-base-content/45">
+                    {t('prList.endOfList')}
+                  </span>
+                )
+              )}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

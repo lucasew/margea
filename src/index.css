@@ -195,10 +195,6 @@
   @apply border-t border-base-300 mt-auto;
 }
 
-.mode-pill {
-  @apply inline-flex items-center gap-1.5 rounded-full border border-base-300 bg-base-200 px-2.5 py-1 text-xs font-medium;
-}
-
 .access-option {
   @apply flex w-full flex-col items-start gap-1 rounded-lg border border-base-300 bg-base-100 p-4 text-left;
   transition:

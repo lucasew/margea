@@ -1,56 +1,15 @@
 {
-  "search": {
-    "title": "Search Pull Requests",
-    "description": "Enter a GitHub repository URL to get started.",
-    "placeholder": "Enter repository URL",
-    "button": "Search",
-    "owner_organization": "Owner/Organization",
-    "all_organizations": "All organizations",
-    "leave_blank_all_orgs": "Leave blank to search across all your organizations",
-    "leave_blank_all_public_orgs": "Leave blank to search across all public organizations",
-    "repository": "Repository",
-    "optional_specify_repository": "Optional: specify a single repository",
-    "search_pull_requests": "Search Pull Requests",
-    "login_required": "Login required to search",
-    "exampleOwner": "ex: facebook",
-    "exampleRepo": "ex: react",
-    "exampleLimit": "100"
-  },
   "header": {
     "login": "Login",
     "logout": "Logout"
   },
   "footer": {
-    "text": "Margea is an experimental project to explore new ways of grouping pull requests.",
-    "description": "A tool for analyzing and grouping GitHub Pull Requests, with a focus on Renovate Bot updates.",
-    "resources": "Resources",
-    "how_to_generate_token": "How to generate a GitHub token",
-    "about_renovate": "About Renovate Bot",
-    "technologies": "Technologies",
     "made_with": "Made with",
-    "using": "using React and GitHub API",
-    "rights_reserved": "All rights reserved."
+    "using": "using React and GitHub API"
   },
   "homepage": {
     "title": "Margea",
-    "subtitle": "Find and group Pull Requests intelligently.",
-    "login_prompt": "Log in for a better experience and to avoid API rate limits.",
-    "intelligent_grouping": "Intelligent Grouping",
-    "intelligent_grouping_description": "PRs are automatically grouped by dependency and update type.",
-    "easy_export": "Easy Export",
-    "easy_export_description": "Export PR groups in JSON format for further analysis."
-  },
-  "repositoryPage": {
-    "allPRs": "All PRs",
-    "pullRequests": "Pull Requests",
-    "loginRequired": "Login required",
-    "loginRequiredMessage": "You need to be authenticated to search for pull requests. The GitHub API does not allow proper searching without authentication.",
-    "login": "Login"
-  },
-  "mainPage": {
-    "search": "Search",
-    "performSearch": "Perform a search",
-    "useFormToSearch": "Use the form on the side to find Pull Requests."
+    "login_prompt": "Log in for a better experience and to avoid API rate limits."
   },
   "prGroupCard": {
     "base": "Base",
@@ -104,13 +63,6 @@
     "readOnlyDescription": "View PRs • No permission to merge/close",
     "readWrite": "Read and Write",
     "readWriteDescription": "View PRs • Merge and close PRs in bulk",
-    "continueWithoutAuth": "Continue without authentication",
-    "noAuthWarning": "Without authentication: limit of 60 requests/hour",
-    "howItWorks": "How it works?",
-    "step1": "• Choose the desired access level",
-    "step2": "• Log in with your GitHub account",
-    "step3": "• Authorize the app according to the chosen level",
-    "step4": "• Search, filter, and manage PRs easily",
     "orUsePAT": "or use PAT",
     "enterPAT": "Enter your access token",
     "patLabel": "Personal Access Token (PAT)",
@@ -129,18 +81,12 @@
     "readOnly": "Read-Only",
     "merge": "Merge {{count}} PR",
     "merge_plural": "Merge {{count}} PRs",
-    "mergeLabel": "Merge",
     "mergeActionsAria": "Merge selected pull requests",
     "mergeWithMethod": "Merge {{count}} PR via {{method}}",
     "mergeWithMethod_plural": "Merge {{count}} PRs via {{method}}",
     "close": "Close {{count}} PR",
     "close_plural": "Close {{count}} PRs",
     "writePermissionRequired": "You need write permission to merge/close PRs",
-    "branch": "Branch",
-    "total": "Total",
-    "labels": "Labels",
-    "createdAt": "Created",
-    "updatedAt": "Updated",
     "mergedAt": "Merged",
     "closedAt": "Closed",
     "openInGitHub": "Open in GitHub"
@@ -167,7 +113,6 @@
     "created": "Newest created"
   },
   "filters": {
-    "title": "Filters & Actions",
     "repository": "Repository",
     "ownerOrg": "Owner/Org",
     "author": "Author",
@@ -224,9 +169,7 @@
   },
   "theme": {
     "toggleToLight": "Switch to light theme",
-    "toggleToDark": "Switch to dark theme",
-    "light": "Light",
-    "dark": "Dark"
+    "toggleToDark": "Switch to dark theme"
   },
   "permissions": {
     "read": "Read",
@@ -235,8 +178,7 @@
     "changeTitle": "Change permissions",
     "switchToRead": "Switch to read-only (keeps token)",
     "switchToWrite": "Switch to read & write (keeps token)",
-    "tokenReadOnly": "This token has no write scopes (e.g. repo). Re-login with write OAuth or a classic PAT that includes repo.",
-    "tokenReadOnlyShort": "no write scopes"
+    "tokenReadOnly": "This token has no write scopes (e.g. repo). Re-login with write OAuth or a classic PAT that includes repo."
   },
   "common": {
     "viewOnGitHub": "View repository on GitHub",

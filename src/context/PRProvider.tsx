@@ -54,11 +54,6 @@ export function PRProvider({ children }: PRProviderProps) {
     });
   }, []);
 
-  const onBatchRef = useRef(onBatch);
-  useEffect(() => {
-    onBatchRef.current = onBatch;
-  }, [onBatch]);
-
   const getSession = useCallback((): PRFetchSession => {
     if (environmentRef.current !== environment) {
       sessionRef.current?.dispose();
@@ -71,13 +66,13 @@ export function PRProvider({ children }: PRProviderProps) {
         createStreams: createDefaultStreamFactory(
           createPageFetcher(environment),
         ),
-        onBatch: (prs) => onBatchRef.current(prs),
+        onBatch,
         onStatus: setStatus,
       });
     }
 
     return sessionRef.current;
-  }, [environment]);
+  }, [environment, onBatch]);
 
   useEffect(() => {
     getSession();
@@ -96,16 +91,6 @@ export function PRProvider({ children }: PRProviderProps) {
       setPrMap(new Map());
     },
     [getSession],
-  );
-
-  const setSearchQuery = useCallback(
-    (query: string) => {
-      const scope = query.replace(/^is:pr\s+/, '');
-      if (scope) {
-        setSearchScopes([scope]);
-      }
-    },
-    [setSearchScopes],
   );
 
   const refresh = useCallback(() => {
@@ -131,27 +116,16 @@ export function PRProvider({ children }: PRProviderProps) {
     [],
   );
 
-  const removePR = useCallback((prId: string) => {
-    setPrMap((prev) => {
-      if (!prev.has(prId)) return prev;
-      const next = new Map(prev);
-      next.delete(prId);
-      return next;
-    });
-  }, []);
-
   const contextValue: PRContextType = {
     prMap,
     hasNextPage: status.hasNextPage,
     isLoading: status.isLoading,
     isFetchingNextPage: status.isFetchingNextPage,
     searchQuery,
-    setSearchQuery,
     setSearchScopes,
     loadNextPage,
     refresh,
     optimisticUpdate,
-    removePR,
     error: status.error,
     oldestFetchedDate: status.oldestFetchedDate,
   };

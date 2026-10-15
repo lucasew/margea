@@ -18,7 +18,7 @@ import { PRGroup, BulkActionType, MergeMethod } from '../types';
 import { useAuth } from '../hooks/useAuth';
 import { useBulkAction } from '../hooks/useBulkAction';
 import { CiStatusChart } from './CiStatusChart';
-import { countCiStatuses, formatCiStatusTooltip } from '../services/ciStatus';
+import { summarizeCiStatus } from '../services/ciStatus';
 
 interface PRGroupDetailProps {
   onClearGroup?: () => void;
@@ -87,13 +87,10 @@ export function PRGroupDetail({
   const allSelected =
     selectedCount === group.prs.length && group.prs.length > 0;
 
-  const ciStatusCounts = countCiStatuses(group.prs);
-  const ciTooltip = formatCiStatusTooltip(ciStatusCounts, {
-    status: t('ci.status'),
-    success: t('ci.success'),
-    failure: t('ci.failure'),
-    pending: t('ci.pending'),
-  });
+  const { counts: ciStatusCounts, tooltip: ciTooltip } = summarizeCiStatus(
+    group.prs,
+    t,
+  );
 
   const someSelected = selectedCount > 0 && !allSelected;
 
