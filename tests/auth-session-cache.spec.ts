@@ -17,21 +17,22 @@ test.describe('AuthService session token cache', () => {
     init?: RequestInit,
   ) => Promise<Response>;
 
+  function mockTokenRoute(handler: () => Response | Promise<Response>) {
+    fetchImpl = async (input) => {
+      const url = String(input);
+      if (url.includes(API_ROUTES.AUTH_TOKEN)) {
+        tokenCalls += 1;
+        return handler();
+      }
+      throw new Error(`unexpected fetch: ${url}`);
+    };
+  }
+
   test.beforeEach(() => {
     invalidateAuthSessionCache();
     tokenCalls = 0;
     originalFetch = globalThis.fetch;
-    fetchImpl = async (input) => {
-      const url = String(input);
-      if (
-        url.includes(API_ROUTES.AUTH_TOKEN) ||
-        url.endsWith(API_ROUTES.AUTH_TOKEN)
-      ) {
-        tokenCalls += 1;
-        return jsonResponse({ token: 'gh_tok', mode: 'write' });
-      }
-      throw new Error(`unexpected fetch: ${url}`);
-    };
+    mockTokenRoute(() => jsonResponse({ token: 'gh_tok', mode: 'write' }));
     globalThis.fetch = ((input: RequestInfo | URL, init?: RequestInit) =>
       fetchImpl(input, init)) as typeof fetch;
   });
@@ -59,18 +60,10 @@ test.describe('AuthService session token cache', () => {
       release = resolve;
     });
 
-    fetchImpl = async (input) => {
-      const url = String(input);
-      if (
-        url.includes(API_ROUTES.AUTH_TOKEN) ||
-        url.endsWith(API_ROUTES.AUTH_TOKEN)
-      ) {
-        tokenCalls += 1;
-        await gate;
-        return jsonResponse({ token: 'shared', mode: 'read' });
-      }
-      throw new Error(`unexpected fetch: ${url}`);
-    };
+    mockTokenRoute(async () => {
+      await gate;
+      return jsonResponse({ token: 'shared', mode: 'read' });
+    });
 
     const pending = Promise.all([
       AuthService.getToken(),
@@ -95,35 +88,14 @@ test.describe('AuthService session token cache', () => {
     expect(tokenCalls).toBe(1);
 
     invalidateAuthSessionCache();
-
-    fetchImpl = async (input) => {
-      const url = String(input);
-      if (
-        url.includes(API_ROUTES.AUTH_TOKEN) ||
-        url.endsWith(API_ROUTES.AUTH_TOKEN)
-      ) {
-        tokenCalls += 1;
-        return jsonResponse({ token: 'new_tok', mode: 'read' });
-      }
-      throw new Error(`unexpected fetch: ${url}`);
-    };
+    mockTokenRoute(() => jsonResponse({ token: 'new_tok', mode: 'read' }));
 
     expect(await AuthService.getToken()).toBe('new_tok');
     expect(tokenCalls).toBe(2);
   });
 
   test('unauthenticated result is cached (no repeat 401 storms)', async () => {
-    fetchImpl = async (input) => {
-      const url = String(input);
-      if (
-        url.includes(API_ROUTES.AUTH_TOKEN) ||
-        url.endsWith(API_ROUTES.AUTH_TOKEN)
-      ) {
-        tokenCalls += 1;
-        return jsonResponse({ error: 'Not authenticated' }, 401);
-      }
-      throw new Error(`unexpected fetch: ${url}`);
-    };
+    mockTokenRoute(() => jsonResponse({ error: 'Not authenticated' }, 401));
 
     expect(await AuthService.getToken()).toBeNull();
     expect(await AuthService.getToken()).toBeNull();
@@ -133,18 +105,10 @@ test.describe('AuthService session token cache', () => {
 
   test('network error does not cache null', async () => {
     let fail = true;
-    fetchImpl = async (input) => {
-      const url = String(input);
-      if (
-        url.includes(API_ROUTES.AUTH_TOKEN) ||
-        url.endsWith(API_ROUTES.AUTH_TOKEN)
-      ) {
-        tokenCalls += 1;
-        if (fail) throw new TypeError('Failed to fetch');
-        return jsonResponse({ token: 'recovered', mode: 'read' });
-      }
-      throw new Error(`unexpected fetch: ${url}`);
-    };
+    mockTokenRoute(() => {
+      if (fail) throw new TypeError('Failed to fetch');
+      return jsonResponse({ token: 'recovered', mode: 'read' });
+    });
 
     expect(await AuthService.getToken()).toBeNull();
     expect(tokenCalls).toBe(1);
