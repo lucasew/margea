@@ -26,7 +26,7 @@
   },
   "devDependencies": {
     "@astrojs/react": "^5.0.7",
-    "@astrojs/vercel": "^10.0.8",
+    "@astrojs/vercel": "^11.0.18",
     "@eslint/js": "^9.39.2",
     "@playwright/test": "^1.56.1",
     "@tailwindcss/postcss": "^4.1.17",
@@ -34,7 +34,7 @@
     "@types/react-dom": "^19.0.0",
     "@types/react-relay": "^18.2.1",
     "@types/relay-runtime": "^19.0.3",
-    "astro": "^6.4.7",
+    "astro": "^7.4.5",
     "babel-plugin-relay": "^20.0.0",
     "daisyui": "^5.0.0",
     "eslint": "^9.39.2",
