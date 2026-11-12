@@ -149,6 +149,17 @@
     "closedAt": "Cerrado",
     "openInGitHub": "Abrir en GitHub"
   },
+  "prBundle": {
+    "defaultTitle": "Pull requests compartidos",
+    "loading": "Cargando pull requests compartidos...",
+    "noRefs": "Este enlace no contiene referencias a pull requests.",
+    "invalidRefs": "Se ignoró {{count}} referencia de pull request no válida:",
+    "invalidRefs_plural": "Se ignoraron {{count}} referencias de pull request no válidas:",
+    "failedRefs": "No se pudo cargar {{count}} pull request:",
+    "failedRefs_plural": "No se pudieron cargar {{count}} pull requests:",
+    "noneLoaded": "No se pudo cargar ninguno de los pull requests de este enlace.",
+    "errorTitle": "No se pudieron cargar los pull requests compartidos"
+  },
   "prStates": {
     "ALL": "Todos",
     "OPEN": "Abiertos",

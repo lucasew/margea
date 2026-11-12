@@ -23,6 +23,7 @@ export const APP_ROUTES = {
   ORGS: '/orgs',
   ORG_DETAIL: '/org/:owner',
   REPO_DETAIL: '/:owner/:repo',
+  BUNDLE: '/b',
 } as const;
 
 export const URL_SEARCH_PARAMS = {
@@ -33,7 +34,13 @@ export const URL_SEARCH_PARAMS = {
   OWNER: 'owner',
   GROUP_BY: 'group_by',
   SORT_BY: 'sort_by',
+  BUNDLE_PRS: 'p',
+  BUNDLE_TITLE: 'title',
+  BUNDLE_DESCRIPTION: 'description',
 } as const;
+
+/** Upper bound for refs accepted in a shared PR bundle URL. */
+export const MAX_BUNDLE_PRS = 100;
 
 export const GROUPING_STRATEGIES = {
   renovate: 'renovate',

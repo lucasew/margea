@@ -145,6 +145,17 @@
     "closedAt": "Closed",
     "openInGitHub": "Open in GitHub"
   },
+  "prBundle": {
+    "defaultTitle": "Shared pull requests",
+    "loading": "Loading shared pull requests...",
+    "noRefs": "This link does not contain any pull request references.",
+    "invalidRefs": "Ignored {{count}} invalid pull request reference:",
+    "invalidRefs_plural": "Ignored {{count}} invalid pull request references:",
+    "failedRefs": "Could not load {{count}} pull request:",
+    "failedRefs_plural": "Could not load {{count}} pull requests:",
+    "noneLoaded": "None of the pull requests in this link could be loaded.",
+    "errorTitle": "Could not load shared pull requests"
+  },
   "prStates": {
     "ALL": "All",
     "OPEN": "Open",

@@ -23,7 +23,8 @@ import { summarizeCiStatus } from '../services/ciStatus';
 interface PRGroupDetailProps {
   onClearGroup?: () => void;
   group: PRGroup;
-  onBack: () => void;
+  onBack?: () => void;
+  description?: string;
 }
 
 const STATE_COLORS = {
@@ -36,6 +37,7 @@ export function PRGroupDetail({
   group,
   onBack,
   onClearGroup,
+  description,
 }: PRGroupDetailProps) {
   const { t, i18n } = useTranslation();
   const { currentMode, hasWritePermission } = useAuth();
@@ -96,27 +98,31 @@ export function PRGroupDetail({
 
   return (
     <div className="w-full">
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <button
-          type="button"
-          onClick={onBack}
-          className="btn btn-ghost btn-sm gap-1.5 px-2"
-        >
-          <ArrowLeft size={16} aria-hidden />
-          {t('prGroupDetail.backToGroups')}
-        </button>
+      {(onBack || onClearGroup) && (
+        <div className="mb-4 flex items-center justify-between gap-3">
+          {onBack && (
+            <button
+              type="button"
+              onClick={onBack}
+              className="btn btn-ghost btn-sm gap-1.5 px-2"
+            >
+              <ArrowLeft size={16} aria-hidden />
+              {t('prGroupDetail.backToGroups')}
+            </button>
+          )}
 
-        {onClearGroup && (
-          <button
-            type="button"
-            onClick={onClearGroup}
-            className="btn btn-ghost btn-sm btn-square text-base-content/70 hover:text-base-content"
-            aria-label={t('filters.clear')}
-          >
-            <X size={16} aria-hidden />
-          </button>
-        )}
-      </div>
+          {onClearGroup && (
+            <button
+              type="button"
+              onClick={onClearGroup}
+              className="btn btn-ghost btn-sm btn-square text-base-content/70 hover:text-base-content"
+              aria-label={t('filters.clear')}
+            >
+              <X size={16} aria-hidden />
+            </button>
+          )}
+        </div>
+      )}
 
       <header className="mb-4">
         <div className="flex items-start gap-2.5 mb-2">
@@ -129,6 +135,12 @@ export function PRGroupDetail({
             {group.package}
           </h1>
         </div>
+
+        {description && (
+          <p className="text-sm text-base-content/70 break-words whitespace-pre-line mb-3">
+            {description}
+          </p>
+        )}
 
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm text-base-content/75 mb-2">
           <span className="inline-flex items-center gap-1.5">
