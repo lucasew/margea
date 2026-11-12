@@ -14,6 +14,7 @@ import { BulkActionToast } from './components/BulkActionToast';
 import { GlobalBulkActionModal } from './components/GlobalBulkActionModal';
 import { MainLayout } from './components/MainLayout';
 import { FetcherProgressHint } from './components/FetcherProgressHint';
+import { PRBundlePage } from './components/PRBundlePage';
 import { useAuth } from './hooks/useAuth';
 
 function AuthenticatedApp() {
@@ -25,6 +26,7 @@ function AuthenticatedApp() {
             <Routes>
               <Route path={APP_ROUTES.HOME} element={<MainLayout />}>
                 <Route index element={<HomePage />} />
+                <Route path={APP_ROUTES.BUNDLE} element={<PRBundlePage />} />
                 <Route
                   path={APP_ROUTES.ORGS}
                   element={<Navigate to={APP_ROUTES.HOME} replace />}

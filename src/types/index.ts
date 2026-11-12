@@ -56,6 +56,13 @@ export interface PRGroup {
   count: number;
 }
 
+/** Portable reference to a GitHub pull request used by shared bundle links. */
+export interface PRRef {
+  owner: string;
+  repo: string;
+  number: number;
+}
+
 export type BulkActionType = 'merge' | 'close';
 
 export type ConfirmBulkActionOptions = {

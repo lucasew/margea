@@ -95,6 +95,7 @@ type Repository {
   name: String!
   nameWithOwner: String!
   owner: RepositoryOwner!
+  pullRequest(number: Int!): PullRequest
   pullRequests(
     first: Int
     after: String
