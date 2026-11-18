@@ -1,6 +1,6 @@
 import './i18n';
 
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { RelayEnvironmentProvider } from 'react-relay';
 import { relayEnvironment } from './relay/environment';
 import { APP_ROUTES } from './constants';
@@ -27,18 +27,6 @@ function AuthenticatedApp() {
               <Route path={APP_ROUTES.HOME} element={<MainLayout />}>
                 <Route index element={<HomePage />} />
                 <Route path={APP_ROUTES.BUNDLE} element={<PRBundlePage />} />
-                <Route
-                  path={APP_ROUTES.ORGS}
-                  element={<Navigate to={APP_ROUTES.HOME} replace />}
-                />
-                <Route
-                  path={APP_ROUTES.ORG_DETAIL}
-                  element={<Navigate to={APP_ROUTES.HOME} replace />}
-                />
-                <Route
-                  path={APP_ROUTES.REPO_DETAIL}
-                  element={<Navigate to={APP_ROUTES.HOME} replace />}
-                />
               </Route>
             </Routes>
             <div className="toast toast-end items-end z-[1000]">
