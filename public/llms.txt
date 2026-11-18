@@ -1,0 +1,90 @@
+# Margea
+
+> Margea is a browser-based GitHub pull request analyzer that groups PRs, mainly Renovate dependency updates, and can open a shared bundle of specific PRs across repositories.
+
+Margea is a React single-page app served by Astro at https://margea.vercel.app. It calls the GitHub GraphQL API directly from the browser and keeps no pull request data on a server. Every human-facing route requires an authenticated GitHub session: OAuth or a personal access token (PAT). Without a session, the app renders the login screen instead of the requested page.
+
+This file is served at https://margea.vercel.app/llms.txt.
+
+## Routes
+
+### `/` — dashboard and group browser
+
+The main view. It loads pull requests for the viewer's organizations and user account, groups them, and shows statistics. Opening a group switches to the group detail view, where pull requests can be selected for bulk merge or close when the session has write access.
+
+Supported query parameters:
+
+- `group`: group key to open. Omit it to show the group list.
+- `group_by`: `renovate` (default), `repository`, `author`, or `agents`.
+- `sort_by`: `count` (default), `updated`, `oldest`, `name`, `ci_failures`, `repos`, or `created`.
+- `repo`: repository name filter. Case-insensitive substring match.
+- `owner`: repository owner or organization filter. Case-insensitive substring match.
+- `author`: pull request author login filter. Case-insensitive substring match.
+- `state`: `ALL` (default), `OPEN`, `CLOSED`, or `MERGED`.
+
+Unknown values fall back to their defaults. Filters are also persisted per path in `sessionStorage` and restored on reload when the URL does not set them.
+
+Example: https://margea.vercel.app/?group_by=repository&sort_by=ci_failures&state=OPEN
+
+### `/b` — shared pull request bundle
+
+A view of an explicit set of pull requests. The link carries the PR references, so it works without any server-side storage. Each referenced PR is fetched by `owner`, `repo`, and `number`; failures are listed without hiding the PRs that did load. Bulk merge and close are available only when the current session has write access.
+
+Supported query parameters:
+
+- `p` (legacy alias: `prs`): comma-separated GitHub pull request references. Required for a bundle; an empty bundle shows an informational message.
+- `title`: optional bundle title. Defaults to `Shared pull requests`.
+- `description` (legacy alias: `desc`): optional plain-text description shown above the PR list.
+
+Reference grammar, from most to least explicit:
+
+- `github:owner/repo/NUMBER` — fully qualified.
+- `owner/repo/NUMBER` — provider defaults to GitHub.
+- `repo/NUMBER` — inherits the owner from the previous valid reference.
+
+Rules:
+
+- The provider, when present, must be `github` (case-insensitive).
+- `NUMBER` must be a positive integer.
+- Duplicates are removed and order is preserved.
+- At most 100 references are accepted. Extra references are reported as invalid.
+- Invalid references are ignored and shown in a warning; valid references still load.
+- `title` and `description` are percent-encoded by the app, using `+` for spaces.
+
+Examples:
+
+- Single PR: https://margea.vercel.app/b?p=github:lucasew/margea/440
+- Several repos from one owner: https://margea.vercel.app/b?p=github:lucasew/margea/440,agena/285,pesquisarr/621
+- With title and description: https://margea.vercel.app/b?p=github:lucasew/margea/440,agena/285&title=Dependency+sweep&description=Merge+when+green
+- Mixed owners: https://margea.vercel.app/b?p=github:acme/one/1,other/two/2,three/3
+
+### Redirected legacy routes
+
+These paths are still matched so old links do not break, but all redirect to `/`:
+
+- `/orgs`
+- `/org/:owner`
+- `/:owner/:repo`
+
+Do not link to them in new material.
+
+## Authentication API
+
+These endpoints are implemented as Astro server routes and set an httpOnly `session` cookie. The session cookie is `SameSite=Strict`, is `Secure` on HTTPS, and lasts 7 days. The short-lived OAuth state cookie is `SameSite=Lax`.
+
+- `GET /api/auth/github?mode=read|write` — starts GitHub OAuth and redirects to GitHub. `read` is the default and requests `read:user read:org`; `write` also requests the `repo` scope for merge and close actions.
+- `GET /api/auth/callback` — OAuth callback. Validates the signed `state` parameter and sets the session cookie.
+- `POST /api/auth/pat` — accepts JSON `{ "token": "<github-pat>" }`, verifies the token with GitHub, then sets the session cookie.
+- `GET /api/auth/token` — returns `{ "token": "<github-token>", "mode": "read" | "write" }` for the current session. Returns `401` when there is no valid session.
+- `POST /api/auth/logout` — clears the session cookie and returns `{ "success": true }`.
+
+Auth success responses are sent with `Cache-Control: no-store`.
+
+## Notes for agents
+
+- To make a bundle link, serialize references in display order. Prefix only the first token with `github:` and shorten later references that share the previous owner to `repo/NUMBER`. Join tokens with commas and do not add spaces.
+- URL-encode `title` and `description`, using `+` for spaces. Keep the URL under common 2,048-character limits; 100 refs is the hard maximum.
+- Do not invent pull request numbers. Verify them against GitHub before generating a link.
+- A bundle link is not an authorization grant. Private repositories still require a session whose GitHub token can read them.
+- `/b` has no JSON API. To fetch data programmatically, use the GitHub GraphQL API directly.
+- This file describes the routes of the deployed app. Source, setup, and architecture documentation are in the repository: https://github.com/lucasew/margea
