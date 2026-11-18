@@ -20,9 +20,6 @@ export const API_ROUTES = {
 
 export const APP_ROUTES = {
   HOME: '/',
-  ORGS: '/orgs',
-  ORG_DETAIL: '/org/:owner',
-  REPO_DETAIL: '/:owner/:repo',
   BUNDLE: '/b',
 } as const;
 

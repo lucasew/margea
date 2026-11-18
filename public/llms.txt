@@ -38,13 +38,13 @@ Supported query parameters:
 
 Reference grammar, from most to least explicit:
 
-- `github:owner/repo/NUMBER` — fully qualified.
-- `owner/repo/NUMBER` — provider defaults to GitHub.
-- `repo/NUMBER` — inherits the owner from the previous valid reference.
+- `github:owner/repo/NUMBER` — fully qualified. Start every bundle with this form; it declares the provider.
+- `owner/repo/NUMBER` — changes the owner; the provider is inherited from the preceding `github:` reference.
+- `repo/NUMBER` — inherits both provider and owner from the previous valid reference.
 
 Rules:
 
-- The provider, when present, must be `github` (case-insensitive).
+- The provider is always `github` (case-insensitive) and is written once at the start of the bundle. Later references inherit it; GitHub is never assumed without a preceding `github:` reference.
 - `NUMBER` must be a positive integer.
 - Duplicates are removed and order is preserved.
 - At most 100 references are accepted. Extra references are reported as invalid.
@@ -57,16 +57,6 @@ Examples:
 - Several repos from one owner: https://margea.vercel.app/b?p=github:lucasew/margea/440,agena/285,pesquisarr/621
 - With title and description: https://margea.vercel.app/b?p=github:lucasew/margea/440,agena/285&title=Dependency+sweep&description=Merge+when+green
 - Mixed owners: https://margea.vercel.app/b?p=github:acme/one/1,other/two/2,three/3
-
-### Redirected legacy routes
-
-These paths are still matched so old links do not break, but all redirect to `/`:
-
-- `/orgs`
-- `/org/:owner`
-- `/:owner/:repo`
-
-Do not link to them in new material.
 
 ## Authentication API
 
